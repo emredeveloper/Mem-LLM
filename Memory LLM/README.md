@@ -3,7 +3,7 @@
 **Memory-enabled AI assistant that remembers conversations using local LLMs**
 
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/downloads/)
-[![PyPI](https://img.shields.io/pypi/v/mem-llm.svg)](https://pypi.org/project/mem-llm/)
+[![PyPI](https://img.shields.io/pypi/v/mem-llm?label=PyPI)](https://pypi.org/project/mem-llm/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 ---
@@ -25,7 +25,7 @@ A lightweight Python library that adds **persistent memory** to local LLM chatbo
 ### 1. Install
 
 ```bash
-pip install mem-llm
+pip install mem-llm==1.0.7
 ```
 
 ### 2. Setup Ollama (one-time)
@@ -65,6 +65,9 @@ agent.chat("What's my name?")  # → "Your name is John"
 | 🔒 **Privacy** | 100% local, no cloud/API needed |
 | ⚡ **Fast** | Lightweight SQLite/JSON storage |
 | 🎯 **Simple** | 3 lines of code to get started |
+| 📚 **Knowledge Base** | Config-free document integration |
+| 🌍 **Turkish Support** | Native Turkish language processing |
+| 🛠️ **Tools** | Extensible tool system for agents |
 
 ---
 
@@ -84,6 +87,16 @@ agent.chat("I love pizza")
 # Later...
 agent.chat("What's my favorite food?")
 # → "Your favorite food is pizza"
+```
+
+### Turkish Language Support
+
+```python
+# Works seamlessly with Turkish
+agent.set_user("ahmet")
+agent.chat("Benim adım Ahmet ve pizza seviyorum")
+agent.chat("Adımı hatırlıyor musun?")
+# → "Tabii ki Ahmet! Sizin pizza sevdiğinizi hatırlıyorum"
 ```
 
 ### Customer Service Bot
@@ -213,6 +226,7 @@ ollama pull <model-name>
 **Dependencies** (auto-installed):
 - `requests >= 2.31.0`
 - `pyyaml >= 6.0.1`
+- `sqlite3` (built-in with Python)
 
 ---
 
