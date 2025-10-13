@@ -16,11 +16,10 @@ except ImportError:
 
 # Pro version imports (opsiyonel)
 try:
-    from .mem_agent_pro import MemAgentPro
     from .memory_db import SQLMemoryManager
     from .prompt_templates import prompt_manager
     from .config_manager import get_config
-    __all_pro__ = ["MemAgentPro", "SQLMemoryManager", "prompt_manager", "get_config"]
+    __all_pro__ = ["SQLMemoryManager", "prompt_manager", "get_config"]
 except ImportError:
     __all_pro__ = []
 

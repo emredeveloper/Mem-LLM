@@ -2,9 +2,12 @@
 MemoryManager Özel Testleri
 """
 
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import unittest
 import tempfile
-import os
 import shutil
 
 from memory_manager import MemoryManager
@@ -27,13 +30,7 @@ class TestMemoryManager(unittest.TestCase):
         self.assertTrue(os.path.exists(self.memory_dir))
 
 
-def run_specific_test(test_type):
-    """Belirli test türünü çalıştır"""
-    if test_type == "all":
-        return True  # Basit test
-    return True
-
-
 if __name__ == "__main__":
     print("MemoryManager testleri çalıştırılıyor...")
     unittest.main()
+

@@ -2,6 +2,10 @@
 LLM Client Özel Testleri
 """
 
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import unittest
 
 from llm_client import OllamaClient
@@ -19,13 +23,7 @@ class TestLLMClient(unittest.TestCase):
         self.assertEqual(self.client.model, "granite4:tiny-h")
 
 
-def run_specific_test(test_type):
-    """Belirli test türünü çalıştır"""
-    if test_type == "all":
-        return True  # Basit test
-    return True
-
-
 if __name__ == "__main__":
     print("LLM Client testleri çalıştırılıyor...")
     unittest.main()
+

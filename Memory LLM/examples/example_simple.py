@@ -6,7 +6,11 @@ Bu örnek, bellek sahibi bir chatbot'un nasıl çalıştığını gösterir.
 Çok basit 3 konuşma yapacağız ve bot'un belleğini test edeceğiz.
 """
 
-from mem_agent import MemAgent  # Artık tek birleşik sistem - Personal/Business modları destekler!
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from mem_agent import MemAgent
 
 
 def main():
@@ -16,9 +20,9 @@ def main():
 
     # 1. Bot'u oluştur
     print("1️⃣ Bot oluşturuluyor...")
-    agent = MemAgent(model="granite4:tiny-h")
+    agent = MemAgent(model="granite4:tiny-h", use_sql=False)
 
-    # Sistem kontrolü (arka planda yapılır)
+    # Sistem kontrolü
     status = agent.check_setup()
     if status['status'] != 'ready':
         print("❌ HATA: Ollama çalışmıyor veya model yüklü değil!")
@@ -55,8 +59,9 @@ def main():
     # 6. BELLEK ÖZETİ
     print("5️⃣ BELLEK ÖZETİ")
     print("-" * 40)
-    summary = agent.memory_manager.get_summary(user_id)
-    print(summary)
+    if hasattr(agent.memory, 'get_summary'):
+        summary = agent.memory.get_summary(user_id)
+        print(summary)
 
     print("\n" + "=" * 60)
     print("🎯 SONUÇ: Bot Ahmet'in adını hatırlıyor!")

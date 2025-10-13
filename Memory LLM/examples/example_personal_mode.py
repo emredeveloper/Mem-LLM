@@ -3,6 +3,10 @@ Personal Mod Örneği
 Kişisel kullanım için MemAgent demo
 """
 
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from mem_agent import MemAgent
 
 
@@ -14,14 +18,16 @@ def personal_mode_demo():
     print("Bu örnek kişisel asistan olarak kullanımını gösterir.\n")
 
     # Personal modda agent oluştur
+    config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "config.yaml")
     agent = MemAgent(
-        config_file="config.yaml",  # personal mod ayarları ile
+        config_file=config_path,
         use_sql=True,
         load_knowledge_base=True
     )
 
     print(f"✅ Kullanım modu: {agent.usage_mode}")
-    print(f"✅ Sistem promptu: {agent.current_system_prompt[:50]}...")
+    if agent.current_system_prompt:
+        print(f"✅ Sistem promptu: {agent.current_system_prompt[:50]}...")
     print()
 
     # Kullanıcı ayarla
@@ -74,3 +80,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

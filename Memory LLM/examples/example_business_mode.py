@@ -3,6 +3,10 @@ Business Mod Örneği
 Kurumsal kullanım için MemAgent demo
 """
 
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from mem_agent import MemAgent
 
 
@@ -14,14 +18,16 @@ def business_mode_demo():
     print("Bu örnek kurumsal müşteri hizmetleri olarak kullanımını gösterir.\n")
 
     # Business modda agent oluştur
+    config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "config.yaml")
     agent = MemAgent(
-        config_file="config.yaml",  # business mod ayarları ile
+        config_file=config_path,
         use_sql=True,
         load_knowledge_base=True
     )
 
     print(f"✅ Kullanım modu: {agent.usage_mode}")
-    print(f"✅ Sistem promptu: {agent.current_system_prompt[:50]}...")
+    if agent.current_system_prompt:
+        print(f"✅ Sistem promptu: {agent.current_system_prompt[:50]}...")
     print()
 
     # Kurumsal kullanıcı ayarla
@@ -76,3 +82,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

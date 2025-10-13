@@ -6,6 +6,10 @@ Bu demo kullanıcı araçlarının nasıl çalıştığını gösterir.
 Çok basit - sadece araçları test edin!
 """
 
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from mem_agent import MemAgent
 
 
@@ -17,7 +21,7 @@ def simple_demo():
     print("Şimdi kullanıcı araçlarını test edeceğiz!\n")
 
     # Agent oluştur
-    agent = MemAgent(model="granite4:tiny-h")
+    agent = MemAgent(model="granite4:tiny-h", use_sql=False)
 
     # Kullanıcı ayarla
     user_id = "test_user_123"
@@ -48,23 +52,25 @@ def simple_demo():
     response = agent.chat("laptop kelimesi geçen konuşmalarımı ara")
     print(f"Bot: {response}")
 
-    # 3. Kullanıcı bilgilerini göster
-    print("\n\n3️⃣  Kullanıcı bilgileri:")
+    # 3. Hakkımda bilgi
+    print("\n\n3️⃣  Hakkımda bilgi:")
     print("Kullanıcı: 'Hakkımda ne biliyorsun?'")
     response = agent.chat("Hakkımda ne biliyorsun?")
     print(f"Bot: {response}")
 
-    # 4. Verileri dışa aktar
-    print("\n\n4️⃣  Verileri dışa aktar:")
-    print("Kullanıcı: 'Verilerimi dışa aktar'")
-    response = agent.chat("Verilerimi dışa aktar")
-    print(f"Bot: {response[:150]}...")
-
     print("\n" + "=" * 50)
-    print("🎉 ARAÇLAR BAŞARIYLA ÇALIŞTI!")
+    print("✅ Demo tamamlandı!")
     print("=" * 50)
-    print("Artık kullanıcılar kendi verilerini yönetebiliyor! 🚀")
+
+
+def main():
+    """Ana fonksiyon"""
+    try:
+        simple_demo()
+    except Exception as e:
+        print(f"\n❌ Hata oluştu: {e}")
 
 
 if __name__ == "__main__":
-    simple_demo()
+    main()
+

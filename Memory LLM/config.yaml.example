@@ -1,0 +1,110 @@
+# ====================================================================
+# MEM-AGENT ÖRNEK YAPILANDIRMA DOSYASI
+# ====================================================================
+# Bu dosyayı "config.yaml" olarak kaydedin ve düzenleyin
+#
+# Hızlı Başlangıç:
+# 1. Bu dosyayı "config.yaml" olarak kopyalayın
+# 2. Aşağıdaki temel ayarları kendi ihtiyaçlarınıza göre düzenleyin
+# 3. Detaylı bilgi için CONFIG_GUIDE.md dosyasına bakın
+# ====================================================================
+
+# TEMEL AYARLAR (Zorunlu)
+# --------------------------------------------------------------------
+
+# Kullanım Modu: "personal" (kişisel) veya "business" (kurumsal)
+usage_mode: "personal"
+
+# LLM Model Ayarları
+llm:
+  model: "granite4:tiny-h"        # Ollama model adı (önerilen: granite4:tiny-h)
+  base_url: "http://localhost:11434"  # Ollama API URL'i (varsayılan port: 11434)
+  temperature: 0.7                # Yaratıcılık seviyesi (0.0-1.0 arası)
+  max_tokens: 500                 # Maksimum cevap uzunluğu
+
+# Bellek Sistemi
+memory:
+  backend: "json"                 # "json" (basit) veya "sql" (gelişmiş)
+  json_dir: "memories"            # JSON dosyalarının kaydedileceği klasör
+  db_path: "memories.db"          # SQL veritabanı dosya yolu
+
+# Sistem Prompt Şablonu
+prompt:
+  template: "personal_assistant"  # Kullanılacak prompt şablonu
+  variables:
+    user_name: "Kullanıcı"        # Kullanıcı adı
+    tone: "samimi"                # Konuşma tonu
+
+
+# GELİŞMİŞ AYARLAR (Opsiyonel)
+# --------------------------------------------------------------------
+
+# Personal Mod Ayarları
+personal:
+  user_name: "Kullanıcı"
+  enable_reminders: true
+  enable_personal_notes: true
+  privacy_level: "high"
+  share_data: false
+
+# Business Mod Ayarları
+business:
+  company_name: "Şirketimiz"
+  departments: ["Müşteri Hizmetleri", "Satış", "Teknik Destek"]
+  enable_multi_user: true
+  enable_reporting: true
+  security_level: "high"
+
+# Bilgi Bankası
+knowledge_base:
+  enabled: true
+  auto_load: true
+  default_kb: "ecommerce"         # ecommerce, tech_support
+  search_limit: 5
+
+# Yanıt Ayarları
+response:
+  use_knowledge_base: true
+  use_memory: true
+  recent_conversations_limit: 5
+
+# Loglama
+logging:
+  enabled: true
+  level: "INFO"                   # DEBUG, INFO, WARNING, ERROR
+  file: "mem_agent.log"
+
+# Güvenlik
+security:
+  filter_sensitive_data: true
+  rate_limit:
+    enabled: true
+    max_requests_per_minute: 60
+
+# ====================================================================
+# KULLANIM ÖRNEKLERİ
+# ====================================================================
+
+# Kişisel Asistan için minimal config:
+# usage_mode: "personal"
+# llm:
+#   model: "granite4:tiny-h"
+# memory:
+#   backend: "json"
+
+# Kurumsal Kullanım için önerilen config:
+# usage_mode: "business"
+# llm:
+#   model: "granite4:tiny-h"
+# memory:
+#   backend: "sql"
+# knowledge_base:
+#   enabled: true
+
+# ====================================================================
+# YARDIM
+# ====================================================================
+# Detaylı dokümantasyon: docs/CONFIG_GUIDE.md
+# Hızlı başlangıç: QUICKSTART_TR.md
+# Örnekler: examples/ klasörü
+

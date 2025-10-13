@@ -128,204 +128,8 @@ class MemAgent:
         self.tool_executor = ToolExecutor(self.memory)
 
         self.logger.info("MemAgent başarıyla başlatıldı")
-        
-    def check_setup(self) -> Dict[str, any]:
-        """
-        Sistem kurulumunu kontrol eder
-        
-        Returns:
-            Durum bilgisi
-        """
-        ollama_running = self.llm_client.check_connection()
-        models = self.llm_client.list_models()
-        model_exists = self.llm_client.model in models
-        
-        return {
-            "ollama_running": ollama_running,
-            "available_models": models,
-            "target_model": self.llm_client.model,
-            "model_ready": model_exists,
-            "status": "ready" if (ollama_running and model_exists) else "not_ready"
-        }
-    
-    def set_user(self, user_id: str, name: Optional[str] = None) -> None:
-        """
-        Aktif kullanıcıyı ayarlar ve belleğini yükler
 
-        Args:
-            user_id: Kullanıcı kimliği
-            name: Kullanıcı adı (opsiyonel)
-        """
-        self.current_user = user_id
-        self.memory_manager.load_memory(user_id)
-
-        # Kullanıcı adını güncelle (eğer verilmişse)
-        if name:
-            self.memory_manager.update_profile(user_id, {"name": name})
-    
-    def chat(self, message: str, user_id: Optional[str] = None,
-             metadata: Optional[Dict] = None) -> str:
-        """
-        Kullanıcı ile sohbet eder (bellek farkındalığı ile)
-
-        Args:
-            message: Kullanıcının mesajı
-            user_id: Kullanıcı kimliği (opsiyonel, set_user ile ayarlanmışsa)
-            metadata: Ek bilgiler (sipariş no, sorun türü vb.)
-
-        Returns:
-            Botun cevabı
-        """
-        # Kullanıcıyı belirle
-        if user_id:
-            self.set_user(user_id)
-        elif not self.current_user:
-            return "Hata: Kullanıcı kimliği belirtilmedi. Önce set_user() çağırın."
-
-        user_id = self.current_user
-
-        # Önce araç komutlarını kontrol et
-        tool_result = self.tool_executor.execute_user_command(message, user_id)
-        if tool_result:
-            return tool_result
-
-        # Belleği yükle
-        memory_summary = self.memory_manager.get_summary(user_id)
-        recent_conversations = self.memory_manager.get_recent_conversations(user_id, limit=3)
-
-        # LLM ile cevap üret
-        response = self.llm_client.generate_with_memory_context(
-            user_message=message,
-            memory_summary=memory_summary,
-            recent_conversations=recent_conversations
-        )
-
-        # Etkileşimi bellege kaydet
-        self.memory_manager.add_interaction(
-            user_id=user_id,
-            user_message=message,
-            bot_response=response,
-            metadata=metadata
-        )
-
-        return response
-    
-    def get_user_memory(self, user_id: Optional[str] = None) -> Dict:
-        """
-        Kullanıcının belleğini getirir
-        
-        Args:
-            user_id: Kullanıcı kimliği
-            
-        Returns:
-            Bellek verisi
-        """
-        uid = user_id or self.current_user
-        if not uid:
-            return {"error": "Kullanıcı kimliği belirtilmedi"}
-        
-        return self.memory_manager.load_memory(uid)
-    
-    def update_user_info(self, info: Dict, user_id: Optional[str] = None) -> None:
-        """
-        Kullanıcı profilini günceller
-        
-        Args:
-            info: Güncellenecek bilgiler
-            user_id: Kullanıcı kimliği
-        """
-        uid = user_id or self.current_user
-        if not uid:
-            print("Hata: Kullanıcı kimliği belirtilmedi")
-            return
-        
-        self.memory_manager.update_profile(uid, info)
-    
-    def search_user_history(self, keyword: str, user_id: Optional[str] = None) -> list:
-        """
-        Kullanıcının geçmişinde arama yapar
-        
-        Args:
-            keyword: Aranacak kelime
-            user_id: Kullanıcı kimliği
-            
-        Returns:
-            Bulunan etkileşimler
-        """
-        uid = user_id or self.current_user
-        if not uid:
-            return []
-        
-        return self.memory_manager.search_memory(uid, keyword)
-    
-    def clear_user_memory(self, user_id: str, confirm: bool = False) -> str:
-        """
-        Kullanıcının belleğini siler (dikkatli kullanın!)
-        
-        Args:
-            user_id: Kullanıcı kimliği
-            confirm: Onay bayrağı
-            
-        Returns:
-            Durum mesajı
-        """
-        if not confirm:
-            return "Bellek silme işlemi için confirm=True parametresini kullanın."
-        
-        self.memory_manager.clear_memory(user_id)
-        return f"{user_id} kullanıcısının belleği silindi."
-    
-    def simple_chat(self, message: str) -> str:
-        """
-        Belleksiz basit sohbet (test amaçlı)
-        
-        Args:
-            message: Mesaj
-            
-        Returns:
-            Cevap
-        """
-        return self.llm_client.generate(message)
-    
-    def export_memory(self, user_id: str) -> str:
-        """
-        Kullanıcının belleğini JSON formatında export eder
-        
-        Args:
-            user_id: Kullanıcı kimliği
-            
-        Returns:
-            JSON string
-        """
-        memory = self.get_user_memory(user_id)
-        return json.dumps(memory, ensure_ascii=False, indent=2)
-    
-    def get_statistics(self) -> Dict:
-        """
-        Genel istatistikleri döndürür
-        
-        Returns:
-            İstatistik bilgileri
-        """
-        import os
-        memory_files = list(self.memory_manager.memory_dir.glob("*.json"))
-        
-        total_users = len(memory_files)
-        total_interactions = 0
-        
-        for file in memory_files:
-            with open(file, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-                total_interactions += len(data.get('conversations', []))
-        
-        return {
-            "total_users": total_users,
-            "total_interactions": total_interactions,
-            "average_interactions_per_user": total_interactions / total_users if total_users > 0 else 0,
-            "memory_directory": str(self.memory_manager.memory_dir)
-        }
-
-    # === YENİ BİRLEŞİK SİSTEM METODLARI ===
+    # === BİRLEŞİK SİSTEM METODLARI ===
 
     def _setup_logging(self) -> None:
         """Loglama sistemini kurar"""
@@ -417,9 +221,9 @@ class MemAgent:
 
     def check_setup(self) -> Dict[str, Any]:
         """Sistem kurulumunu kontrol eder"""
-        ollama_running = self.llm_client.check_connection()
-        models = self.llm_client.list_models()
-        model_exists = self.llm_client.model in models
+        ollama_running = self.llm.check_connection()
+        models = self.llm.list_models()
+        model_exists = self.llm.model in models
 
         # Bellek istatistikleri
         try:
@@ -442,7 +246,7 @@ class MemAgent:
         return {
             "ollama_running": ollama_running,
             "available_models": models,
-            "target_model": self.llm_client.model,
+            "target_model": self.llm.model,
             "model_ready": model_exists,
             "memory_backend": "SQL" if ADVANCED_AVAILABLE and isinstance(self.memory, SQLMemoryManager) else "JSON",
             "total_users": stats.get('total_users', 0),
@@ -544,7 +348,7 @@ class MemAgent:
 
         # LLM'den cevap al
         try:
-            response = self.llm_client.chat(
+            response = self.llm.chat(
                 messages=messages,
                 temperature=self.config.get("llm.temperature", 0.7) if hasattr(self, 'config') and self.config else 0.7,
                 max_tokens=self.config.get("llm.max_tokens", 500) if hasattr(self, 'config') and self.config else 500

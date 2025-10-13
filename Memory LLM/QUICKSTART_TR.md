@@ -56,6 +56,33 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
+## ⚙️ Adım 4.5: Config Dosyasını Hazırlayın (Opsiyonel)
+
+Config dosyası kullanmadan da başlayabilirsiniz, ancak gelişmiş özellikler için önerilir:
+
+```bash
+# Örnek config'i kopyalayın
+cp config.yaml.example config.yaml
+
+# Windows için:
+copy config.yaml.example config.yaml
+```
+
+**Basit başlangıç config'i (config.yaml):**
+
+```yaml
+usage_mode: "personal"
+
+llm:
+  model: "granite4:tiny-h"
+  base_url: "http://localhost:11434"
+
+memory:
+  backend: "json"
+```
+
+**💡 Not:** Config kullanmadan da çalışır! Detaylar için `docs/CONFIG_GUIDE.md`
+
 ## ✅ Adım 5: İlk Testinizi Yapın
 
 ```bash
