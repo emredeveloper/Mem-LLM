@@ -10,10 +10,10 @@ this_directory = Path(__file__).parent
 long_description = (this_directory / "README.md").read_text(encoding='utf-8')
 
 setup(
-    name="memory-llm",
+    name="mem-llm",
     version="1.0.0",
     author="C. Emre Karataş",
-    author_email="",
+    author_email="karatasqemre@gmail.com",  # PyPI için gerekli - kendi emailinizi yazın
     description="Memory-enabled AI assistant with local LLM support",
     long_description=long_description,
     long_description_content_type="text/markdown",
