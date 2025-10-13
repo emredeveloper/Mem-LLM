@@ -220,22 +220,30 @@ class MemAgent:
             except Exception as e:
                 self.logger.error(f"Prompt template loading error: {e}")
                 # Simple, short and effective default prompt
-                self.current_system_prompt = """You are a concise AI assistant. Be EXTREMELY brief.
+                self.current_system_prompt = """You are a helpful AI assistant with access to a knowledge base.
 
-RULES (MANDATORY):
-1. MAX 1-2 SHORT sentences per response
-2. When user shares info: Just say "Got it!" or "Noted!"
-3. Answer questions: ONE sentence, direct
-4. NO lists, NO explanations, NO examples
-5. Use conversation history when relevant
+CRITICAL RULES (FOLLOW EXACTLY):
+1. If KNOWLEDGE BASE information is provided below, USE IT FIRST - it's the correct answer!
+2. Knowledge base answers are marked with "📚 RELEVANT KNOWLEDGE BASE"
+3. Keep responses SHORT (1-3 sentences maximum)
+4. When user shares personal info: Just acknowledge briefly ("Got it!" or "Noted!")
+5. Answer from knowledge base EXACTLY as written, don't make up information
+6. If knowledge base has no info, use conversation history or say "I don't have that information"
+
+RESPONSE PRIORITY:
+1st Priority: Knowledge Base (if available) ← USE THIS!
+2nd Priority: Conversation History
+3rd Priority: General knowledge (be brief)
 
 EXAMPLES:
-User: "My name is Alice" → You: "Nice to meet you, Alice!"
-User: "My favorite food is pizza" → You: "Got it!"
-User: "What's my name?" → You: "Your name is Alice."
-User: "Tell me about Python" → You: "Python is a versatile programming language for web, data science, and AI."
+User: "What's the shipping cost?"
+Knowledge Base: "Shipping is free over $150"
+You: "Shipping is free for orders over $150!"
 
-BE BRIEF OR USER WILL LEAVE!"""
+User: "My name is Alice" → You: "Nice to meet you, Alice!"
+User: "What's my name?" → You: "Your name is Alice."
+
+REMEMBER: Knowledge base = truth. Always use it when provided!"""
 
     def check_setup(self) -> Dict[str, Any]:
         """Check system setup"""
@@ -322,18 +330,24 @@ BE BRIEF OR USER WILL LEAVE!"""
 
         # Knowledge base search (if using SQL)
         kb_context = ""
-        if ADVANCED_AVAILABLE and isinstance(self.memory, SQLMemoryManager) and hasattr(self, 'config') and self.config:
-            if self.config.get("response.use_knowledge_base", True):
+        if ADVANCED_AVAILABLE and isinstance(self.memory, SQLMemoryManager):
+            # Check config only if it exists, otherwise always use KB
+            use_kb = True
+            kb_limit = 5
+            
+            if hasattr(self, 'config') and self.config:
+                use_kb = self.config.get("response.use_knowledge_base", True)
+                kb_limit = self.config.get("knowledge_base.search_limit", 5)
+            
+            if use_kb:
                 try:
-                    kb_results = self.memory.search_knowledge(
-                        query=message,
-                        limit=self.config.get("knowledge_base.search_limit", 5)
-                    )
+                    kb_results = self.memory.search_knowledge(query=message, limit=kb_limit)
 
                     if kb_results:
-                        kb_context = "\n\nRelevant Information:\n"
+                        kb_context = "\n\n📚 RELEVANT KNOWLEDGE BASE:\n"
                         for i, result in enumerate(kb_results, 1):
-                            kb_context += f"{i}. S: {result['question']}\n   C: {result['answer']}\n"
+                            kb_context += f"{i}. Q: {result['question']}\n   A: {result['answer']}\n"
+                        kb_context += "\n⚠️ USE THIS INFORMATION TO ANSWER! Be brief but accurate.\n"
                 except Exception as e:
                     self.logger.error(f"Knowledge base search error: {e}")
 
@@ -355,15 +369,13 @@ BE BRIEF OR USER WILL LEAVE!"""
         except Exception as e:
             self.logger.error(f"Memory history loading error: {e}")
 
-        # Add knowledge base context
+        # Add current message WITH knowledge base context (if available)
+        final_message = message
         if kb_context:
-            messages.append({
-                "role": "system",
-                "content": f"You can use this information when answering the user's question:{kb_context}"
-            })
-
-        # Add current message
-        messages.append({"role": "user", "content": message})
+            # Inject KB directly into user message for maximum visibility
+            final_message = f"{kb_context}\n\nUser Question: {message}"
+        
+        messages.append({"role": "user", "content": final_message})
 
         # Get response from LLM
         try:
@@ -395,47 +407,76 @@ BE BRIEF OR USER WILL LEAVE!"""
     
     def _update_user_profile(self, user_id: str, message: str, response: str):
         """Extract user info from conversation and update profile"""
-        if not hasattr(self.memory, 'update_profile'):
-            return
-        
         msg_lower = message.lower()
-        updates = {}
+        
+        # Extract information
+        extracted = {}
         
         # Extract name
-        if "my name is" in msg_lower or "i am" in msg_lower or "i'm" in msg_lower:
-            # Simple name extraction
-            for phrase in ["my name is ", "i am ", "i'm "]:
+        if "my name is" in msg_lower or "i am" in msg_lower or "i'm" in msg_lower or "adım" in msg_lower or "ismim" in msg_lower:
+            for phrase in ["my name is ", "i am ", "i'm ", "adım ", "ismim ", "benim adım "]:
                 if phrase in msg_lower:
                     name_part = message[msg_lower.index(phrase) + len(phrase):].strip()
                     name = name_part.split()[0] if name_part else None
                     if name and len(name) > 1:
-                        updates['name'] = name.strip('.,!?')
+                        extracted['name'] = name.strip('.,!?')
                         break
         
         # Extract favorite food
-        if "favorite food" in msg_lower or "favourite food" in msg_lower:
-            if "is" in msg_lower:
-                food = msg_lower.split("is")[-1].strip().strip('.,!?')
+        if "favorite food" in msg_lower or "favourite food" in msg_lower or "sevdiğim yemek" in msg_lower or "en sevdiğim" in msg_lower:
+            if "is" in msg_lower or ":" in msg_lower:
+                food = msg_lower.split("is")[-1].strip() if "is" in msg_lower else msg_lower.split(":")[-1].strip()
+                food = food.strip('.,!?')
                 if food and len(food) < 50:
-                    updates['favorite_food'] = food
+                    extracted['favorite_food'] = food
         
         # Extract location
-        if "i live in" in msg_lower or "i'm from" in msg_lower or "from" in msg_lower:
-            for phrase in ["i live in ", "i'm from ", "from "]:
+        if "i live in" in msg_lower or "i'm from" in msg_lower or "yaşıyorum" in msg_lower or "yaşadığım" in msg_lower:
+            for phrase in ["i live in ", "i'm from ", "from ", "yaşıyorum", "yaşadığım yer", "yaşadığım şehir"]:
                 if phrase in msg_lower:
                     loc = message[msg_lower.index(phrase) + len(phrase):].strip()
                     location = loc.split()[0] if loc else None
                     if location and len(location) > 2:
-                        updates['location'] = location.strip('.,!?')
+                        extracted['location'] = location.strip('.,!?')
                         break
         
         # Save updates
-        if updates:
+        if extracted:
             try:
-                self.memory.update_profile(user_id, updates)
-                self.logger.debug(f"Profile updated for {user_id}: {updates}")
-            except:
-                pass
+                # SQL memory - store in preferences JSON
+                if hasattr(self.memory, 'update_user_profile'):
+                    # Get current profile
+                    profile = self.memory.get_user_profile(user_id) or {}
+                    
+                    # Update name directly if extracted
+                    updates = {}
+                    if 'name' in extracted:
+                        updates['name'] = extracted.pop('name')
+                    
+                    # Store other info in preferences
+                    if extracted:
+                        current_prefs = profile.get('preferences')
+                        if current_prefs:
+                            try:
+                                prefs = json.loads(current_prefs) if isinstance(current_prefs, str) else current_prefs
+                            except:
+                                prefs = {}
+                        else:
+                            prefs = {}
+                        
+                        prefs.update(extracted)
+                        updates['preferences'] = json.dumps(prefs)
+                    
+                    if updates:
+                        self.memory.update_user_profile(user_id, updates)
+                        self.logger.debug(f"Profile updated for {user_id}: {extracted}")
+                
+                # JSON memory - direct update
+                elif hasattr(self.memory, 'update_profile'):
+                    self.memory.update_profile(user_id, extracted)
+                    self.logger.debug(f"Profile updated for {user_id}: {extracted}")
+            except Exception as e:
+                self.logger.error(f"Error updating profile: {e}")
 
     def get_user_profile(self, user_id: Optional[str] = None) -> Dict:
         """
@@ -445,16 +486,44 @@ BE BRIEF OR USER WILL LEAVE!"""
             user_id: User ID (uses current_user if not specified)
             
         Returns:
-            User profile dictionary
+            User profile dictionary with all info (name, favorite_food, location, etc.)
         """
         uid = user_id or self.current_user
         if not uid:
             return {}
         
         try:
-            memory_data = self.memory.load_memory(uid)
-            return memory_data.get('profile', {})
-        except:
+            # Check if SQL or JSON memory
+            if hasattr(self.memory, 'get_user_profile'):
+                # SQL memory - merge preferences into main dict
+                profile = self.memory.get_user_profile(uid)
+                if not profile:
+                    return {}
+                
+                # Parse preferences JSON if exists
+                result = {
+                    'user_id': profile.get('user_id'),
+                    'name': profile.get('name'),
+                    'first_seen': profile.get('first_seen'),
+                    'last_interaction': profile.get('last_interaction'),
+                }
+                
+                # Merge preferences
+                prefs_str = profile.get('preferences')
+                if prefs_str:
+                    try:
+                        prefs = json.loads(prefs_str) if isinstance(prefs_str, str) else prefs_str
+                        result.update(prefs)  # Add favorite_food, location, etc.
+                    except:
+                        pass
+                
+                return result
+            else:
+                # JSON memory
+                memory_data = self.memory.load_memory(uid)
+                return memory_data.get('profile', {})
+        except Exception as e:
+            self.logger.error(f"Error getting user profile: {e}")
             return {}
     
     def add_knowledge(self, category: str, question: str, answer: str,

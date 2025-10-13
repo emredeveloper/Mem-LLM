@@ -1,0 +1,127 @@
+# Firma Bilgi Tabanı - E-Ticaret Şirketi
+
+## Şirket Bilgileri
+Şirket Adı: TechMart E-Ticaret
+Sektör: Elektronik ve Teknoloji
+Kuruluş Yıl: 2020
+Çalışan Sayısı: 150+
+
+## Kargo ve Teslimat
+
+### Kargo Ücretleri
+- 0-50 TL: 29.90 TL kargo ücreti
+- 50-150 TL: 19.90 TL kargo ücreti  
+- 150 TL ve üzeri: ÜCRETSİZ KARGO
+
+### Teslimat Süreleri
+- İstanbul içi: 1-2 iş günü
+- Türkiye geneli: 2-5 iş günü
+- Uzak bölgeler: 3-7 iş günü
+
+### Kargo Firmaları
+- Yurtiçi Kargo
+- Aras Kargo
+- MNG Kargo
+
+## İade ve Değişim
+
+### İade Süresi
+- Ürün teslim tarihinden itibaren 14 gün içinde iade hakkı
+- Kutusunda ve etiketinde hasar olmamalı
+- Kullanılmamış olmalı
+
+### İade İşlemi
+1. Müşteri hizmetlerine başvurun (0850 123 4567)
+2. İade kodu alın
+3. Kargo ile geri gönderin
+4. Para iadesi 3-5 iş günü içinde
+
+### Değişim Süresi
+- 30 gün içinde ürün değişimi yapılabilir
+- Aynı kategorideki ürünlerle değişim
+- Bedel farkı varsa ödeme/iade
+
+## Sipariş Takibi
+
+### Sipariş Durumları
+- Hazırlanıyor: Sipariş alındı, paketleniyor
+- Kargoya Verildi: Kargo firmasına teslim edildi
+- Dağıtımda: Kargonuz yolda
+- Teslim Edildi: Adresinize ulaştı
+
+### Sipariş İptali
+- Kargoya verilmeden önce iptal edilebilir
+- Kargoya verildikten sonra iade işlemi yapılmalı
+
+## Ödeme Yöntemleri
+
+### Kabul Edilen Kartlar
+- Kredi Kartı (tüm bankalar)
+- Banka Kartı (Debit)
+- Kapıda Ödeme (nakit/kredi kartı)
+- Havale/EFT
+
+### Taksit Seçenekleri
+- 100 TL üzeri: 3 taksit
+- 500 TL üzeri: 6 taksit
+- 1000 TL üzeri: 9 taksit
+
+## Müşteri Hizmetleri
+
+### İletişim
+- Telefon: 0850 123 4567 (Hafta içi 09:00-18:00)
+- E-posta: destek@techmart.com
+- WhatsApp: 0555 123 4567
+- Canlı Destek: Web sitesinde 24/7
+
+### Sık Sorulan Sorular
+
+**S: Siparişim ne zaman gelir?**
+C: Sipariş durumunuzu "Siparişlerim" bölümünden takip edebilirsiniz. Ortalama teslimat süresi 2-5 iş günüdür.
+
+**S: Kargo ücreti ne kadar?**
+C: 150 TL ve üzeri alışverişlerde kargo ücretsizdir. Altındaki tutarlarda 19.90 TL - 29.90 TL arasında değişir.
+
+**S: İade nasıl yapılır?**
+C: Ürün teslim tarihinden itibaren 14 gün içinde, kutusunda ve etiketinde hasarsız şekilde iade edebilirsiniz. 0850 123 4567'yi arayarak iade kodu alabilirsiniz.
+
+**S: Kapıda ödeme var mı?**
+C: Evet, tüm siparişlerde kapıda ödeme seçeneği mevcuttur.
+
+**S: Fatura kesiliyor mu?**
+C: Evet, tüm siparişlerde fatura kesilir. Kurumsal fatura için sipariş sırasında belirtmeniz gerekir.
+
+## Kampanyalar
+
+### Aktif Kampanyalar
+- Yeni Üyelere Hoş Geldin İndirimi: İlk alışverişte %10 indirim
+- Hafta Sonu Kampanyası: Cumartesi-Pazar %15 indirim
+- Öğrenci İndirimi: Geçerli öğrenci belgesiyle %20 indirim
+- Toplu Alışveriş: 5 ürün ve üzeri %25 indirim
+
+## Garanti ve Servis
+
+### Garanti Süresi
+- Elektronik ürünler: 2 yıl
+- Aksesuar: 1 yıl
+- Beyaz eşya: 2 yıl
+
+### Yetkili Servis
+- Anlaşmalı servislere ücretsiz gönderim
+- Garanti kapsamında ücretsiz onarım
+- Değişim: Tamir edilemezse yeni ürün
+
+## Üyelik
+
+### Üyelik Avantajları
+- Özel fiyatlar
+- Erken erişim (yeni ürünler)
+- Doğum günü hediyesi
+- Puan kazanma (her 10 TL = 1 puan)
+- VIP müşteri hattı
+
+### Puan Sistemi
+- 100 puan = 10 TL indirim kuponu
+- Puanlar 1 yıl geçerli
+- Kampanyalı ürünlerde de puan kazanılır
+

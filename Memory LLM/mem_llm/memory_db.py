@@ -295,7 +295,7 @@ class SQLMemoryManager:
     def search_knowledge(self, query: str, category: Optional[str] = None,
                         limit: int = 5) -> List[Dict]:
         """
-        Bilgi bankasında arama yapar
+        Bilgi bankasında arama yapar (gelişmiş keyword matching)
         
         Args:
             query: Arama sorgusu
@@ -307,25 +307,51 @@ class SQLMemoryManager:
         """
         cursor = self.conn.cursor()
         
+        # Extract important keywords from query (remove question words)
+        import re
+        stopwords = ['ne', 'kadar', 'nedir', 'nasıl', 'için', 'mı', 'mi', 'mu', 'mü', 
+                     'what', 'how', 'when', 'where', 'is', 'are', 'the', 'a', 'an']
+        
+        # Clean query and extract keywords
+        query_lower = query.lower()
+        words = re.findall(r'\w+', query_lower)
+        keywords = [w for w in words if w not in stopwords and len(w) > 2]
+        
+        # If no keywords, use original query
+        if not keywords:
+            keywords = [query_lower]
+        
+        # Build search conditions for each keyword
+        conditions = []
+        params = []
+        
+        for keyword in keywords[:5]:  # Max 5 keywords
+            conditions.append("(question LIKE ? OR answer LIKE ? OR keywords LIKE ?)")
+            params.extend([f"%{keyword}%", f"%{keyword}%", f"%{keyword}%"])
+        
+        where_clause = " OR ".join(conditions) if conditions else "1=1"
+        
         if category:
-            cursor.execute("""
+            sql = f"""
                 SELECT category, question, answer, priority
                 FROM knowledge_base
                 WHERE active = 1 
                 AND category = ?
-                AND (question LIKE ? OR answer LIKE ? OR keywords LIKE ?)
+                AND ({where_clause})
                 ORDER BY priority DESC, id DESC
                 LIMIT ?
-            """, (category, f"%{query}%", f"%{query}%", f"%{query}%", limit))
+            """
+            cursor.execute(sql, [category] + params + [limit])
         else:
-            cursor.execute("""
+            sql = f"""
                 SELECT category, question, answer, priority
                 FROM knowledge_base
                 WHERE active = 1 
-                AND (question LIKE ? OR answer LIKE ? OR keywords LIKE ?)
+                AND ({where_clause})
                 ORDER BY priority DESC, id DESC
                 LIMIT ?
-            """, (f"%{query}%", f"%{query}%", f"%{query}%", limit))
+            """
+            cursor.execute(sql, params + [limit])
         
         return [dict(row) for row in cursor.fetchall()]
     
