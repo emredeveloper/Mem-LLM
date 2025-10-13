@@ -1,17 +1,17 @@
-# Mem-Agent Yapılandırma Dosyası
-# Bu dosyayı kendi ihtiyaçlarınıza göre düzenleyin
+# Mem-Agent Configuration File
+# Edit this file according to your needs
 
-# Kullanım Modu: "personal" veya "business"
-usage_mode: "business"  # personal veya business
+# Usage Mode: "personal" or "business"
+usage_mode: "business"  # personal or business
 
-# Business modu için ek ayarlar
+# Additional settings for Business mode
 business:
-  company_name: "Şirketimiz"
+  company_name: "Our Company"
   departments:
-    - "Müşteri Hizmetleri"
-    - "Satış"
-    - "Teknik Destek"
-    - "İK"
+    - "Customer Service"
+    - "Sales"
+    - "Technical Support"
+    - "HR"
   user_roles:
     - "admin"
     - "manager"
@@ -22,77 +22,77 @@ business:
   enable_api_integration: true
   security_level: "high"  # low, medium, high
 
-# Personal modu için ek ayarlar
+# Additional settings for Personal mode
 personal:
-  user_name: "Kullanıcı"
+  user_name: "User"
   enable_reminders: true
   enable_personal_notes: true
   privacy_level: "high"  # low, medium, high
   share_data: false
 
-# LLM Ayarları
+# LLM Settings
 llm:
   model: "granite4:tiny-h"
   base_url: "http://localhost:11434"
   temperature: 0.7
   max_tokens: 500
   
-# Bellek Ayarları
+# Memory Settings
 memory:
-  # "json" veya "sql"
+  # "json" or "sql"
   backend: "sql"
   
-  # JSON backend için
+  # For JSON backend
   json_dir: "memories"
   
-  # SQL backend için
+  # For SQL backend
   db_path: "memories.db"
   
-  # Bellek sınırları
+  # Memory limits
   max_conversations_per_user: 1000
   auto_cleanup: true
   cleanup_after_days: 90
 
-# Sistem Prompt Şablonu
-# Kullanılabilir şablonlar: customer_service, tech_support, sales_assistant,
-#                           education_tutor, health_advisor, personal_assistant,
-#                           booking_assistant, hr_assistant
+# System Prompt Template
+# Available templates: customer_service, tech_support, sales_assistant,
+#                      education_tutor, health_advisor, personal_assistant,
+#                      booking_assistant, hr_assistant
 prompt:
   template: "customer_service"
   
-  # Şablon değişkenleri (her şablon için farklı olabilir)
+  # Template variables (may vary for each template)
   variables:
-    company_name: "Şirketimiz"
-    tone: "samimi ve profesyonel"
+    company_name: "Our Company"
+    tone: "friendly and professional"
     
-  # Özel prompt (template yerine kullanılabilir)
+  # Custom prompt (can be used instead of template)
   custom_prompt: null
 
-# Bilgi Bankası
+# Knowledge Base
 knowledge_base:
   enabled: true
   
-  # Otomatik yükleme
+  # Auto-loading
   auto_load: true
-  default_kb: "ecommerce"  # ecommerce, tech_support, veya custom
+  default_kb: "ecommerce"  # ecommerce, tech_support, or custom
   
-  # Özel bilgi bankası dosyası
+  # Custom knowledge base file
   custom_kb_file: null  # "knowledge_samples/my_kb.json"
   
-  # Arama ayarları
+  # Search settings
   search_limit: 5
   min_relevance_score: 0.3
 
-# Yanıt Ayarları
+# Response Settings
 response:
-  # Bilgi bankası kullanımı
+  # Knowledge base usage
   use_knowledge_base: true
   
-  # Bellek kullanımı
+  # Memory usage
   use_memory: true
   recent_conversations_limit: 5
   
-  # Cevap formatı
+  # Response format
   format:
     include_greeting: true
     include_follow_up: true

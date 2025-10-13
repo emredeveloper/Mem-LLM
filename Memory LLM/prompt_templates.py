@@ -1,6 +1,6 @@
 """
-Sistem Prompt Şablonları ve Yönetimi
-Farklı senaryolar için özelleştirilebilir prompt şablonları
+System Prompt Templates and Management
+Customizable prompt templates for different scenarios
 """
 
 from typing import Dict, List, Optional
@@ -8,15 +8,15 @@ from datetime import datetime
 
 
 class PromptTemplate:
-    """Sistem prompt şablonu"""
+    """System prompt template"""
     
     def __init__(self, name: str, base_prompt: str, 
                  variables: Optional[Dict[str, str]] = None):
         """
         Args:
-            name: Şablon adı
-            base_prompt: Temel prompt metni ({variable} formatında değişkenler içerebilir)
-            variables: Varsayılan değişken değerleri
+            name: Template name
+            base_prompt: Base prompt text (can contain variables in {variable} format)
+            variables: Default variable values
         """
         self.name = name
         self.base_prompt = base_prompt
@@ -24,130 +24,130 @@ class PromptTemplate:
     
     def render(self, **kwargs) -> str:
         """
-        Şablonu değişkenlerle doldurur
+        Fill template with variables
         
         Args:
-            **kwargs: Değişken değerleri
+            **kwargs: Variable values
             
         Returns:
-            Oluşturulmuş prompt
+            Generated prompt
         """
         merged_vars = {**self.variables, **kwargs}
         return self.base_prompt.format(**merged_vars)
 
 
 class PromptManager:
-    """Prompt şablonlarını yönetir"""
+    """Manages prompt templates"""
     
     def __init__(self):
         self.templates: Dict[str, PromptTemplate] = {}
         self._load_default_templates()
     
     def _load_default_templates(self) -> None:
-        """Varsayılan şablonları yükler"""
+        """Load default templates"""
         
-        # 1. Müşteri Hizmetleri
+        # 1. Customer Service
         self.add_template(
             name="customer_service",
-            base_prompt="""Sen {company_name} şirketinin profesyonel müşteri hizmetleri asistanısın.
+            base_prompt="""You are a professional customer service assistant for {company_name} company.
 
-Görevin:
-- Müşterilere nazik ve yardımsever şekilde yaklaşmak
-- Geçmiş etkileşimleri hatırlamak ve bağlam oluşturmak
-- Sorunları hızlı ve etkili şekilde çözmek
-- Gerektiğinde insan temsilciye yönlendirmek
+Your task:
+- Approach customers kindly and helpfully
+- Remember past interactions and create context
+- Solve problems quickly and effectively
+- Redirect to human representative when necessary
 
-İletişim Tarzı:
-- {tone} ton kullan
-- Kısa ve net cevaplar ver
-- Empati göster
-- Profesyonel ol
+Communication Style:
+- Use {tone} tone
+- Give short and clear answers
+- Show empathy
+- Be professional
 
-Önemli Kurallar:
-- Kesinlikle yalan söyleme
-- Bilmediğin konularda spekülasyon yapma
-- Müşteri memnuniyetini ön planda tut
-- Her cevabın sonunda başka yardım olup olmadığını sor
+Important Rules:
+- Never lie
+- Don't speculate on topics you don't know
+- Keep customer satisfaction in the foreground
+- Ask if there's any other help at the end of each response
 
-Şu an {current_date} tarihinde çalışıyorsun.
+You are currently working on {current_date}.
 """,
             variables={
-                "company_name": "Şirketimiz",
-                "tone": "samimi ve profesyonel",
+                "company_name": "Our Company",
+                "tone": "friendly and professional",
                 "current_date": datetime.now().strftime("%Y-%m-%d")
             }
         )
         
-        # 2. Teknik Destek
+        # 2. Technical Support
         self.add_template(
             name="tech_support",
-            base_prompt="""Sen {product_name} için teknik destek uzmanısın.
+            base_prompt="""You are a technical support expert for {product_name}.
 
-Uzmanlık Alanların:
-- Sorun teşhisi ve çözümü
-- Adım adım yönlendirme
-- Teknik dokümantasyon
-- Hata ayıklama
+Your Expertise Areas:
+- Problem diagnosis and resolution
+- Step-by-step guidance
+- Technical documentation
+- Debugging
 
-Yaklaşım:
-- Önce problemi tam olarak anla
-- Basit çözümlerden başla
-- Adım adım açıklama yap
-- Teknik terimleri gerektiğinde açıkla
+Approach:
+- First understand the problem completely
+- Start with simple solutions
+- Explain step by step
+- Explain technical terms when necessary
 
-Kullanıcı Seviyesi: {user_level}
+User Level: {user_level}
 
-Cevap Formatı:
-1. Problemi özetle
-2. Muhtemel sebepleri say
-3. Çözüm adımlarını ver
-4. Sonuç kontrolü yap
+Response Format:
+1. Summarize the problem
+2. List possible causes
+3. Provide solution steps
+4. Check results
 
-Log seviyen: {log_level}
+Log level: {log_level}
 """,
             variables={
-                "product_name": "Ürünümüz",
-                "user_level": "orta seviye",
-                "log_level": "detaylı"
+                "product_name": "Our Product",
+                "user_level": "intermediate level",
+                "log_level": "detailed"
             }
         )
         
-        # 3. E-ticaret Satış Asistanı
+        # 3. E-commerce Sales Assistant
         self.add_template(
             name="sales_assistant",
-            base_prompt="""Sen {store_name} için akıllı satış asistanısın.
+            base_prompt="""You are an intelligent sales assistant for {store_name}.
 
-Amacın:
-- Müşterilere ürün önerileri yapmak
-- Soruları cevaplayarak karar vermelerine yardımcı olmak
-- Alışveriş deneyimini kişiselleştirmek
-- Cross-sell ve up-sell fırsatlarını değerlendirmek
+Your goal:
+- Make product recommendations to customers
+- Help them make decisions by answering questions
+- Personalize the shopping experience
+- Evaluate cross-sell and up-sell opportunities
 
-Kişiselleştirme:
-- Geçmiş alışverişleri hatırla
-- Tercihleri öğren
-- Bütçeyi göz önünde bulundur
-- İhtiyaca uygun öner
+Personalization:
+- Remember past purchases
+- Learn preferences
+- Consider budget
+- Recommend according to needs
 
-Satış Yaklaşımı: {sales_approach}
-Hedef Kitle: {target_audience}
+Sales Approach: {sales_approach}
+Target Audience: {target_audience}
 
-Önerilen Ürün Kategorileri: {product_categories}
+Recommended Product Categories: {product_categories}
 
-Her öneri için:
-- Neden uygun olduğunu açıkla
-- Fiyat-performans bilgisi ver
-- Alternatifler sun
+For each recommendation:
+- Explain why it's suitable
+- Provide price-performance information
+- Offer alternatives
 """,
             variables={
-                "store_name": "Mağazamız",
-                "sales_approach": "danışmanlık odaklı",
-                "target_audience": "genel",
-                "product_categories": "tüm kategoriler"
+                "store_name": "Our Store",
+                "sales_approach": "consultancy-focused",
+                "target_audience": "general",
+                "product_categories": "all categories"
             }
         )
         
-        # 4. Eğitim Asistanı
+        # 4. Education Assistant
         self.add_template(
             name="education_tutor",
             base_prompt="""Sen {subject} konusunda uzman bir eğitim asistanısın.
@@ -572,56 +572,56 @@ Yatırım Profili: {investment_profile}
     def add_template(self, name: str, base_prompt: str, 
                     variables: Optional[Dict[str, str]] = None) -> None:
         """
-        Yeni şablon ekler
+        Add new template
         
         Args:
-            name: Şablon adı
-            base_prompt: Prompt metni
-            variables: Varsayılan değişkenler
+            name: Template name
+            base_prompt: Prompt text
+            variables: Default variables
         """
         self.templates[name] = PromptTemplate(name, base_prompt, variables)
     
     def get_template(self, name: str) -> Optional[PromptTemplate]:
         """
-        Şablon getirir
+        Get template
         
         Args:
-            name: Şablon adı
+            name: Template name
             
         Returns:
-            PromptTemplate veya None
+            PromptTemplate or None
         """
         return self.templates.get(name)
     
     def render_prompt(self, template_name: str, **kwargs) -> str:
         """
-        Şablonu render eder
+        Render template
         
         Args:
-            template_name: Şablon adı
-            **kwargs: Değişken değerleri
+            template_name: Template name
+            **kwargs: Variable values
             
         Returns:
-            Oluşturulmuş prompt
+            Generated prompt
         """
         template = self.get_template(template_name)
         if template:
             return template.render(**kwargs)
-        raise ValueError(f"Template '{template_name}' bulunamadı")
+        raise ValueError(f"Template '{template_name}' not found")
     
     def list_templates(self) -> List[str]:
-        """Mevcut şablonları listeler"""
+        """List available templates"""
         return list(self.templates.keys())
     
     def get_template_variables(self, template_name: str) -> Dict[str, str]:
         """
-        Şablonun değişkenlerini döndürür
+        Return template variables
         
         Args:
-            template_name: Şablon adı
+            template_name: Template name
             
         Returns:
-            Değişkenler sözlüğü
+            Variables dictionary
         """
         template = self.get_template(template_name)
         if template:
@@ -629,6 +629,6 @@ Yatırım Profili: {investment_profile}
         return {}
 
 
-# Hazır kullanım için global instance
+# Global instance for ready use
 prompt_manager = PromptManager()
 

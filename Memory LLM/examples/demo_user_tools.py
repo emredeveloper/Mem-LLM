@@ -1,9 +1,9 @@
 """
-Kullanıcı Araçları Basit Demo
-============================
+User Tools Simple Demo
+=====================
 
-Bu demo kullanıcı araçlarının nasıl çalıştığını gösterir.
-Çok basit - sadece araçları test edin!
+This demo shows how user tools work.
+Very simple - just test the tools!
 """
 
 import sys
@@ -14,61 +14,61 @@ from mem_agent import MemAgent
 
 
 def simple_demo():
-    """Çok basit araç demo"""
+    """Very simple tool demo"""
 
-    print("🤖 KULLANICI ARAÇLARI DEMOSU")
+    print("🤖 USER TOOLS DEMO")
     print("=" * 50)
-    print("Şimdi kullanıcı araçlarını test edeceğiz!\n")
+    print("Now we will test the user tools!\n")
 
-    # Agent oluştur
+    # Create agent
     agent = MemAgent(model="granite4:tiny-h", use_sql=False)
 
-    # Kullanıcı ayarla
+    # Set user
     user_id = "test_user_123"
-    agent.set_user(user_id, name="Test Kullanıcı")
+    agent.set_user(user_id, name="Test User")
 
-    print("✅ Kullanıcı hazırlandı!\n")
+    print("✅ User prepared!\n")
 
-    # Birkaç örnek konuşma ekle
-    print("📝 Örnek konuşmalar ekleniyor...")
-    agent.chat("Merhaba, benim adım Test Kullanıcı")
-    agent.chat("Laptop almak istiyorum")
-    agent.chat("Kargo ücretini öğrenmek istiyorum")
-    print("✅ Konuşmalar eklendi!\n")
+    # Add a few sample conversations
+    print("📝 Adding sample conversations...")
+    agent.chat("Hello, my name is Test User")
+    agent.chat("I want to buy a laptop")
+    agent.chat("I want to learn about shipping costs")
+    print("✅ Conversations added!\n")
 
-    # === ARAÇLARI KULLAN ===
-    print("🛠️  ARAÇLARI KULLANALIM:")
+    # === USE TOOLS ===
+    print("🛠️  LET'S USE TOOLS:")
     print("=" * 50)
 
-    # 1. Geçmiş konuşmaları göster
-    print("\n1️⃣  Geçmiş konuşmaları göster:")
-    print("Kullanıcı: 'Geçmiş konuşmalarımı göster'")
-    response = agent.chat("Geçmiş konuşmalarımı göster")
+    # 1. Show past conversations
+    print("\n1️⃣  Show past conversations:")
+    print("User: 'Show my past conversations'")
+    response = agent.chat("Show my past conversations")
     print(f"Bot: {response}")
 
-    # 2. Arama yap
-    print("\n\n2️⃣  Laptop hakkında arama:")
-    print("Kullanıcı: 'laptop kelimesi geçen konuşmalarımı ara'")
-    response = agent.chat("laptop kelimesi geçen konuşmalarımı ara")
+    # 2. Search
+    print("\n\n2️⃣  Search about laptop:")
+    print("User: 'Search my conversations containing the word laptop'")
+    response = agent.chat("Search my conversations containing the word laptop")
     print(f"Bot: {response}")
 
-    # 3. Hakkımda bilgi
-    print("\n\n3️⃣  Hakkımda bilgi:")
-    print("Kullanıcı: 'Hakkımda ne biliyorsun?'")
-    response = agent.chat("Hakkımda ne biliyorsun?")
+    # 3. Information about me
+    print("\n\n3️⃣  Information about me:")
+    print("User: 'What do you know about me?'")
+    response = agent.chat("What do you know about me?")
     print(f"Bot: {response}")
 
     print("\n" + "=" * 50)
-    print("✅ Demo tamamlandı!")
+    print("✅ Demo completed!")
     print("=" * 50)
 
 
 def main():
-    """Ana fonksiyon"""
+    """Main function"""
     try:
         simple_demo()
     except Exception as e:
-        print(f"\n❌ Hata oluştu: {e}")
+        print(f"\n❌ An error occurred: {e}")
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 """
-Mem-Agent Kapsamlı Test Suite
-Tüm temel fonksiyonları test eder
+Mem-Agent Comprehensive Test Suite
+Tests all basic functions
 """
 
 import sys

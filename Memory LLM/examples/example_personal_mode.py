@@ -1,6 +1,6 @@
 """
-Personal Mod Örneği
-Kişisel kullanım için MemAgent demo
+Personal Mode Example
+MemAgent demo for personal use
 """
 
 import sys
@@ -11,13 +11,13 @@ from mem_agent import MemAgent
 
 
 def personal_mode_demo():
-    """Kişisel kullanım modu demo"""
+    """Personal usage mode demo"""
 
-    print("🏠 KİŞİSEL KULLANIM MODU DEMO")
+    print("🏠 PERSONAL USAGE MODE DEMO")
     print("=" * 60)
-    print("Bu örnek kişisel asistan olarak kullanımını gösterir.\n")
+    print("This example demonstrates its use as a personal assistant.\n")
 
-    # Personal modda agent oluştur
+    # Create agent in Personal mode
     config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "config.yaml")
     agent = MemAgent(
         config_file=config_path,
@@ -25,18 +25,18 @@ def personal_mode_demo():
         load_knowledge_base=True
     )
 
-    print(f"✅ Kullanım modu: {agent.usage_mode}")
+    print(f"✅ Usage mode: {agent.usage_mode}")
     if agent.current_system_prompt:
-        print(f"✅ Sistem promptu: {agent.current_system_prompt[:50]}...")
+        print(f"✅ System prompt: {agent.current_system_prompt[:50]}...")
     print()
 
-    # Kullanıcı ayarla
+    # Set user
     user_id = "personal_user"
     agent.set_user(user_id, name="Ahmet Yılmaz")
 
-    print("👤 Ahmet Yılmaz kişisel asistanı kullanıyor...\n")
+    print("👤 Ahmet Yılmaz is using personal assistant...\n")
 
-    # Kişisel sorular
+    # Personal questions
     conversations = [
         "Merhaba! Ben Ahmet Yılmaz. Bugünkü hava durumu nasıl?",
         "Yarın için bir hatırlatma ayarla: Saat 15:00'de dişçi randevusu",

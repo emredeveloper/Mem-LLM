@@ -1,6 +1,6 @@
 """
-LLM Client - Ollama ile yerel model entegrasyonu
-Granite4:tiny-h modeli ile çalışır
+LLM Client - Local model integration with Ollama
+Works with Granite4:tiny-h model
 """
 
 import requests
@@ -9,14 +9,14 @@ from typing import List, Dict, Optional
 
 
 class OllamaClient:
-    """Ollama API ile yerel LLM modelini kullanır"""
+    """Uses local LLM model with Ollama API"""
     
     def __init__(self, model: str = "granite4:tiny-h", 
                  base_url: str = "http://localhost:11434"):
         """
         Args:
-            model: Kullanılacak model adı
-            base_url: Ollama API URL'i
+            model: Model name to use
+            base_url: Ollama API URL
         """
         self.model = model
         self.base_url = base_url
@@ -25,10 +25,10 @@ class OllamaClient:
         
     def check_connection(self) -> bool:
         """
-        Ollama servisinin çalıştığını kontrol eder
+        Checks if Ollama service is running
         
         Returns:
-            Servis çalışıyor mu?
+            Is service running?
         """
         try:
             response = requests.get(f"{self.base_url}/api/tags", timeout=5)
@@ -38,10 +38,10 @@ class OllamaClient:
     
     def list_models(self) -> List[str]:
         """
-        Mevcut modelleri listeler
+        List available models
         
         Returns:
-            Model isimleri listesi
+            List of model names
         """
         try:
             response = requests.get(f"{self.base_url}/api/tags")
@@ -55,16 +55,16 @@ class OllamaClient:
     def generate(self, prompt: str, system_prompt: Optional[str] = None,
                  temperature: float = 0.7, max_tokens: int = 500) -> str:
         """
-        Basit metin üretimi yapar
+        Generate simple text
         
         Args:
-            prompt: Kullanıcı promptu (AI system promptu değil)
-            system_prompt: AI sistem promptu
-            temperature: Yaratıcılık derecesi (0-1)
-            max_tokens: Maksimum token sayısı
+            prompt: User prompt (not AI system prompt)
+            system_prompt: AI system prompt
+            temperature: Creativity level (0-1)
+            max_tokens: Maximum token count
             
         Returns:
-            Model çıktısı
+            Model output
         """
         payload = {
             "model": self.model,
@@ -84,22 +84,22 @@ class OllamaClient:
             if response.status_code == 200:
                 return response.json().get('response', '').strip()
             else:
-                return f"Hata: {response.status_code} - {response.text}"
+                return f"Error: {response.status_code} - {response.text}"
         except Exception as e:
-            return f"Bağlantı hatası: {str(e)}"
+            return f"Connection error: {str(e)}"
     
     def chat(self, messages: List[Dict[str, str]], 
              temperature: float = 0.7, max_tokens: int = 500) -> str:
         """
-        Konuşma formatında etkileşim
+        Chat format interaction
         
         Args:
-            messages: Mesaj geçmişi [{"role": "user/assistant/system", "content": "..."}]
-            temperature: Yaratıcılık derecesi
-            max_tokens: Maksimum token sayısı
+            messages: Message history [{"role": "user/assistant/system", "content": "..."}]
+            temperature: Creativity level
+            max_tokens: Maximum token count
             
         Returns:
-            Model cevabı
+            Model response
         """
         payload = {
             "model": self.model,
@@ -116,46 +116,46 @@ class OllamaClient:
             if response.status_code == 200:
                 return response.json().get('message', {}).get('content', '').strip()
             else:
-                return f"Hata: {response.status_code} - {response.text}"
+                return f"Error: {response.status_code} - {response.text}"
         except Exception as e:
-            return f"Bağlantı hatası: {str(e)}"
+            return f"Connection error: {str(e)}"
     
     def generate_with_memory_context(self, user_message: str, 
                                      memory_summary: str,
                                      recent_conversations: List[Dict]) -> str:
         """
-        Bellek bağlamı ile cevap üretir
+        Generate response with memory context
         
         Args:
-            user_message: Kullanıcının mesajı
-            memory_summary: Kullanıcı bellek özeti
-            recent_conversations: Son konuşmalar
+            user_message: User's message
+            memory_summary: User memory summary
+            recent_conversations: Recent conversations
             
         Returns:
-            Bağlam farkındalığı olan cevap
+            Context-aware response
         """
-        # Sistem promptu oluştur
-        system_prompt = """Sen yardımsever bir müşteri hizmetleri asistanısın. 
-Kullanıcılarla yaptığın geçmiş konuşmaları hatırlayabiliyorsun.
-Kısa, net ve profesyonel cevaplar ver.
-Geçmiş etkileşimleri akıllıca kullan."""
+        # Create system prompt
+        system_prompt = """You are a helpful customer service assistant.
+You can remember past conversations with users.
+Give short, clear and professional answers.
+Use past interactions intelligently."""
         
-        # Mesaj geçmişini oluştur
+        # Create message history
         messages = [{"role": "system", "content": system_prompt}]
         
-        # Bellek özetini ekle
-        if memory_summary and memory_summary != "Bu kullanıcı ile henüz bir etkileşim yok.":
+        # Add memory summary
+        if memory_summary and memory_summary != "No interactions with this user yet.":
             messages.append({
                 "role": "system",
-                "content": f"Kullanıcı geçmişi:\n{memory_summary}"
+                "content": f"User history:\n{memory_summary}"
             })
         
-        # Son konuşmaları ekle
+        # Add recent conversations
         for conv in recent_conversations[-3:]:
             messages.append({"role": "user", "content": conv.get('user_message', '')})
             messages.append({"role": "assistant", "content": conv.get('bot_response', '')})
         
-        # Şimdiki mesajı ekle
+        # Add current message
         messages.append({"role": "user", "content": user_message})
         
         return self.chat(messages, temperature=0.7)

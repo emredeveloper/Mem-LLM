@@ -1,6 +1,6 @@
 """
-SQL Veritabanı Bellek Yönetimi
-SQLite kullanarak bellek verilerini saklar - Production-ready
+SQL Database Memory Management
+Stores memory data using SQLite - Production-ready
 """
 
 import sqlite3
@@ -11,25 +11,25 @@ from pathlib import Path
 
 
 class SQLMemoryManager:
-    """SQLite tabanlı bellek yönetim sistemi"""
+    """SQLite-based memory management system"""
     
     def __init__(self, db_path: str = "memories.db"):
         """
         Args:
-            db_path: SQLite veritabanı dosya yolu
+            db_path: SQLite database file path
         """
         self.db_path = Path(db_path)
         self.conn = None
         self._init_database()
     
     def _init_database(self) -> None:
-        """Veritabanını ve tabloları oluşturur"""
+        """Create database and tables"""
         self.conn = sqlite3.connect(str(self.db_path), check_same_thread=False)
         self.conn.row_factory = sqlite3.Row
         
         cursor = self.conn.cursor()
         
-        # Kullanıcı profilleri tablosu
+        # User profiles table
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 user_id TEXT PRIMARY KEY,
@@ -42,7 +42,7 @@ class SQLMemoryManager:
             )
         """)
         
-        # Konuşmalar tablosu
+        # Conversations table
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS conversations (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -106,12 +106,12 @@ class SQLMemoryManager:
     def add_user(self, user_id: str, name: Optional[str] = None, 
                  metadata: Optional[Dict] = None) -> None:
         """
-        Yeni kullanıcı ekler veya günceller
+        Add new user or update existing
         
         Args:
-            user_id: Kullanıcı kimliği
-            name: Kullanıcı adı
-            metadata: Ek bilgiler
+            user_id: User ID
+            name: User name
+            metadata: Additional information
         """
         cursor = self.conn.cursor()
         cursor.execute("""
@@ -127,24 +127,24 @@ class SQLMemoryManager:
                        bot_response: str, metadata: Optional[Dict] = None,
                        resolved: bool = False) -> int:
         """
-        Yeni etkileşim kaydeder
+        Record new interaction
         
         Args:
-            user_id: Kullanıcı kimliği
-            user_message: Kullanıcının mesajı
-            bot_response: Botun cevabı
-            metadata: Ek bilgiler
-            resolved: Sorun çözüldü mü?
+            user_id: User ID
+            user_message: User's message
+            bot_response: Bot's response
+            metadata: Additional information
+            resolved: Is issue resolved?
             
         Returns:
-            Eklenen kayıt ID'si
+            Added record ID
         """
         cursor = self.conn.cursor()
         
-        # Kullanıcı yoksa oluştur
+        # Create user if not exists
         self.add_user(user_id)
         
-        # Etkileşimi kaydet
+        # Record interaction
         cursor.execute("""
             INSERT INTO conversations 
             (user_id, user_message, bot_response, metadata, resolved)
@@ -154,7 +154,7 @@ class SQLMemoryManager:
         
         interaction_id = cursor.lastrowid
         
-        # Kullanıcının son etkileşim zamanını güncelle
+        # Update user's last interaction time
         cursor.execute("""
             UPDATE users 
             SET last_interaction = CURRENT_TIMESTAMP

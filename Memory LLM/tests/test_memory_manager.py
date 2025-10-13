@@ -1,5 +1,5 @@
 """
-MemoryManager Özel Testleri
+MemoryManager Specific Tests
 """
 
 import sys
@@ -14,7 +14,7 @@ from memory_manager import MemoryManager
 
 
 class TestMemoryManager(unittest.TestCase):
-    """MemoryManager özel testleri"""
+    """MemoryManager specific tests"""
 
     def setUp(self):
         self.temp_dir = tempfile.mkdtemp()
@@ -25,12 +25,12 @@ class TestMemoryManager(unittest.TestCase):
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 
     def test_memory_creation(self):
-        """Bellek oluşturma testi"""
+        """Memory creation test"""
         self.assertIsNotNone(self.memory)
         self.assertTrue(os.path.exists(self.memory_dir))
 
 
 if __name__ == "__main__":
-    print("MemoryManager testleri çalıştırılıyor...")
+    print("MemoryManager tests are running...")
     unittest.main()
 

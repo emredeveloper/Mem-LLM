@@ -55,19 +55,19 @@ agent = MemAgent(model="granite4:tiny-h")
 # Sistem kontrolü
 status = agent.check_setup()
 if status['status'] == 'ready':
-    print("✅ Sistem hazır!")
+    print("✅ System ready!")
 else:
-    print("❌ Hata:", status)
+    print("❌ Error:", status)
 
 # Kullanıcı ayarla
 agent.set_user("user123")
 
-# İlk konuşma
-response = agent.chat("Merhaba, benim adım Ali")
+# First conversation
+response = agent.chat("Hello, my name is Ali")
 print(response)
 
-# İkinci konuşma - Beni hatırlıyor!
-response = agent.chat("Adımı hatırlıyor musun?")
+# Second conversation - It remembers me!
+response = agent.chat("Do you remember my name?")
 print(response)
 ```
 
@@ -79,15 +79,15 @@ from mem_agent import MemAgent
 agent = MemAgent()
 agent.set_user("ahmet123")
 
-# İlk gün
+# First day
 response = agent.chat(
-    "Siparişim nerede?",
-    metadata={"order": "#12345", "issue": "kargo gecikmesi"}
+    "Where is my order?",
+    metadata={"order": "#12345", "issue": "shipping delay"}
 )
 
-# 3 gün sonra - Geçmişi hatırlıyor
-response = agent.chat("Merhaba yine ben")
-# Bot: "Merhaba Ahmet! #12345 numaralı siparişinizle ilgilenmiştim..."
+# 3 days later - It remembers the past
+response = agent.chat("Hello again")
+# Bot: "Hello Ahmet! I was dealing with your order #12345..."
 ```
 
 ## 📚 Örnek Scriptler

@@ -5,21 +5,21 @@ Setup script for Mem-Agent package
 from setuptools import setup, find_packages
 from pathlib import Path
 
-# README dosyasını oku
+# Read README file
 this_directory = Path(__file__).parent
 long_description = """
-# Mem-Agent: Belleği Olan Mini Asistan
+# Mem-Agent: Memory-Enabled Mini Assistant
 
-Sadece 4 milyar parametreli yerel bir LLM ile çalışan, kullanıcı etkileşimlerini hatırlayan ve bağlam farkındalığı ile cevap veren yapay zeka asistanı.
+An AI assistant that works with a local 4-billion parameter LLM, remembers user interactions and responds with context awareness.
 
-## Özellikler
+## Features
 
-- 🧠 **Bellek Yönetimi**: Kullanıcı etkileşimlerini otomatik kaydeder ve hatırlar
-- 🏠 **Tamamen Yerel**: Ollama ile local çalışır, veri gizliliği
-- 🚀 **Hafif Model**: granite4:tiny-h (4B parametre) ile hızlı yanıt
-- 💾 **JSON Tabanlı Depolama**: Basit ve taşınabilir bellek sistemi
-- 🔍 **Arama & Filtreleme**: Geçmiş konuşmalarda arama yapabilme
-- 📊 **İstatistikler**: Kullanıcı etkileşim analizi
+- 🧠 **Memory Management**: Automatically saves and remembers user interactions
+- 🏠 **Fully Local**: Works locally with Ollama, data privacy
+- 🚀 **Lightweight Model**: Fast response with granite4:tiny-h (4B parameters)
+- 💾 **JSON-Based Storage**: Simple and portable memory system
+- 🔍 **Search & Filter**: Search through conversation history
+- 📊 **Statistics**: User interaction analysis
 
 ## Kurulum
 
@@ -27,21 +27,21 @@ Sadece 4 milyar parametreli yerel bir LLM ile çalışan, kullanıcı etkileşim
 pip install -e .
 ```
 
-## Hızlı Başlangıç
+## Quick Start
 
 ```python
 from mem_agent import MemAgent
 
-# Agent oluştur
+# Create agent
 agent = MemAgent(model="granite4:tiny-h")
 
-# Kullanıcı ile sohbet et
+# Chat with user
 agent.set_user("user123")
-response = agent.chat("Merhaba, benim adım Ali")
+response = agent.chat("Hello, my name is Ali")
 print(response)
 
-# Beni hatırlıyor mu?
-response = agent.chat("Adımı hatırlıyor musun?")
+# Does it remember me?
+response = agent.chat("Do you remember my name?")
 print(response)
 ```
 
@@ -60,7 +60,7 @@ setup(
     name="mem-agent",
     version="1.0.0",
     author="Emre",
-    description="Belleği olan mini asistan - 4B parametreli LLM ile kullanıcı etkileşimlerini hatırlayan yapay zeka",
+    description="Memory-enabled mini assistant - AI that remembers user interactions with 4B parameter LLM",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/yourusername/mem-agent",

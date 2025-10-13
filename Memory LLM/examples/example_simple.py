@@ -1,9 +1,9 @@
 """
-MEM-AGENT BASİT ÖRNEK
-====================
+MEM-AGENT SIMPLE EXAMPLE
+========================
 
-Bu örnek, bellek sahibi bir chatbot'un nasıl çalıştığını gösterir.
-Çok basit 3 konuşma yapacağız ve bot'un belleğini test edeceğiz.
+This example shows how a memory-enabled chatbot works.
+We will have 3 very simple conversations and test the bot's memory.
 """
 
 import sys
@@ -14,36 +14,36 @@ from mem_agent import MemAgent
 
 
 def main():
-    print("🤖 BELLEKLİ CHATBOT ÖRNEĞİ")
+    print("🤖 MEMORY-ENABLED CHATBOT EXAMPLE")
     print("=" * 60)
-    print("Bu örnek adım adım bot'un belleğini test eder.\n")
+    print("This example step by step tests the bot's memory.\n")
 
-    # 1. Bot'u oluştur
-    print("1️⃣ Bot oluşturuluyor...")
+    # 1. Create bot
+    print("1️⃣ Creating bot...")
     agent = MemAgent(model="granite4:tiny-h", use_sql=False)
 
     # Sistem kontrolü
     status = agent.check_setup()
     if status['status'] != 'ready':
-        print("❌ HATA: Ollama çalışmıyor veya model yüklü değil!")
-        print("   Çözüm: 'ollama serve' komutunu çalıştırın")
+        print("❌ ERROR: Ollama is not running or model is not loaded!")
+        print("   Solution: Run 'ollama serve' command")
         return
 
-    print("✅ Bot hazır!\n")
+    print("✅ Bot ready!\n")
 
-    # 2. Kullanıcı belirle
+    # 2. Set user
     user_id = "ahmet123"
     agent.set_user(user_id)
 
-    # 3. İLK KONUŞMA - Tanışma
-    print("2️⃣ İLK KONUŞMA - Tanışma")
+    # 3. FIRST CONVERSATION - Introduction
+    print("2️⃣ FIRST CONVERSATION - Introduction")
     print("-" * 40)
     print("👤 Ahmet: Merhaba, benim adım Ahmet")
     response = agent.chat("Merhaba, benim adım Ahmet")
     print(f"🤖 Bot:  {response}\n")
 
-    # 4. İKİNCİ KONUŞMA - Geçmiş hatırlatma
-    print("3️⃣ İKİNCİ KONUŞMA - Geçmiş")
+    # 4. SECOND CONVERSATION - Memory recall
+    print("3️⃣ SECOND CONVERSATION - Memory")
     print("-" * 40)
     print("👤 Ahmet: Dün sana pizza sipariş etmiştim")
     response = agent.chat("Dün sana pizza sipariş etmiştim")
@@ -64,9 +64,9 @@ def main():
         print(summary)
 
     print("\n" + "=" * 60)
-    print("🎯 SONUÇ: Bot Ahmet'in adını hatırlıyor!")
-    print("📚 Tüm konuşmalar kaydedildi.")
-    print("🔄 Gelecek konuşmalarda bu bilgileri kullanacak.")
+    print("🎯 RESULT: Bot remembers Ahmet's name!")
+    print("📚 All conversations saved.")
+    print("🔄 Will use this information in future conversations.")
     print("=" * 60)
 
 

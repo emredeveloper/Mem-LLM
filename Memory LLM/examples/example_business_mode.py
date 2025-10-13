@@ -1,6 +1,6 @@
 """
-Business Mod Örneği
-Kurumsal kullanım için MemAgent demo
+Business Mode Example
+MemAgent demo for corporate use
 """
 
 import sys
@@ -11,13 +11,13 @@ from mem_agent import MemAgent
 
 
 def business_mode_demo():
-    """Kurumsal kullanım modu demo"""
+    """Corporate usage mode demo"""
 
-    print("🏢 KURUMSAL KULLANIM MODU DEMO")
+    print("🏢 CORPORATE USAGE MODE DEMO")
     print("=" * 60)
-    print("Bu örnek kurumsal müşteri hizmetleri olarak kullanımını gösterir.\n")
+    print("This example demonstrates its use as corporate customer service.\n")
 
-    # Business modda agent oluştur
+    # Create agent in Business mode
     config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "config.yaml")
     agent = MemAgent(
         config_file=config_path,
@@ -25,18 +25,18 @@ def business_mode_demo():
         load_knowledge_base=True
     )
 
-    print(f"✅ Kullanım modu: {agent.usage_mode}")
+    print(f"✅ Usage mode: {agent.usage_mode}")
     if agent.current_system_prompt:
-        print(f"✅ Sistem promptu: {agent.current_system_prompt[:50]}...")
+        print(f"✅ System prompt: {agent.current_system_prompt[:50]}...")
     print()
 
-    # Kurumsal kullanıcı ayarla
+    # Set corporate user
     user_id = "business_user"
-    agent.set_user(user_id, name="Şirket Müşterisi")
+    agent.set_user(user_id, name="Corporate Customer")
 
-    print("👤 Kurumsal müşteri destek hattını arıyor...\n")
+    print("👤 Corporate customer calling support line...\n")
 
-    # Kurumsal sorular
+    # Corporate questions
     conversations = [
         "Merhaba, şirketimiz için teknik destek istiyorum. SLA süreniz nedir?",
         "Şirketimiz 500+ çalışanlı büyük bir kuruluş. Kurumsal fiyatlandırma hakkında bilgi alabilir miyim?",

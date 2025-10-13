@@ -1,6 +1,6 @@
 """
-Kullanıcı Araçları Sistemi
-Kullanıcıların bellek verilerini yönetebilmesi için araçlar
+User Tools System
+Tools for users to manage their memory data
 """
 
 from typing import Dict, List, Optional, Any
@@ -10,207 +10,207 @@ import re
 
 
 class MemoryTools:
-    """Kullanıcı bellek yönetimi araçları"""
+    """User memory management tools"""
 
     def __init__(self, memory_manager):
         """
         Args:
-            memory_manager: Bellek yöneticisi (MemoryManager veya SQLMemoryManager)
+            memory_manager: Memory manager (MemoryManager or SQLMemoryManager)
         """
         self.memory = memory_manager
         self.tools = {
             "list_memories": {
-                "description": "Kullanıcının tüm konuşmalarını listeler",
+                "description": "Lists all user conversations",
                 "parameters": {
-                    "user_id": "Kullanıcı kimliği",
-                    "limit": "Gösterilecek konuşma sayısı (varsayılan: 10)"
+                    "user_id": "User ID",
+                    "limit": "Number of conversations to show (default: 10)"
                 },
                 "function": self._list_memories
             },
             "search_memories": {
-                "description": "Konuşmalarda anahtar kelime arar",
+                "description": "Search for keywords in conversations",
                 "parameters": {
-                    "user_id": "Kullanıcı kimliği",
-                    "keyword": "Aranacak kelime",
-                    "limit": "Gösterilecek sonuç sayısı (varsayılan: 5)"
+                    "user_id": "User ID",
+                    "keyword": "Keyword to search",
+                    "limit": "Number of results to show (default: 5)"
                 },
                 "function": self._search_memories
             },
             "delete_memory": {
-                "description": "Belirli bir konuşmayı siler",
+                "description": "Delete a specific conversation",
                 "parameters": {
-                    "user_id": "Kullanıcı kimliği",
-                    "conversation_id": "Silinecek konuşma ID'si",
-                    "confirm": "Silme onayı (true/false)"
+                    "user_id": "User ID",
+                    "conversation_id": "Conversation ID to delete",
+                    "confirm": "Deletion confirmation (true/false)"
                 },
                 "function": self._delete_memory
             },
             "clear_all_memories": {
-                "description": "Kullanıcının tüm verilerini siler",
+                "description": "Delete all user data",
                 "parameters": {
-                    "user_id": "Kullanıcı kimliği",
-                    "confirm": "Silme onayı (true/false)",
-                    "reason": "Silme nedeni (opsiyonel)"
+                    "user_id": "User ID",
+                    "confirm": "Deletion confirmation (true/false)",
+                    "reason": "Deletion reason (optional)"
                 },
                 "function": self._clear_all_memories
             },
             "show_user_info": {
-                "description": "Kullanıcı hakkında bilgi gösterir",
+                "description": "Show information about user",
                 "parameters": {
-                    "user_id": "Kullanıcı kimliği"
+                    "user_id": "User ID"
                 },
                 "function": self._show_user_info
             },
             "update_user_info": {
-                "description": "Kullanıcı bilgilerini günceller",
+                "description": "Update user information",
                 "parameters": {
-                    "user_id": "Kullanıcı kimliği",
-                    "updates": "Güncellenecek bilgiler"
+                    "user_id": "User ID",
+                    "updates": "Information to update"
                 },
                 "function": self._update_user_info
             },
             "export_memories": {
-                "description": "Kullanıcının verilerini dışa aktarır",
+                "description": "Export user data",
                 "parameters": {
-                    "user_id": "Kullanıcı kimliği",
-                    "format": "Format (json veya txt)"
+                    "user_id": "User ID",
+                    "format": "Format (json or txt)"
                 },
                 "function": self._export_memories
             }
         }
 
     def _list_memories(self, user_id: str, limit: int = 10) -> str:
-        """Kullanıcının konuşmalarını listeler"""
+        """List user conversations"""
         try:
             conversations = self.memory.get_recent_conversations(user_id, limit)
 
             if not conversations:
-                return f"❌ {user_id} kullanıcısının hiç konuşması bulunamadı."
+                return f"❌ No conversations found for user {user_id}."
 
-            result = f"📝 {user_id} kullanıcısının son {len(conversations)} konuşması:\n\n"
+            result = f"📝 Last {len(conversations)} conversations for user {user_id}:\n\n"
 
             for i, conv in enumerate(conversations, 1):
-                timestamp = conv.get('timestamp', 'Bilinmiyor')
+                timestamp = conv.get('timestamp', 'Unknown')
                 user_msg = conv.get('user_message', '')[:100]
                 bot_response = conv.get('bot_response', '')[:100]
 
                 result += f"{i}. [{timestamp}]\n"
-                result += f"   👤 Kullanıcı: {user_msg}...\n"
+                result += f"   👤 User: {user_msg}...\n"
                 result += f"   🤖 Bot: {bot_response}...\n\n"
 
             return result
 
         except Exception as e:
-            return f"❌ Hata: {str(e)}"
+            return f"❌ Error: {str(e)}"
 
     def _search_memories(self, user_id: str, keyword: str, limit: int = 5) -> str:
-        """Konuşmalarda arama yapar"""
+        """Search in conversations"""
         try:
             results = self.memory.search_conversations(user_id, keyword)
 
             if not results:
-                return f"❌ '{keyword}' kelimesi için {user_id} kullanıcısında sonuç bulunamadı."
+                return f"❌ No results found for keyword '{keyword}' for user {user_id}."
 
-            result = f"🔍 '{keyword}' kelimesi için {len(results)} sonuç bulundu:\n\n"
+            result = f"🔍 {len(results)} results found for keyword '{keyword}':\n\n"
 
             for i, conv in enumerate(results[:limit], 1):
-                timestamp = conv.get('timestamp', 'Bilinmiyor')
+                timestamp = conv.get('timestamp', 'Unknown')
                 user_msg = conv.get('user_message', '')
                 bot_response = conv.get('bot_response', '')
 
                 result += f"{i}. [{timestamp}]\n"
-                result += f"   👤 Kullanıcı: {user_msg}\n"
+                result += f"   👤 User: {user_msg}\n"
                 result += f"   🤖 Bot: {bot_response}\n\n"
 
             if len(results) > limit:
-                result += f"... ve {len(results) - limit} sonuç daha."
+                result += f"... and {len(results) - limit} more results."
 
             return result
 
         except Exception as e:
-            return f"❌ Arama hatası: {str(e)}"
+            return f"❌ Search error: {str(e)}"
 
     def _delete_memory(self, user_id: str, conversation_id: str, confirm: bool = False) -> str:
-        """Belirli bir konuşmayı siler"""
+        """Delete a specific conversation"""
         if not confirm:
-            return "⚠️  Silme işlemi için 'confirm=true' parametresini kullanın."
+            return "⚠️  Use 'confirm=true' parameter for deletion."
 
         try:
-            # Bu basit versiyon için tüm konuşmaları yeniden yükleyip filtreleme yapalım
-            # Gerçek uygulamada veritabanında ID'ye göre silme yapılır
+            # For this simple version, reload all conversations and filter
+            # In real application, deletion by ID would be done in database
             conversations = self.memory.get_recent_conversations(user_id, 1000)
 
-            # Basit silme - gerçek uygulamada daha sofistike olur
+            # Simple deletion - would be more sophisticated in real application
             original_count = len(conversations)
 
-            # Bu demo için rastgele bir konuşma siliyormuş gibi yapalım
-            # Gerçek uygulamada conversation_id kullanılır
+            # For this demo, simulate deleting a random conversation
+            # In real application, conversation_id would be used
 
-            return f"✅ Konuşma silindi. ({original_count} konuşma var)"
+            return f"✅ Conversation deleted. ({original_count} conversations exist)"
 
         except Exception as e:
-            return f"❌ Silme hatası: {str(e)}"
+            return f"❌ Deletion error: {str(e)}"
 
     def _clear_all_memories(self, user_id: str, confirm: bool = False, reason: str = "") -> str:
-        """Kullanıcının tüm verilerini siler"""
+        """Delete all user data"""
         if not confirm:
-            return "⚠️  Tüm verileri silmek için 'confirm=true' parametresini kullanın."
+            return "⚠️  Use 'confirm=true' parameter to delete all data."
 
         try:
-            # Tüm konuşmaları temizle
+            # Clear all conversations
             conversations = self.memory.get_recent_conversations(user_id, 1000)
 
-            # Bu demo için silme simülasyonu
-            # Gerçek uygulamada veritabanından tüm kayıtlar silinir
+            # Deletion simulation for this demo
+            # In real application, all records would be deleted from database
 
-            reason_text = f" (Neden: {reason})" if reason else ""
-            return f"🗑️  {user_id} kullanıcısının tüm verileri silindi{reason_text}."
+            reason_text = f" (Reason: {reason})" if reason else ""
+            return f"🗑️  All data for user {user_id} has been deleted{reason_text}."
 
         except Exception as e:
-            return f"❌ Silme hatası: {str(e)}"
+            return f"❌ Deletion error: {str(e)}"
 
     def _show_user_info(self, user_id: str) -> str:
-        """Kullanıcı bilgilerini gösterir"""
+        """Show user information"""
         try:
             profile = self.memory.get_user_profile(user_id)
 
             if not profile:
-                return f"❌ {user_id} kullanıcısı bulunamadı."
+                return f"❌ User {user_id} not found."
 
-            result = f"👤 {user_id} kullanıcı bilgileri:\n\n"
+            result = f"👤 User information for {user_id}:\n\n"
 
             if profile.get('name'):
-                result += f"İsim: {profile['name']}\n"
+                result += f"Name: {profile['name']}\n"
 
             if profile.get('first_seen'):
-                result += f"İlk görüşme: {profile['first_seen']}\n"
+                result += f"First conversation: {profile['first_seen']}\n"
 
             if profile.get('last_interaction'):
-                result += f"Son etkileşim: {profile['last_interaction']}\n"
+                result += f"Last interaction: {profile['last_interaction']}\n"
 
             conversations = self.memory.get_recent_conversations(user_id, 1)
             if conversations:
-                result += f"Toplam konuşma: {len(self.memory.get_recent_conversations(user_id, 1000))}\n"
+                result += f"Total conversations: {len(self.memory.get_recent_conversations(user_id, 1000))}\n"
 
             return result
 
         except Exception as e:
-            return f"❌ Bilgi alma hatası: {str(e)}"
+            return f"❌ Information retrieval error: {str(e)}"
 
     def _update_user_info(self, user_id: str, updates: Dict[str, Any]) -> str:
-        """Kullanıcı bilgilerini günceller"""
+        """Update user information"""
         try:
             self.memory.update_user_profile(user_id, updates)
-            return f"✅ {user_id} kullanıcı bilgileri güncellendi."
+            return f"✅ User information for {user_id} updated."
 
         except Exception as e:
-            return f"❌ Güncelleme hatası: {str(e)}"
+            return f"❌ Update error: {str(e)}"
 
     def _export_memories(self, user_id: str, format: str = "json") -> str:
-        """Kullanıcı verilerini dışa aktarır"""
+        """Export user data"""
         try:
             if format == "json":
-                # JSON formatında tüm veriyi al
+                # Get all data in JSON format
                 profile = self.memory.get_user_profile(user_id)
                 conversations = self.memory.get_recent_conversations(user_id, 1000)
 
@@ -226,61 +226,61 @@ class MemoryTools:
             elif format == "txt":
                 conversations = self.memory.get_recent_conversations(user_id, 1000)
 
-                result = f"{user_id} kullanıcısı konuşma geçmişi\n"
-                result += f"Dışa aktarım tarihi: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+                result = f"Conversation history for user {user_id}\n"
+                result += f"Export date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
                 result += "=" * 60 + "\n\n"
 
                 for i, conv in enumerate(conversations, 1):
-                    result += f"Konuşma {i}:\n"
-                    result += f"Tarih: {conv.get('timestamp', 'Bilinmiyor')}\n"
-                    result += f"Kullanıcı: {conv.get('user_message', '')}\n"
+                    result += f"Conversation {i}:\n"
+                    result += f"Date: {conv.get('timestamp', 'Unknown')}\n"
+                    result += f"User: {conv.get('user_message', '')}\n"
                     result += f"Bot: {conv.get('bot_response', '')}\n"
                     result += "-" * 40 + "\n"
 
                 return result
 
             else:
-                return "❌ Desteklenmeyen format. json veya txt kullanın."
+                return "❌ Unsupported format. Use json or txt."
 
         except Exception as e:
-            return f"❌ Dışa aktarım hatası: {str(e)}"
+            return f"❌ Export error: {str(e)}"
 
     def execute_tool(self, tool_name: str, parameters: Dict[str, Any]) -> str:
         """
-        Belirtilen aracı çalıştırır
+        Execute the specified tool
 
         Args:
-            tool_name: Çalıştırılacak araç adı
-            parameters: Araç parametreleri
+            tool_name: Tool name to execute
+            parameters: Tool parameters
 
         Returns:
-            Araç sonucu
+            Tool result
         """
         if tool_name not in self.tools:
-            return f"❌ '{tool_name}' aracı bulunamadı."
+            return f"❌ Tool '{tool_name}' not found."
 
         tool = self.tools[tool_name]
 
         try:
-            # Parametreleri fonksiyona ilet
+            # Pass parameters to function
             if "user_id" in parameters:
                 result = tool["function"](**parameters)
             else:
-                return "❌ user_id parametresi gerekli."
+                return "❌ user_id parameter required."
 
             return result
 
         except Exception as e:
-            return f"❌ Araç çalıştırma hatası: {str(e)}"
+            return f"❌ Tool execution error: {str(e)}"
 
     def list_available_tools(self) -> str:
-        """Mevcut araçları listeler"""
-        result = "🛠️ Kullanılabilir Araçlar:\n\n"
+        """List available tools"""
+        result = "🛠️ Available Tools:\n\n"
 
         for name, tool in self.tools.items():
             result += f"🔧 {name}\n"
-            result += f"   Açıklama: {tool['description']}\n"
-            result += "   Parametreler:\n"
+            result += f"   Description: {tool['description']}\n"
+            result += "   Parameters:\n"
 
             for param, desc in tool['parameters'].items():
                 result += f"     • {param}: {desc}\n"
@@ -291,38 +291,38 @@ class MemoryTools:
 
     def parse_user_command(self, user_message: str) -> tuple:
         """
-        Kullanıcı mesajından araç çağrısı çıkarır
+        Extract tool call from user message
 
         Returns:
-            (tool_name, parameters) veya (None, None) eğer araç çağrısı yoksa
+            (tool_name, parameters) or (None, None) if no tool call
         """
-        # Komut pattern'leri
+        # Command patterns
         patterns = {
             "list_memories": [
-                r"geçmiş.*konuşmalarımı.*göster",
-                r"konuşmalarımı.*listele",
-                r"tüm.*konuşmalarımı.*göster",
-                r"geçmişimi.*göster"
+                r"show.*my.*past.*conversations",
+                r"list.*my.*conversations",
+                r"show.*all.*my.*conversations",
+                r"show.*my.*history"
             ],
             "search_memories": [
-                r"(.*) hakkında.*konuşmalarımı.*ara",
-                r"(.*) kelimesi.*geçen.*konuşmalar",
-                r"(.*) ile.*ilgili.*konuşmalarımı.*bul"
+                r"search.*my.*conversations.*about.*(.*)",
+                r"conversations.*with.*keyword.*(.*)",
+                r"find.*my.*conversations.*related.*to.*(.*)"
             ],
             "show_user_info": [
-                r"hakkımda.*ne.*biliyorsun",
-                r"beni.*tanıt",
-                r"profilimi.*göster"
+                r"what.*do.*you.*know.*about.*me",
+                r"introduce.*me",
+                r"show.*my.*profile"
             ],
             "clear_all_memories": [
-                r"her şeyi.*unut",
-                r"tüm.*verilerimi.*sil",
-                r"bütün.*geçmişimi.*temizle"
+                r"forget.*everything",
+                r"delete.*all.*my.*data",
+                r"clear.*all.*my.*history"
             ],
             "export_memories": [
-                r"verilerimi.*dışa.*aktar",
-                r"geçmişimi.*export.*et",
-                r"konuşmalarımı.*indir"
+                r"export.*my.*data",
+                r"export.*my.*history",
+                r"download.*my.*conversations"
             ]
         }
 
@@ -332,8 +332,8 @@ class MemoryTools:
             for pattern in pattern_list:
                 match = re.search(pattern, message_lower)
                 if match:
-                    # Basit parametre çıkarma
-                    parameters = {"user_id": "current_user"}  # Bu gerçek uygulamada mevcut kullanıcıdan alınır
+                    # Simple parameter extraction
+                    parameters = {"user_id": "current_user"}  # In real application, this would be taken from current user
 
                     if tool_name == "search_memories":
                         keyword = match.group(1).strip()
@@ -346,84 +346,84 @@ class MemoryTools:
 
 
 class ToolExecutor:
-    """Araçları çalıştıran executor"""
+    """Tool executor"""
 
     def __init__(self, memory_manager, current_user_id: str = None):
         """
         Args:
-            memory_manager: Bellek yöneticisi
-            current_user_id: Mevcut kullanıcı kimliği
+            memory_manager: Memory manager
+            current_user_id: Current user ID
         """
         self.memory_tools = MemoryTools(memory_manager)
         self.current_user_id = current_user_id
 
     def execute_user_command(self, user_message: str, user_id: str = None) -> str:
         """
-        Kullanıcı mesajından araç çağrısı tespit eder ve çalıştırır
+        Detect and execute tool call from user message
 
         Args:
-            user_message: Kullanıcı mesajı
-            user_id: Kullanıcı kimliği
+            user_message: User message
+            user_id: User ID
 
         Returns:
-            Araç sonucu veya None eğer araç çağrısı yoksa
+            Tool result or None if no tool call
         """
         uid = user_id or self.current_user_id
 
         tool_name, parameters = self.memory_tools.parse_user_command(user_message)
 
         if tool_name and uid:
-            # user_id'yi parametrelere ekle
+            # Add user_id to parameters
             parameters["user_id"] = uid
             return self.memory_tools.execute_tool(tool_name, parameters)
 
         return None
 
     def is_tool_command(self, user_message: str) -> bool:
-        """Mesaj araç komutu mu kontrol eder"""
+        """Check if message is a tool command"""
         tool_name, _ = self.memory_tools.parse_user_command(user_message)
         return tool_name is not None
 
 
 def create_sample_tool_usage():
-    """Araç kullanımı örneği oluşturur"""
-    print("🛠️  BELLEK ARAÇLARI ÖRNEĞİ")
+    """Create tool usage example"""
+    print("🛠️  MEMORY TOOLS EXAMPLE")
     print("=" * 60)
 
-    # Demo için basit bellek yöneticisi
+    # Simple memory manager for demo
     from memory_manager import MemoryManager
     memory = MemoryManager()
 
-    # Örnek kullanıcı ekle
-    memory.add_user("demo_user", "Demo Kullanıcı")
-    memory.add_interaction("demo_user", "Merhaba!", "Merhaba! Nasıl yardımcı olabilirim?")
-    memory.add_interaction("demo_user", "Adım Ahmet", "Memnuniyetle Ahmet!")
+    # Add sample user
+    memory.add_user("demo_user", "Demo User")
+    memory.add_interaction("demo_user", "Hello!", "Hello! How can I help you?")
+    memory.add_interaction("demo_user", "My name is Ahmet", "Nice to meet you Ahmet!")
 
     tools = MemoryTools(memory)
 
-    print("📋 Kullanılabilir araçlar:")
+    print("📋 Available tools:")
     print(tools.list_available_tools())
 
     print("\n" + "=" * 60)
-    print("🎯 ÖRNEK KULLANIM:")
+    print("🎯 EXAMPLE USAGE:")
     print("=" * 60)
 
-    # Araçları manuel çalıştır
-    print("1️⃣  Geçmiş konuşmaları listele:")
+    # Execute tools manually
+    print("1️⃣  List past conversations:")
     result = tools.execute_tool("list_memories", {"user_id": "demo_user", "limit": 5})
     print(result)
 
-    print("\n2️⃣  'Merhaba' kelimesini ara:")
-    result = tools.execute_tool("search_memories", {"user_id": "demo_user", "keyword": "Merhaba"})
+    print("\n2️⃣  Search for 'Hello' keyword:")
+    result = tools.execute_tool("search_memories", {"user_id": "demo_user", "keyword": "Hello"})
     print(result)
 
-    print("\n3️⃣  Kullanıcı bilgilerini göster:")
+    print("\n3️⃣  Show user information:")
     result = tools.execute_tool("show_user_info", {"user_id": "demo_user"})
     print(result)
 
-    print("\n4️⃣  Verileri dışa aktar (JSON):")
+    print("\n4️⃣  Export data (JSON):")
     result = tools.execute_tool("export_memories", {"user_id": "demo_user", "format": "json"})
-    print(result[:200] + "...")  # İlk 200 karakter
+    print(result[:200] + "...")  # First 200 characters
 
 
 if __name__ == "__main__":

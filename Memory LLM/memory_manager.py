@@ -1,6 +1,6 @@
 """
-Memory Manager - Bellek Yönetim Sistemi
-Kullanıcı etkileşimlerini saklar, günceller ve hatırlar.
+Memory Manager - Memory Management System
+Stores, updates and remembers user interactions.
 """
 
 import json
@@ -11,12 +11,12 @@ from pathlib import Path
 
 
 class MemoryManager:
-    """Kullanıcı etkileşimlerini ve bağlamı yöneten bellek sistemi"""
+    """Memory system that manages user interactions and context"""
     
     def __init__(self, memory_dir: str = "memories"):
         """
         Args:
-            memory_dir: Bellek dosyalarının saklanacağı dizin
+            memory_dir: Directory where memory files will be stored
         """
         self.memory_dir = Path(memory_dir)
         self.memory_dir.mkdir(exist_ok=True)
@@ -24,18 +24,18 @@ class MemoryManager:
         self.user_profiles: Dict[str, Dict] = {}
         
     def _get_user_file(self, user_id: str) -> Path:
-        """Kullanıcının bellek dosyasının yolunu döndürür"""
+        """Returns the path of user's memory file"""
         return self.memory_dir / f"{user_id}.json"
     
     def load_memory(self, user_id: str) -> Dict:
         """
-        Kullanıcının belleğini yükler
+        Load user's memory
         
         Args:
-            user_id: Kullanıcı kimliği
+            user_id: User ID
             
         Returns:
-            Kullanıcının bellek verisi
+            User's memory data
         """
         user_file = self._get_user_file(user_id)
         
@@ -46,7 +46,7 @@ class MemoryManager:
                 self.user_profiles[user_id] = data.get('profile', {})
                 return data
         else:
-            # Yeni kullanıcı için boş bellek oluştur
+            # Create empty memory for new user
             self.conversations[user_id] = []
             self.user_profiles[user_id] = {
                 'user_id': user_id,
@@ -61,10 +61,10 @@ class MemoryManager:
     
     def save_memory(self, user_id: str) -> None:
         """
-        Kullanıcının belleğini diske kaydeder
+        Save user's memory to disk
         
         Args:
-            user_id: Kullanıcı kimliği
+            user_id: User ID
         """
         user_file = self._get_user_file(user_id)
         
@@ -80,13 +80,13 @@ class MemoryManager:
     def add_interaction(self, user_id: str, user_message: str, 
                        bot_response: str, metadata: Optional[Dict] = None) -> None:
         """
-        Yeni bir etkileşim kaydeder
+        Record a new interaction
         
         Args:
-            user_id: Kullanıcı kimliği
-            user_message: Kullanıcının mesajı
-            bot_response: Botun cevabı
-            metadata: Ek bilgiler (sipariş no, sorun türü vb.)
+            user_id: User ID
+            user_message: User's message
+            bot_response: Bot's response
+            metadata: Additional information (order no, issue type, etc.)
         """
         if user_id not in self.conversations:
             self.load_memory(user_id)
@@ -103,11 +103,11 @@ class MemoryManager:
     
     def update_profile(self, user_id: str, updates: Dict) -> None:
         """
-        Kullanıcı profilini günceller
+        Update user profile
         
         Args:
-            user_id: Kullanıcı kimliği
-            updates: Güncellenecek bilgiler
+            user_id: User ID
+            updates: Information to update
         """
         if user_id not in self.user_profiles:
             self.load_memory(user_id)
@@ -117,14 +117,14 @@ class MemoryManager:
     
     def get_recent_conversations(self, user_id: str, limit: int = 5) -> List[Dict]:
         """
-        Son N konuşmayı getirir
+        Get last N conversations
         
         Args:
-            user_id: Kullanıcı kimliği
-            limit: Getir​ilecek konuşma sayısı
+            user_id: User ID
+            limit: Number of conversations to retrieve
             
         Returns:
-            Son konuşmalar listesi
+            List of recent conversations
         """
         if user_id not in self.conversations:
             self.load_memory(user_id)
@@ -133,14 +133,14 @@ class MemoryManager:
     
     def search_memory(self, user_id: str, keyword: str) -> List[Dict]:
         """
-        Bellekte anahtar kelime araması yapar
+        Search for keyword in memory
         
         Args:
-            user_id: Kullanıcı kimliği
-            keyword: Aranacak kelime
-            
+            user_id: User ID
+            keyword: Word to search for
+        
         Returns:
-            Eşleşen etkileşimler
+            Matching interactions
         """
         if user_id not in self.conversations:
             self.load_memory(user_id)
@@ -158,13 +158,13 @@ class MemoryManager:
     
     def get_summary(self, user_id: str) -> str:
         """
-        Kullanıcının geçmiş etkileşimlerinin özetini oluşturur
+        Create summary of user's past interactions
         
         Args:
-            user_id: Kullanıcı kimliği
+            user_id: User ID
             
         Returns:
-            Özet metin
+            Summary text
         """
         if user_id not in self.conversations:
             self.load_memory(user_id)
@@ -173,27 +173,27 @@ class MemoryManager:
         conversations = self.conversations.get(user_id, [])
         
         if not conversations:
-            return "Bu kullanıcı ile henüz bir etkileşim yok."
+            return "No interactions with this user yet."
         
         summary_parts = [
-            f"Kullanıcı ID: {user_id}",
-            f"İlk görüşme: {profile.get('first_seen', 'Bilinmiyor')}",
-            f"Toplam etkileşim: {len(conversations)}",
+            f"User ID: {user_id}",
+            f"First conversation: {profile.get('first_seen', 'Unknown')}",
+            f"Total interactions: {len(conversations)}",
         ]
         
-        # Son 3 etkileşimi ekle
+        # Add last 3 interactions
         if conversations:
-            summary_parts.append("\nSon etkileşimler:")
+            summary_parts.append("\nRecent interactions:")
             for i, conv in enumerate(conversations[-3:], 1):
-                timestamp = conv.get('timestamp', 'Bilinmiyor')
+                timestamp = conv.get('timestamp', 'Unknown')
                 user_msg = conv.get('user_message', '')[:50]
                 summary_parts.append(f"{i}. {timestamp}: {user_msg}...")
         
-        # Metadata özeti
+        # Metadata summary
         all_metadata = [c.get('metadata', {}) for c in conversations if c.get('metadata')]
         if all_metadata:
-            summary_parts.append("\nKaydedilen bilgiler:")
-            # Örnek: sipariş numaraları, sorunlar vb.
+            summary_parts.append("\nSaved information:")
+            # Example: order numbers, issues, etc.
             for meta in all_metadata[-3:]:
                 for key, value in meta.items():
                     summary_parts.append(f"  - {key}: {value}")
@@ -202,10 +202,10 @@ class MemoryManager:
     
     def clear_memory(self, user_id: str) -> None:
         """
-        Kullanıcının belleğini tamamen siler
+        Completely delete user's memory
 
         Args:
-            user_id: Kullanıcı kimliği
+            user_id: User ID
         """
         user_file = self._get_user_file(user_id)
         if user_file.exists():
@@ -218,14 +218,14 @@ class MemoryManager:
 
     def search_conversations(self, user_id: str, keyword: str) -> List[Dict]:
         """
-        Konuşmalarda anahtar kelime arar (JSON versiyonu için)
+        Search for keyword in conversations (for JSON version)
 
         Args:
-            user_id: Kullanıcı kimliği
-            keyword: Aranacak kelime
-
+            user_id: User ID
+            keyword: Word to search for
+        
         Returns:
-            Eşleşen konuşmalar
+            Matching conversations
         """
         if user_id not in self.conversations:
             self.load_memory(user_id)
@@ -242,13 +242,13 @@ class MemoryManager:
 
     def get_user_profile(self, user_id: str) -> Optional[Dict]:
         """
-        Kullanıcı profilini getirir (JSON versiyonu için)
+        Get user profile (for JSON version)
 
         Args:
-            user_id: Kullanıcı kimliği
+            user_id: User ID
 
         Returns:
-            Kullanıcı profili veya None
+            User profile or None
         """
         if user_id not in self.user_profiles:
             self.load_memory(user_id)

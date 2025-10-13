@@ -1,5 +1,5 @@
 """
-Mem-Agent Örnekler Paketi
-Farklı kullanım senaryolarını gösteren örnekler
+Mem-Agent Examples Package
+Examples showing different usage scenarios
 """
 

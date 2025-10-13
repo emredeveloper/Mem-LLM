@@ -1,6 +1,6 @@
 """
-Örnek Kullanım: Müşteri Hizmetleri Botu
-Senaryonuza uygun müşteri hizmetleri asistanı örneği
+Example Usage: Customer Service Bot
+Customer service assistant example suitable for your scenario
 """
 
 import sys
@@ -18,7 +18,7 @@ def simulate_customer_service():
     print("🤖 BELLEKLİ MÜŞTERİ HİZMETLERİ BOTU")
     print("=" * 70)
     print("Bu örnek gerçek bir müşteri hizmetleri konuşmasını simüle eder.")
-    print("Bot müşterinin geçmişini hatırlar ve kişiselleştirilmiş cevap verir.\n")
+    print("Bot remembers customer history and gives personalized responses.\n")
 
     # Agent'ı başlat
     print("🔄 Bot başlatılıyor...")
@@ -33,11 +33,11 @@ def simulate_customer_service():
     status = agent.check_setup()
 
     if status['status'] != 'ready':
-        print("❌ HATA: Ollama çalışmıyor!")
-        print("   Çözüm: 'ollama serve' komutunu çalıştırın")
+        print("❌ ERROR: Ollama is not running!")
+        print("   Solution: Run 'ollama serve' command")
         return
 
-    print("✅ Sistem hazır!\n")
+    print("✅ System ready!\n")
     
     # === GÜN 1: İlk Müşteri - Ahmet ===
     print("-" * 60)
@@ -72,7 +72,7 @@ def simulate_customer_service():
     print("\n👤 Ahmet: Merhabalar, dün size sormuştum...")
     response = agent.chat("Merhabalar, dün size sormuştum...")
     print(f"🤖 Bot: {response}")
-    print("   (🧠 Bot geçmiş konuşmayı hatırlıyor!)\n")
+    print("   (🧠 Bot remembers the past conversation!)\n")
     
     # === GÜN 3: Yeni Müşteri - Ayşe ===
     print("-" * 60)
@@ -98,14 +98,14 @@ def simulate_customer_service():
     
     # İstatistikleri göster
     stats = agent.get_statistics()
-    print(f"Toplam kullanıcı: {stats.get('total_users', 'N/A')}")
-    print(f"Toplam etkileşim: {stats.get('total_interactions', 'N/A')}")
+    print(f"Total users: {stats.get('total_users', 'N/A')}")
+    print(f"Total interactions: {stats.get('total_interactions', 'N/A')}")
     
-    print("\n🎯 DEMO SONUÇLARI:")
-    print("✅ Müşteriler farklı günlerde geri döndüğünde geçmişlerini hatırlıyor")
-    print("✅ Her müşterinin ayrı belleği var")
-    print("✅ Metadata ile ek bilgi kaydediliyor")
-    print("✅ Gerçek müşteri hizmetleri için kullanıma hazır!")
+    print("\n🎯 DEMO RESULTS:")
+    print("✅ Remembers customer history when they return on different days")
+    print("✅ Each customer has separate memory")
+    print("✅ Additional information saved with metadata")
+    print("✅ Ready for real customer service use!")
     print("=" * 70)
 
 

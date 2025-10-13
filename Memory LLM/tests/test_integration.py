@@ -1,6 +1,6 @@
 """
-Entegrasyon Testleri
-Tüm sistem bileşenlerinin birlikte çalışmasını test eder
+Integration Tests
+Tests all system components working together
 """
 
 import sys
@@ -11,7 +11,7 @@ import unittest
 import tempfile
 import shutil
 
-# Tüm modülleri import et
+# Import all modules
 from mem_agent import MemAgent
 from memory_manager import MemoryManager
 from memory_db import SQLMemoryManager
@@ -21,20 +21,20 @@ from config_manager import get_config
 
 
 class TestIntegration(unittest.TestCase):
-    """Sistem entegrasyonu testleri"""
+    """System integration tests"""
 
     def setUp(self):
-        """Test öncesi kurulum"""
+        """Setup before test"""
         self.temp_dir = tempfile.mkdtemp()
 
-        # Basit agent için (JSON bellek)
+        # For simple agent (JSON memory)
         self.simple_agent = MemAgent(
             model="granite4:tiny-h",
             use_sql=False,
             memory_dir=os.path.join(self.temp_dir, "simple_memories")
         )
 
-        # Gelişmiş agent için (SQL bellek ve config)
+        # For advanced agent (SQL memory and config)
         config_file = os.path.join(self.temp_dir, "integration_config.yaml")
         self._create_integration_config(config_file)
 
@@ -45,15 +45,15 @@ class TestIntegration(unittest.TestCase):
             )
             self.advanced_available = True
         except Exception as e:
-            print(f"⚠️  Gelişmiş agent oluşturulamadı: {e}")
+            print(f"⚠️  Advanced agent could not be created: {e}")
             self.advanced_available = False
 
     def tearDown(self):
-        """Test sonrası temizlik"""
+        """Cleanup after test"""
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 
     def _create_integration_config(self, config_file):
-        """Entegrasyon testi için config dosyası"""
+        """Config file for integration test"""
         config_content = """
 llm:
   model: "granite4:tiny-h"

@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-Tüm Mem-Agent Testlerini Çalıştıran Ana Script
-===========================================
+Main Script to Run All Mem-Agent Tests
+====================================
 
-Bu script tüm test dosyalarını çalıştırır ve sonuçları raporlar.
+This script runs all test files and reports results.
 
-Kullanım:
-    python run_all_tests.py          # Tüm testleri çalıştır
+Usage:
+    python run_all_tests.py          # Run all tests
     python run_all_tests.py basic    # Sadece temel testleri çalıştır
     python run_all_tests.py integration  # Sadece entegrasyon testleri çalıştır
 """

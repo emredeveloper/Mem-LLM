@@ -1,6 +1,6 @@
 """
-Bilgi Bankası Yükleyici
-Önceden hazırlanmış problem/çözüm veritabanını sisteme yükler
+Knowledge Base Loader
+Loads pre-prepared problem/solution database into the system
 """
 
 import json
@@ -14,24 +14,24 @@ from memory_db import SQLMemoryManager
 
 
 class KnowledgeLoader:
-    """Bilgi bankası yönetimi ve yükleme"""
+    """Knowledge base management and loading"""
     
     def __init__(self, db_manager: SQLMemoryManager):
         """
         Args:
-            db_manager: SQL bellek yöneticisi
+            db_manager: SQL memory manager
         """
         self.db = db_manager
     
     def load_from_json(self, file_path: str) -> int:
         """
-        JSON dosyasından bilgi bankasını yükler
+        Load knowledge base from JSON file
         
-        JSON Formatı:
+        JSON Format:
         {
             "knowledge_base": [
                 {
-                    "category": "kargo",
+                    "category": "shipping",
                     "question": "Kargo ne zaman gelir?",
                     "answer": "Kargo 3-5 iş günü içinde teslim edilir.",
                     "keywords": ["kargo", "teslimat", "süre"],
@@ -41,10 +41,10 @@ class KnowledgeLoader:
         }
         
         Args:
-            file_path: JSON dosya yolu
+            file_path: JSON file path
             
         Returns:
-            Yüklenen kayıt sayısı
+            Number of loaded records
         """
         with open(file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
@@ -64,13 +64,13 @@ class KnowledgeLoader:
     
     def load_from_yaml(self, file_path: str) -> int:
         """
-        YAML dosyasından bilgi bankasını yükler
+        Load knowledge base from YAML file
         
         Args:
-            file_path: YAML dosya yolu
+            file_path: YAML file path
             
         Returns:
-            Yüklenen kayıt sayısı
+            Number of loaded records
         """
         with open(file_path, 'r', encoding='utf-8') as f:
             data = yaml.safe_load(f)
@@ -90,32 +90,32 @@ class KnowledgeLoader:
     
     def load_default_ecommerce_kb(self) -> int:
         """
-        E-ticaret için varsayılan bilgi bankasını yükler
+        Load default knowledge base for e-commerce
         
         Returns:
-            Yüklenen kayıt sayısı
+            Number of loaded records
         """
         knowledge = [
             # Kargo
             {
-                "category": "kargo",
+                "category": "shipping",
                 "question": "Kargom ne zaman gelir?",
-                "answer": "Siparişiniz onaylandıktan sonra 2-3 iş günü içinde kargoya verilir ve 3-5 iş günü içinde adresinize teslim edilir.",
-                "keywords": ["kargo", "teslimat", "süre", "ne zaman"],
+                "answer": "After your order is confirmed, it will be shipped within 2-3 business days and delivered to your address within 3-5 business days.",
+                "keywords": ["shipping", "delivery", "time", "when"],
                 "priority": 10
             },
             {
-                "category": "kargo",
-                "question": "Kargo takibi nasıl yapılır?",
-                "answer": "Siparişlerim sayfasından sipariş numaranıza tıklayarak kargo takip numarasını görebilirsiniz. Bu numara ile kargo şirketinin web sitesinden takip yapabilirsiniz.",
+                "category": "shipping",
+                "question": "How to track shipping?",
+                "answer": "You can see the shipping tracking number by clicking on your order number from the My Orders page. You can track it from the shipping company's website with this number.",
                 "keywords": ["kargo", "takip", "sorgulama"],
                 "priority": 9
             },
             {
-                "category": "kargo",
-                "question": "Kargo ücreti ne kadar?",
-                "answer": "150 TL ve üzeri alışverişlerde kargo ücretsizdir. Altındaki siparişlerde kargo ücreti 29.90 TL'dir.",
-                "keywords": ["kargo", "ücret", "bedava", "ücretsiz"],
+                "category": "shipping",
+                "question": "How much is the shipping fee?",
+                "answer": "Shipping is free for purchases of 150 TL and above. For orders below that, the shipping fee is 29.90 TL.",
+                "keywords": ["shipping", "fee", "free", "cost"],
                 "priority": 8
             },
             # İade
@@ -204,10 +204,10 @@ class KnowledgeLoader:
     
     def load_default_tech_support_kb(self) -> int:
         """
-        Teknik destek için varsayılan bilgi bankası
+        Default knowledge base for technical support
         
         Returns:
-            Yüklenen kayıt sayısı
+            Number of loaded records
         """
         knowledge = [
             {
@@ -250,11 +250,11 @@ class KnowledgeLoader:
     def export_to_json(self, output_file: str, 
                        category: Optional[str] = None) -> None:
         """
-        Bilgi bankasını JSON dosyasına export eder
+        Export knowledge base to JSON file
         
         Args:
-            output_file: Çıktı dosyası
-            category: Kategori filtresi (opsiyonel)
+            output_file: Output file
+            category: Category filter (optional)
         """
         cursor = self.db.conn.cursor()
         
@@ -289,13 +289,13 @@ class KnowledgeLoader:
 
 
 def create_sample_kb_files():
-    """Örnek bilgi bankası dosyalarını oluşturur"""
+    """Create sample knowledge base files"""
     
     # E-ticaret JSON
     ecommerce_kb = {
         "knowledge_base": [
             {
-                "category": "kargo",
+                "category": "shipping",
                 "question": "Kargom ne zaman gelir?",
                 "answer": "2-3 iş günü içinde kargoya verilir, 3-5 iş günü içinde teslim edilir.",
                 "keywords": ["kargo", "teslimat", "süre"],
@@ -339,7 +339,7 @@ def create_sample_kb_files():
     with open("knowledge_samples/ecommerce_kb.yaml", 'w', encoding='utf-8') as f:
         f.write(yaml_content)
     
-    print("✅ Örnek bilgi bankası dosyaları oluşturuldu:")
+    print("✅ Sample knowledge base files created:")
     print("   - knowledge_samples/ecommerce_kb.json")
     print("   - knowledge_samples/ecommerce_kb.yaml")
 

@@ -1,6 +1,6 @@
 """
-Yapılandırma Yöneticisi
-YAML dosyasından konfigürasyon okur ve yönetir
+Configuration Manager
+Reads and manages configuration from YAML file
 """
 
 import yaml
@@ -10,29 +10,29 @@ import os
 
 
 class ConfigManager:
-    """Yapılandırma dosyasını yönetir"""
+    """Manages configuration file"""
     
     def __init__(self, config_file: str = "config.yaml"):
         """
         Args:
-            config_file: Yapılandırma dosyası yolu
+            config_file: Configuration file path
         """
         self.config_file = Path(config_file)
         self.config: Dict[str, Any] = {}
         self._load_config()
     
     def _load_config(self) -> None:
-        """Yapılandırma dosyasını yükler"""
+        """Load configuration file"""
         if self.config_file.exists():
             with open(self.config_file, 'r', encoding='utf-8') as f:
                 self.config = yaml.safe_load(f) or {}
         else:
-            # Varsayılan yapılandırma
+            # Default configuration
             self.config = self._get_default_config()
             self.save_config()
     
     def _get_default_config(self) -> Dict[str, Any]:
-        """Varsayılan yapılandırmayı döndürür"""
+        """Returns default configuration"""
         return {
             "llm": {
                 "model": "granite4:tiny-h",
@@ -51,8 +51,8 @@ class ConfigManager:
             "prompt": {
                 "template": "customer_service",
                 "variables": {
-                    "company_name": "Şirketimiz",
-                    "tone": "samimi ve profesyonel"
+                    "company_name": "Our Company",
+                    "tone": "friendly and professional"
                 },
                 "custom_prompt": None
             },
@@ -77,7 +77,7 @@ class ConfigManager:
             "security": {
                 "filter_sensitive_data": True,
                 "sensitive_keywords": [
-                    "kredi kartı", "şifre", "parola", "CVV", "TC kimlik"
+                    "credit card", "password", "passcode", "CVV", "TR ID"
                 ],
                 "rate_limit": {
                     "enabled": True,
@@ -113,14 +113,14 @@ class ConfigManager:
     
     def get(self, key_path: str, default: Any = None) -> Any:
         """
-        Nokta notasyonu ile yapılandırma değeri alır
+        Get configuration value with dot notation
         
         Args:
-            key_path: Anahtar yolu (örn: "llm.model")
-            default: Bulunamazsa döndürülecek değer
+            key_path: Key path (e.g: "llm.model")
+            default: Value to return if not found
             
         Returns:
-            Yapılandırma değeri
+            Configuration value
         """
         keys = key_path.split('.')
         value = self.config
@@ -135,11 +135,11 @@ class ConfigManager:
     
     def set(self, key_path: str, value: Any) -> None:
         """
-        Nokta notasyonu ile yapılandırma değeri ayarlar
+        Set configuration value with dot notation
         
         Args:
-            key_path: Anahtar yolu (örn: "llm.model")
-            value: Ayarlanacak değer
+            key_path: Key path (e.g: "llm.model")
+            value: Value to set
         """
         keys = key_path.split('.')
         config = self.config
@@ -152,49 +152,49 @@ class ConfigManager:
         config[keys[-1]] = value
     
     def save_config(self) -> None:
-        """Yapılandırmayı dosyaya kaydeder"""
+        """Save configuration to file"""
         with open(self.config_file, 'w', encoding='utf-8') as f:
             yaml.dump(self.config, f, default_flow_style=False, 
                      allow_unicode=True, sort_keys=False)
     
     def reload(self) -> None:
-        """Yapılandırmayı yeniden yükler"""
+        """Reload configuration"""
         self._load_config()
     
     def get_llm_config(self) -> Dict[str, Any]:
-        """LLM yapılandırmasını döndürür"""
+        """Returns LLM configuration"""
         return self.get("llm", {})
     
     def get_memory_config(self) -> Dict[str, Any]:
-        """Bellek yapılandırmasını döndürür"""
+        """Returns memory configuration"""
         return self.get("memory", {})
     
     def get_prompt_config(self) -> Dict[str, Any]:
-        """Prompt yapılandırmasını döndürür"""
+        """Returns prompt configuration"""
         return self.get("prompt", {})
     
     def get_kb_config(self) -> Dict[str, Any]:
-        """Bilgi bankası yapılandırmasını döndürür"""
+        """Returns knowledge base configuration"""
         return self.get("knowledge_base", {})
     
     def is_kb_enabled(self) -> bool:
-        """Bilgi bankası etkin mi?"""
+        """Is knowledge base enabled?"""
         return self.get("knowledge_base.enabled", True)
     
     def is_memory_enabled(self) -> bool:
-        """Bellek etkin mi?"""
+        """Is memory enabled?"""
         return self.get("response.use_memory", True)
     
     def get_memory_backend(self) -> str:
-        """Bellek backend türünü döndürür (json veya sql)"""
+        """Returns memory backend type (json or sql)"""
         return self.get("memory.backend", "sql")
     
     def get_db_path(self) -> str:
-        """Veritabanı dosya yolunu döndürür"""
+        """Returns database file path"""
         return self.get("memory.db_path", "memories.db")
     
     def get_json_dir(self) -> str:
-        """JSON bellek dizinini döndürür"""
+        """Returns JSON memory directory"""
         return self.get("memory.json_dir", "memories")
     
     def __repr__(self) -> str:
@@ -207,10 +207,10 @@ _config_manager: Optional[ConfigManager] = None
 
 def get_config(config_file: str = "config.yaml") -> ConfigManager:
     """
-    Global yapılandırma yöneticisini döndürür
+    Returns global configuration manager
     
     Args:
-        config_file: Yapılandırma dosyası
+        config_file: Configuration file
         
     Returns:
         ConfigManager instance
@@ -222,7 +222,7 @@ def get_config(config_file: str = "config.yaml") -> ConfigManager:
 
 
 def reload_config() -> None:
-    """Global yapılandırmayı yeniden yükler"""
+    """Reloads global configuration"""
     global _config_manager
     if _config_manager:
         _config_manager.reload()

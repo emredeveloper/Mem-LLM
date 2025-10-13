@@ -1,5 +1,5 @@
 """
-Memory Tools Özel Testleri
+Memory Tools Specific Tests
 """
 
 import sys
@@ -15,25 +15,25 @@ from memory_tools import MemoryTools
 
 
 class TestMemoryTools(unittest.TestCase):
-    """Memory Tools özel testleri"""
+    """Memory Tools specific tests"""
 
     def setUp(self):
         self.temp_dir = tempfile.mkdtemp()
         self.memory_dir = os.path.join(self.temp_dir, "test_memories")
         self.memory = MemoryManager(self.memory_dir)
-        self.memory.add_interaction("test_user", "Test mesajı", "Test cevabı")
+        self.memory.add_interaction("test_user", "Test message", "Test response")
 
     def tearDown(self):
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 
     def test_tools_creation(self):
-        """Araçlar oluşturma testi"""
+        """Tools creation test"""
         tools = MemoryTools(self.memory)
         self.assertIsNotNone(tools)
         self.assertIn('list_memories', tools.tools)
 
 
 if __name__ == "__main__":
-    print("Memory Tools testleri çalıştırılıyor...")
+    print("Memory Tools tests are running...")
     unittest.main()
 

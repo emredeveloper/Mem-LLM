@@ -1,5 +1,5 @@
 """
 Mem-Agent Test Paketi
-Tüm testlerin bulunduğu klasör
+Folder containing all tests
 """
 
