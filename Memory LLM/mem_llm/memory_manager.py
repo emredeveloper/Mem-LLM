@@ -101,6 +101,11 @@ class MemoryManager:
         self.conversations[user_id].append(interaction)
         self.save_memory(user_id)
     
+    # Alias for compatibility
+    def add_conversation(self, user_id: str, user_message: str, bot_response: str, metadata: Optional[Dict] = None) -> None:
+        """Alias for add_interaction"""
+        return self.add_interaction(user_id, user_message, bot_response, metadata)
+    
     def update_profile(self, user_id: str, updates: Dict) -> None:
         """
         Update user profile

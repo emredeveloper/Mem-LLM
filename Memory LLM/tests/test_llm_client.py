@@ -4,7 +4,7 @@ LLM Client Specific Tests
 
 import unittest
 
-from memory_llm import OllamaClient
+from mem_llm import OllamaClient
 
 
 class TestLLMClient(unittest.TestCase):

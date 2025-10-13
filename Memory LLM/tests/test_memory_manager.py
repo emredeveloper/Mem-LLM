@@ -5,8 +5,9 @@ MemoryManager Specific Tests
 import unittest
 import tempfile
 import shutil
+import os
 
-from memory_llm import MemoryManager
+from mem_llm import MemoryManager
 
 
 class TestMemoryManager(unittest.TestCase):

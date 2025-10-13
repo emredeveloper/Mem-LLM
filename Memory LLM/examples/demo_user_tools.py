@@ -6,7 +6,7 @@ This demo shows how user tools work.
 Very simple - just test the tools!
 """
 
-from memory_llm import MemAgent
+from mem_llm import MemAgent
 
 
 def simple_demo():

@@ -117,10 +117,59 @@ dmypy.json
 .pyre/
 
 # Memory LLM specific
+# Memory files
 memories/
-memories.db
-*.log
-config.yaml
-knowledge_samples/
-analytics/
+*.db
+*.sqlite
+*.sqlite3
 mem_agent.log
+
+# Config files (keep .example versions)
+config.yaml
+!config.yaml.example
+
+# Knowledge base
+knowledge_samples/
+knowledge_base/
+*.csv
+*.xlsx
+
+# Analytics & reports
+analytics/
+test_report.json
+*.json.backup
+
+# Test artifacts
+test_*.json
+test_*.db
+test_memories/
+test_sql_memory.db
+test_simple_mem/
+test_chat_mem/
+test_persist_mem/
+test_recall_mem/
+test_isolation_mem/
+test_multi_mem/
+test_empty_mem/
+test_long_mem/
+test_special_mem/
+test_nouser_mem/
+test_check_mem/
+test_length_mem/
+
+# IDE specific
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS specific
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+*.bak

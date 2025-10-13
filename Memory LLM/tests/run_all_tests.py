@@ -13,6 +13,7 @@ Usage:
 
 # Test runner - no sys.path manipulation needed after package install
 
+import sys
 import unittest
 import time
 from pathlib import Path

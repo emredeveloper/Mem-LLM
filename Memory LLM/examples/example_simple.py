@@ -6,7 +6,7 @@ This example shows how a memory-enabled chatbot works.
 We will have 3 very simple conversations and test the bot's memory.
 """
 
-from memory_llm import MemAgent
+from mem_llm import MemAgent
 
 
 def main():

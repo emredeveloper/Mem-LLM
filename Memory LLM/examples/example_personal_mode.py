@@ -3,7 +3,7 @@ Personal Mode Example
 MemAgent demo for personal use
 """
 
-from memory_llm import MemAgent
+from mem_llm import MemAgent
 
 
 def personal_mode_demo():

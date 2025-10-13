@@ -11,7 +11,7 @@ long_description = (this_directory / "README.md").read_text(encoding='utf-8')
 
 setup(
     name="mem-llm",
-    version="1.0.0",
+    version="1.0.3",
     author="C. Emre Karataş",
     author_email="karatasqemre@gmail.com",  # PyPI için gerekli - kendi emailinizi yazın
     description="Memory-enabled AI assistant with local LLM support",
@@ -45,7 +45,7 @@ setup(
     },
     include_package_data=True,
     package_data={
-        'memory_llm': ['config.yaml.example'],
+        'mem_llm': ['config.yaml.example'],
     },
     keywords="llm ai memory agent chatbot ollama local",
     project_urls={

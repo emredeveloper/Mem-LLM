@@ -3,7 +3,7 @@ Example Usage: Customer Service Bot
 Customer service assistant example suitable for your scenario
 """
 
-from memory_llm import MemAgent
+from mem_llm import MemAgent
 import time
 
 

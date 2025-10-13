@@ -1,341 +1,263 @@
-# 🧠 Mem-Agent: Memory-Enabled Mini Assistant
+# 🧠 mem-llm
 
-<div align="center">
+**Memory-enabled AI assistant that remembers conversations using local LLMs**
 
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/downloads/)
+[![PyPI](https://img.shields.io/pypi/v/mem-llm.svg)](https://pypi.org/project/mem-llm/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Ollama](https://img.shields.io/badge/Ollama-Compatible-orange.svg)](https://ollama.ai/)
-
-**A local AI assistant that remembers user interactions and responds with context awareness using a lightweight 4-billion parameter LLM.**
-
-[Quick Start](#-quick-start) • [Features](#-features) • [Documentation](#-documentation) • [Examples](#-usage-examples)
-
-</div>
 
 ---
 
-## 🎯 Why Mem-Agent?
+## 🎯 What is it?
 
-Most Large Language Models (LLMs) treat every conversation as "new" and don't remember past interactions. **Mem-Agent** uses a small locally-running model to:
+A lightweight Python library that adds **persistent memory** to local LLM chatbots. Each user gets their own conversation history that the AI remembers across sessions.
 
-- ✅ **Remember user history** - Separate memory for each customer/user
-- ✅ **Context awareness** - Responds based on previous conversations
-- ✅ **Fully local** - No internet connection required
-- ✅ **Lightweight & fast** - Only 2.5 GB model size
-- ✅ **Easy integration** - Get started with 3 lines of code
+**Perfect for:**
+- 💬 Customer service chatbots
+- 🤖 Personal AI assistants  
+- 📝 Context-aware applications
+- 🏢 Business automation
 
-## 🚀 Quick Start
+---
 
-### 1. Install Ollama
+## ⚡ Quick Start
+
+### 1. Install
 
 ```bash
-# Windows/Mac/Linux: https://ollama.ai/download
-curl https://ollama.ai/install.sh | sh
-
-# Start the service
-ollama serve
+pip install mem-llm
 ```
 
-### 2. Download Model
+### 2. Setup Ollama (one-time)
 
 ```bash
+# Install: https://ollama.ai/download
+ollama serve
+
+# Download model (only 2.5GB)
 ollama pull granite4:tiny-h
 ```
 
-### 3. Use Mem-Agent
+### 3. Use
 
 ```python
-from memory_llm import MemAgent
+from mem_llm import MemAgent
 
-# Create agent
-agent = MemAgent(model="granite4:tiny-h")
-
-# System check
-status = agent.check_setup()
-if status['status'] == 'ready':
-    print("✅ System ready!")
-else:
-    print("❌ Error:", status)
+# Create agent (one line!)
+agent = MemAgent()
 
 # Set user
-agent.set_user("user123")
+agent.set_user("john")
+
+# Chat - it remembers!
+agent.chat("My name is John")
+agent.chat("What's my name?")  # → "Your name is John"
+```
+
+---
+
+## 💡 Features
+
+| Feature | Description |
+|---------|-------------|
+| 🧠 **Memory** | Remembers each user's conversation history |
+| 👥 **Multi-user** | Separate memory for each user |
+| 🔒 **Privacy** | 100% local, no cloud/API needed |
+| ⚡ **Fast** | Lightweight SQLite/JSON storage |
+| 🎯 **Simple** | 3 lines of code to get started |
+
+---
+
+## 📖 Usage Examples
+
+### Basic Chat
+
+```python
+from mem_llm import MemAgent
+
+agent = MemAgent()
+agent.set_user("alice")
 
 # First conversation
-response = agent.chat("Hello, my name is Ali")
-print(response)
+agent.chat("I love pizza")
 
-# Second conversation - It remembers me!
-response = agent.chat("Do you remember my name?")
-print(response)
+# Later...
+agent.chat("What's my favorite food?")
+# → "Your favorite food is pizza"
 ```
 
-## 📚 Example Scripts
-
-### 1. Simple Test
-
-```bash
-python examples/example_simple.py
-```
-
-### 2. Customer Service Simulation
-
-```bash
-python examples/example_customer_service.py
-```
-
-## 🏗️ Project Structure
-
-```
-Memory LLM/
-├── memory_llm/              # Main package
-│   ├── __init__.py          # Package initialization
-│   ├── mem_agent.py         # Main assistant class
-│   ├── memory_manager.py    # Memory management
-│   ├── memory_db.py         # SQL database support
-│   ├── llm_client.py        # Ollama integration
-│   ├── memory_tools.py      # User tools
-│   ├── knowledge_loader.py  # Knowledge base loader
-│   ├── prompt_templates.py  # Prompt templates
-│   └── config_manager.py    # Configuration manager
-├── examples/                # Example scripts
-├── tests/                   # Test files
-├── setup.py                 # Installation script
-├── requirements.txt         # Dependencies
-└── README.md               # This file
-```
-
-## 🔧 API Usage
-
-### MemAgent Class
+### Customer Service Bot
 
 ```python
-from memory_llm import MemAgent
+agent = MemAgent()
 
+# Customer 1
+agent.set_user("customer_001")
+agent.chat("My order #12345 is delayed")
+
+# Customer 2 (different memory!)
+agent.set_user("customer_002")
+agent.chat("I want to return item #67890")
+```
+
+### Check User Profile
+
+```python
+# Get automatically extracted user info
+profile = agent.get_user_profile()
+# {'name': 'Alice', 'favorite_food': 'pizza', 'location': 'NYC'}
+```
+
+---
+
+## 🔧 Configuration
+
+### JSON Memory (default - simple)
+
+```python
 agent = MemAgent(
-    model="granite4:tiny-h",           # Ollama model name
-    memory_dir="memories",             # Memory directory
-    ollama_url="http://localhost:11434" # Ollama API URL
+    model="granite4:tiny-h",
+    use_sql=False,  # Use JSON files
+    memory_dir="memories"
 )
 ```
 
-#### Basic Methods
+### SQL Memory (advanced - faster)
 
 ```python
-# Set user
-agent.set_user("user_id")
+agent = MemAgent(
+    model="granite4:tiny-h",
+    use_sql=True,  # Use SQLite
+    memory_dir="memories.db"
+)
+```
+
+### Custom Settings
+
+```python
+agent = MemAgent(
+    model="llama2",  # Any Ollama model
+    ollama_url="http://localhost:11434"
+)
+```
+
+---
+
+## 📚 API Reference
+
+### MemAgent
+
+```python
+# Initialize
+agent = MemAgent(model="granite4:tiny-h", use_sql=False)
+
+# Set active user
+agent.set_user(user_id: str, name: Optional[str] = None)
 
 # Chat
-response = agent.chat(
-    message="Hello",
-    user_id="optional_user_id",  # If set_user not used
-    metadata={"key": "value"}     # Additional information
+response = agent.chat(message: str, metadata: Optional[Dict] = None) -> str
+
+# Get profile
+profile = agent.get_user_profile(user_id: Optional[str] = None) -> Dict
+
+# System check
+status = agent.check_setup() -> Dict
+```
+
+---
+
+## 🎨 Advanced: PDF/DOCX Config
+
+Generate config from business documents:
+
+```python
+from mem_llm import create_config_from_document
+
+# Create config.yaml from PDF
+create_config_from_document(
+    doc_path="company_info.pdf",
+    output_path="config.yaml",
+    company_name="Acme Corp"
 )
 
-# Get memory summary
-summary = agent.memory_manager.get_summary("user_id")
-
-# Search in history
-results = agent.search_user_history("keyword", "user_id")
-
-# Update profile
-agent.update_user_info({
-    "name": "Ali",
-    "preferences": {"language": "en"}
-})
-
-# Get statistics
-stats = agent.get_statistics()
-
-# Export memory
-json_data = agent.export_memory("user_id")
-
-# Clear memory (WARNING!)
-agent.clear_user_memory("user_id", confirm=True)
+# Use config
+agent = MemAgent(config_file="config.yaml")
 ```
 
-### MemoryManager Class
+---
 
-```python
-from memory_llm import MemoryManager
+## 🔥 Models
 
-memory = MemoryManager(memory_dir="memories")
+Works with any [Ollama](https://ollama.ai/) model:
 
-# Load memory
-data = memory.load_memory("user_id")
+| Model | Size | Speed | Quality |
+|-------|------|-------|---------|
+| `granite4:tiny-h` | 2.5GB | ⚡⚡⚡ | ⭐⭐ |
+| `llama2` | 4GB | ⚡⚡ | ⭐⭐⭐ |
+| `mistral` | 4GB | ⚡⚡ | ⭐⭐⭐⭐ |
+| `llama3` | 5GB | ⚡ | ⭐⭐⭐⭐⭐ |
 
-# Add interaction
-memory.add_interaction(
-    user_id="user_id",
-    user_message="Hello",
-    bot_response="Hello! How can I help you?",
-    metadata={"timestamp": "2025-01-13"}
-)
-
-# Get recent conversations
-recent = memory.get_recent_conversations("user_id", limit=5)
-
-# Search
-results = memory.search_memory("user_id", "order")
+```bash
+ollama pull <model-name>
 ```
 
-### OllamaClient Class
+---
 
-```python
-from memory_llm import OllamaClient
+## 📦 Requirements
 
-client = OllamaClient(model="granite4:tiny-h")
+- Python 3.8+
+- Ollama (for LLM)
+- 4GB RAM minimum
+- 5GB disk space
 
-# Simple generation
-response = client.generate("Hello world!")
+**Dependencies** (auto-installed):
+- `requests >= 2.31.0`
+- `pyyaml >= 6.0.1`
 
-# Chat format
-response = client.chat([
-    {"role": "system", "content": "You are a helpful assistant"},
-    {"role": "user", "content": "Hello"}
-])
-
-# Connection check
-is_ready = client.check_connection()
-
-# Model list
-models = client.list_models()
-```
-
-## 💡 Usage Scenarios
-
-### 1. Customer Service Bot
-- Remembers customer history
-- Knows previous issues
-- Makes personalized recommendations
-
-### 2. Personal Assistant
-- Tracks daily activities
-- Learns preferences
-- Makes reminders
-
-### 3. Education Assistant
-- Tracks student progress
-- Adjusts difficulty level
-- Remembers past mistakes
-
-### 4. Support Ticket System
-- Stores ticket history
-- Finds related old tickets
-- Provides solution suggestions
-
-## 📊 Memory Format
-
-Memories are stored in JSON format:
-
-```json
-{
-  "conversations": [
-    {
-      "timestamp": "2025-01-13T10:30:00",
-      "user_message": "Hello",
-      "bot_response": "Hello! How can I help you?",
-      "metadata": {
-        "topic": "greeting"
-      }
-    }
-  ],
-  "profile": {
-    "user_id": "user123",
-    "first_seen": "2025-01-13T10:30:00",
-    "preferences": {},
-    "summary": {}
-  },
-  "last_updated": "2025-01-13T10:35:00"
-}
-```
-
-## 🔒 Privacy and Security
-
-- ✅ Works completely locally (no internet connection required)
-- ✅ Data stored on your computer
-- ✅ No data sent to third-party services
-- ✅ Memories in JSON format, easily deletable
-
-## 🛠️ Development
-
-### Test Mode
-
-```python
-# Simple chat without memory (for testing)
-response = agent.simple_chat("Test message")
-```
-
-### Using Your Own Model
-
-```python
-# Different Ollama model
-agent = MemAgent(model="llama2:7b")
-
-# Or another LLM API
-# Customize llm_client.py file
-```
+---
 
 ## 🐛 Troubleshooting
 
-### Ollama Connection Error
+### Ollama not running?
 
 ```bash
-# Start Ollama service
 ollama serve
-
-# Port check
-netstat -an | findstr "11434"
 ```
 
-### Model Not Found
+### Model not found?
 
 ```bash
-# Check model list
-ollama list
-
-# Download model
 ollama pull granite4:tiny-h
 ```
 
-### Memory Issues
+### Import error?
 
-```python
-# Check memory directory
-import os
-os.path.exists("memories")
-
-# List memory files
-os.listdir("memories")
+```bash
+pip install mem-llm --upgrade
 ```
-
-## 📈 Performance
-
-- **Model Size**: ~2.5 GB
-- **Response Time**: ~1-3 seconds (depends on CPU)
-- **Memory Usage**: ~4-6 GB RAM
-- **Disk Usage**: ~10-50 KB per user
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'feat: Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open Pull Request
-
-## 📝 License
-
-MIT License - See LICENSE file for details.
-
-## 🙏 Acknowledgments
-
-- [Ollama](https://ollama.ai/) - Local LLM server
-- [Granite](https://www.ibm.com/granite) - IBM Granite models
-
-## 📞 Contact
-
-You can open an issue for your questions.
 
 ---
 
-**Note**: This project is for educational and research purposes. Please perform comprehensive testing before using in production environment.
+## 📄 License
+
+MIT License - feel free to use in personal and commercial projects!
+
+---
+
+## 🔗 Links
+
+- **PyPI:** https://pypi.org/project/mem-llm/
+- **GitHub:** https://github.com/emredeveloper/Mem-LLM
+- **Ollama:** https://ollama.ai/
+
+---
+
+## 🌟 Star us on GitHub!
+
+If you find this useful, give us a ⭐ on [GitHub](https://github.com/emredeveloper/Mem-LLM)!
+
+---
+
+<div align="center">
+Made with ❤️ by <a href="https://github.com/emredeveloper">C. Emre Karataş</a>
+</div>

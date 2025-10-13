@@ -111,6 +111,8 @@ class MemAgent:
             self.logger.info(f"JSON memory system active: {json_dir}")
 
         # LLM client
+        self.model = model  # Store model name
+        self.use_sql = use_sql  # Store SQL usage flag
         self.llm = OllamaClient(model, ollama_url)
         self.logger.info(f"LLM client ready: {model}")
 
@@ -217,7 +219,23 @@ class MemAgent:
                 self.logger.info(f"Prompt template loaded: {template_name} (Mode: {self.usage_mode})")
             except Exception as e:
                 self.logger.error(f"Prompt template loading error: {e}")
-                self.current_system_prompt = f"You are a helpful assistant in {self.usage_mode} mode."
+                # Simple, short and effective default prompt
+                self.current_system_prompt = """You are a concise AI assistant. Be EXTREMELY brief.
+
+RULES (MANDATORY):
+1. MAX 1-2 SHORT sentences per response
+2. When user shares info: Just say "Got it!" or "Noted!"
+3. Answer questions: ONE sentence, direct
+4. NO lists, NO explanations, NO examples
+5. Use conversation history when relevant
+
+EXAMPLES:
+User: "My name is Alice" → You: "Nice to meet you, Alice!"
+User: "My favorite food is pizza" → You: "Got it!"
+User: "What's my name?" → You: "Your name is Alice."
+User: "Tell me about Python" → You: "Python is a versatile programming language for web, data science, and AI."
+
+BE BRIEF OR USER WILL LEAVE!"""
 
     def check_setup(self) -> Dict[str, Any]:
         """Check system setup"""
@@ -330,7 +348,8 @@ class MemAgent:
                 recent_limit = self.config.get("response.recent_conversations_limit", 5) if hasattr(self, 'config') and self.config else 5
                 recent_convs = self.memory.get_recent_conversations(user_id, recent_limit)
 
-                for conv in reversed(recent_convs):
+                # Add conversations in chronological order (oldest first)
+                for conv in recent_convs:
                     messages.append({"role": "user", "content": conv.get('user_message', '')})
                     messages.append({"role": "assistant", "content": conv.get('bot_response', '')})
         except Exception as e:
@@ -350,8 +369,8 @@ class MemAgent:
         try:
             response = self.llm.chat(
                 messages=messages,
-                temperature=self.config.get("llm.temperature", 0.7) if hasattr(self, 'config') and self.config else 0.7,
-                max_tokens=self.config.get("llm.max_tokens", 500) if hasattr(self, 'config') and self.config else 500
+                temperature=self.config.get("llm.temperature", 0.2) if hasattr(self, 'config') and self.config else 0.2,  # Very focused
+                max_tokens=self.config.get("llm.max_tokens", 150) if hasattr(self, 'config') and self.config else 150  # Max 2-3 sentences
             )
         except Exception as e:
             self.logger.error(f"LLM response error: {e}")
@@ -366,11 +385,78 @@ class MemAgent:
                     bot_response=response,
                     metadata=metadata
                 )
+                
+                # Extract and save user info to profile
+                self._update_user_profile(user_id, message, response)
         except Exception as e:
             self.logger.error(f"Interaction saving error: {e}")
 
         return response
+    
+    def _update_user_profile(self, user_id: str, message: str, response: str):
+        """Extract user info from conversation and update profile"""
+        if not hasattr(self.memory, 'update_profile'):
+            return
+        
+        msg_lower = message.lower()
+        updates = {}
+        
+        # Extract name
+        if "my name is" in msg_lower or "i am" in msg_lower or "i'm" in msg_lower:
+            # Simple name extraction
+            for phrase in ["my name is ", "i am ", "i'm "]:
+                if phrase in msg_lower:
+                    name_part = message[msg_lower.index(phrase) + len(phrase):].strip()
+                    name = name_part.split()[0] if name_part else None
+                    if name and len(name) > 1:
+                        updates['name'] = name.strip('.,!?')
+                        break
+        
+        # Extract favorite food
+        if "favorite food" in msg_lower or "favourite food" in msg_lower:
+            if "is" in msg_lower:
+                food = msg_lower.split("is")[-1].strip().strip('.,!?')
+                if food and len(food) < 50:
+                    updates['favorite_food'] = food
+        
+        # Extract location
+        if "i live in" in msg_lower or "i'm from" in msg_lower or "from" in msg_lower:
+            for phrase in ["i live in ", "i'm from ", "from "]:
+                if phrase in msg_lower:
+                    loc = message[msg_lower.index(phrase) + len(phrase):].strip()
+                    location = loc.split()[0] if loc else None
+                    if location and len(location) > 2:
+                        updates['location'] = location.strip('.,!?')
+                        break
+        
+        # Save updates
+        if updates:
+            try:
+                self.memory.update_profile(user_id, updates)
+                self.logger.debug(f"Profile updated for {user_id}: {updates}")
+            except:
+                pass
 
+    def get_user_profile(self, user_id: Optional[str] = None) -> Dict:
+        """
+        Get user's profile info
+        
+        Args:
+            user_id: User ID (uses current_user if not specified)
+            
+        Returns:
+            User profile dictionary
+        """
+        uid = user_id or self.current_user
+        if not uid:
+            return {}
+        
+        try:
+            memory_data = self.memory.load_memory(uid)
+            return memory_data.get('profile', {})
+        except:
+            return {}
+    
     def add_knowledge(self, category: str, question: str, answer: str,
                      keywords: Optional[List[str]] = None, priority: int = 0) -> int:
         """Add new record to knowledge base"""

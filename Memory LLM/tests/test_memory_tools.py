@@ -5,8 +5,9 @@ Memory Tools Specific Tests
 import unittest
 import tempfile
 import shutil
+import os
 
-from memory_llm import MemoryManager, MemoryTools
+from mem_llm import MemoryManager, MemoryTools
 
 
 class TestMemoryTools(unittest.TestCase):

@@ -164,6 +164,11 @@ class SQLMemoryManager:
         self.conn.commit()
         return interaction_id
     
+    # Alias for compatibility
+    def add_conversation(self, user_id: str, user_message: str, bot_response: str, metadata: Optional[Dict] = None) -> int:
+        """Alias for add_interaction"""
+        return self.add_interaction(user_id, user_message, bot_response, metadata)
+    
     def get_recent_conversations(self, user_id: str, limit: int = 10) -> List[Dict]:
         """
         Kullanıcının son konuşmalarını getirir

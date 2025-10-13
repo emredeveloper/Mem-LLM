@@ -5,7 +5,7 @@ include QUICKSTART.md
 include QUICKSTART_TR.md
 include INTEGRATION_GUIDE.md
 include STRUCTURE.md
-recursive-include memory_llm *.yaml
-recursive-include memory_llm *.example
+recursive-include mem_llm *.yaml
+recursive-include mem_llm *.example
 recursive-include docs *.md
 

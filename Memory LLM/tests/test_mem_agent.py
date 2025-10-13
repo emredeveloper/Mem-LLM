@@ -8,9 +8,10 @@ import tempfile
 import json
 import time
 import shutil
+import os
 
 # Test edilecek modüller
-from memory_llm import MemAgent, MemoryManager, OllamaClient
+from mem_llm import MemAgent, MemoryManager, OllamaClient
 
 
 class TestMemAgent(unittest.TestCase):

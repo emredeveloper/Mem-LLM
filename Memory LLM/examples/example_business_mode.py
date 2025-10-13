@@ -3,7 +3,7 @@ Business Mode Example
 MemAgent demo for corporate use
 """
 
-from memory_llm import MemAgent
+from mem_llm import MemAgent
 
 
 def business_mode_demo():

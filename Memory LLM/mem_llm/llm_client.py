@@ -107,7 +107,11 @@ class OllamaClient:
             "stream": False,
             "options": {
                 "temperature": temperature,
-                "num_predict": max_tokens
+                "num_predict": max_tokens,
+                "num_ctx": 2048,  # Context window
+                "top_k": 40,  # Limit vocab
+                "top_p": 0.9,  # Nucleus sampling
+                "stop": ["\n\n\n", "---"]  # Stop sequences
             }
         }
         

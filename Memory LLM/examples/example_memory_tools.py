@@ -10,7 +10,7 @@ Users can now:
 - Hakkında ne bilindiğini öğrenebilir
 """
 
-from memory_llm import MemAgent
+from mem_llm import MemAgent
 
 
 def demonstrate_memory_tools():

@@ -19,11 +19,12 @@ try:
     from .memory_db import SQLMemoryManager
     from .prompt_templates import prompt_manager
     from .config_manager import get_config
-    __all_pro__ = ["SQLMemoryManager", "prompt_manager", "get_config"]
+    from .config_from_docs import create_config_from_document
+    __all_pro__ = ["SQLMemoryManager", "prompt_manager", "get_config", "create_config_from_document"]
 except ImportError:
     __all_pro__ = []
 
-__version__ = "1.0.0"
+__version__ = "1.0.3"
 __author__ = "C. Emre Karataş"
 
 __all__ = [
