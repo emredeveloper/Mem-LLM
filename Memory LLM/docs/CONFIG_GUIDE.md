@@ -1,37 +1,37 @@
-# ⚙️ Mem-Agent Yapılandırma Rehberi
+# ⚙️ Mem-Agent Configuration Guide
 
-Bu rehber, `config.yaml` dosyasının nasıl oluşturulacağını ve yapılandırılacağını adım adım açıklar.
+This guide explains step-by-step how to create and configure the `config.yaml` file.
 
-## 📋 İçindekiler
+## 📋 Table of Contents
 
-1. [Hızlı Başlangıç](#hızlı-başlangıç)
-2. [Temel Yapılandırma](#temel-yapılandırma)
-3. [Gelişmiş Ayarlar](#gelişmiş-ayarlar)
-4. [Kullanım Senaryoları](#kullanım-senaryoları)
-5. [Sorun Giderme](#sorun-giderme)
+1. [Quick Start](#quick-start)
+2. [Basic Configuration](#basic-configuration)
+3. [Advanced Settings](#advanced-settings)
+4. [Use Cases](#use-cases)
+5. [Troubleshooting](#troubleshooting)
 
 ---
 
-## 🚀 Hızlı Başlangıç
+## 🚀 Quick Start
 
-### Adım 1: Config Dosyası Oluşturma
+### Step 1: Create Config File
 
 ```bash
-# Ana klasörde config.yaml.example dosyasını kopyalayın
+# Copy the config.yaml.example file in the main directory
 cp config.yaml.example config.yaml
 
-# Veya Windows'ta:
+# Or on Windows:
 copy config.yaml.example config.yaml
 ```
 
-### Adım 2: Temel Ayarları Düzenleme
+### Step 2: Edit Basic Settings
 
-En basit kullanım için sadece şu ayarları yapın:
+For the simplest usage, just configure these settings:
 
 ```yaml
 # config.yaml
 
-usage_mode: "personal"  # veya "business"
+usage_mode: "personal"  # or "business"
 
 llm:
   model: "granite4:tiny-h"
@@ -41,166 +41,166 @@ memory:
   backend: "json"
 ```
 
-### Adım 3: Config'i Kullanma
+### Step 3: Using Config
 
 ```python
 from mem_agent import MemAgent
 
-# Config dosyasını kullanarak agent oluştur
+# Create agent using config file
 agent = MemAgent(config_file="config.yaml")
 ```
 
-**✅ Bu kadar! Artık kullanıma hazırsınız.**
+**✅ That's it! You're ready to use it.**
 
 ---
 
-## 🔧 Temel Yapılandırma
+## 🔧 Basic Configuration
 
-### 1. Kullanım Modu (`usage_mode`)
+### 1. Usage Mode (`usage_mode`)
 
-Agent'ın nasıl davranacağını belirler.
+Determines how the agent behaves.
 
 ```yaml
-usage_mode: "personal"  # veya "business"
+usage_mode: "personal"  # or "business"
 ```
 
-| Mod | Açıklama | Ne Zaman Kullanılır |
-|-----|----------|---------------------|
-| `personal` | Kişisel asistan modu | Bireysel kullanım, öğrenme, hatırlatmalar |
-| `business` | Kurumsal mod | Müşteri hizmetleri, çoklu kullanıcı, raporlama |
+| Mode | Description | When to Use |
+|------|-------------|-------------|
+| `personal` | Personal assistant mode | Individual use, learning, reminders |
+| `business` | Corporate mode | Customer service, multi-user, reporting |
 
-### 2. LLM Ayarları (`llm`)
+### 2. LLM Settings (`llm`)
 
-Ollama model yapılandırması.
+Ollama model configuration.
 
 ```yaml
 llm:
-  model: "granite4:tiny-h"        # Kullanılacak model
-  base_url: "http://localhost:11434"  # Ollama API adresi
-  temperature: 0.7                # Yaratıcılık (0.0-1.0)
-  max_tokens: 500                 # Maksimum cevap uzunluğu
+  model: "granite4:tiny-h"        # Model to use
+  base_url: "http://localhost:11434"  # Ollama API address
+  temperature: 0.7                # Creativity (0.0-1.0)
+  max_tokens: 500                 # Maximum response length
 ```
 
-**Model Seçimi:**
+**Model Selection:**
 
-| Model | Boyut | Hız | Önerilen Kullanım |
-|-------|-------|-----|-------------------|
-| `granite4:tiny-h` | Küçük | Çok Hızlı | Genel kullanım ⭐ |
-| `llama3.2:3b` | Orta | Hızlı | Dengeli performans |
-| `mistral:7b` | Büyük | Yavaş | Gelişmiş görevler |
+| Model | Size | Speed | Recommended Usage |
+|-------|------|-------|-------------------|
+| `granite4:tiny-h` | Small | Very Fast | General use ⭐ |
+| `llama3.2:3b` | Medium | Fast | Balanced performance |
+| `mistral:7b` | Large | Slow | Advanced tasks |
 
-**Temperature Değerleri:**
+**Temperature Values:**
 
-- `0.0-0.3`: Tutarlı, tahmin edilebilir cevaplar (müşteri hizmetleri)
-- `0.4-0.7`: Dengeli (genel kullanım) ⭐
-- `0.8-1.0`: Yaratıcı, çeşitli cevaplar (brainstorming)
+- `0.0-0.3`: Consistent, predictable answers (customer service)
+- `0.4-0.7`: Balanced (general use) ⭐
+- `0.8-1.0`: Creative, diverse answers (brainstorming)
 
-### 3. Bellek Sistemi (`memory`)
+### 3. Memory System (`memory`)
 
-Konuşmaların nasıl saklanacağını belirler.
+Determines how conversations are stored.
 
 ```yaml
 memory:
-  backend: "json"           # "json" veya "sql"
-  json_dir: "memories"      # JSON için klasör
-  db_path: "memories.db"    # SQL için veritabanı
+  backend: "json"           # "json" or "sql"
+  json_dir: "memories"      # Folder for JSON
+  db_path: "memories.db"    # Database for SQL
 ```
 
-**Backend Karşılaştırması:**
+**Backend Comparison:**
 
-| Özellik | JSON | SQL |
+| Feature | JSON | SQL |
 |---------|------|-----|
-| Kurulum | Çok Kolay ⭐ | Kolay |
-| Performans | İyi | Çok İyi ⭐ |
-| Arama | Basit | Gelişmiş ⭐ |
-| Bilgi Bankası | ❌ | ✅ ⭐ |
-| Önerilen | Başlangıç | Production ⭐ |
+| Setup | Very Easy ⭐ | Easy |
+| Performance | Good | Very Good ⭐ |
+| Search | Simple | Advanced ⭐ |
+| Knowledge Base | ❌ | ✅ ⭐ |
+| Recommended | Beginner | Production ⭐ |
 
-### 4. Prompt Şablonu (`prompt`)
+### 4. Prompt Template (`prompt`)
 
-Bot'un konuşma stilini belirler.
+Determines the bot's conversation style.
 
 ```yaml
 prompt:
-  template: "personal_assistant"  # Kullanılacak şablon
+  template: "personal_assistant"  # Template to use
   variables:
-    user_name: "Ahmet"
-    tone: "samimi"
+    user_name: "John"
+    tone: "friendly"
 ```
 
-**Mevcut Şablonlar:**
+**Available Templates:**
 
-| Şablon | Kullanım Alanı |
-|--------|----------------|
-| `personal_assistant` | Kişisel asistan ⭐ |
-| `customer_service` | Müşteri hizmetleri ⭐ |
-| `tech_support` | Teknik destek |
-| `sales_assistant` | Satış danışmanı |
-| `education_tutor` | Eğitim asistanı |
-| `health_advisor` | Sağlık bilgilendirme |
-| `booking_assistant` | Rezervasyon |
-| `hr_assistant` | İnsan kaynakları |
+| Template | Use Case |
+|----------|----------|
+| `personal_assistant` | Personal assistant ⭐ |
+| `customer_service` | Customer service ⭐ |
+| `tech_support` | Technical support |
+| `sales_assistant` | Sales consultant |
+| `education_tutor` | Education assistant |
+| `health_advisor` | Health information |
+| `booking_assistant` | Booking |
+| `hr_assistant` | Human resources |
 
 ---
 
-## 🎯 Gelişmiş Ayarlar
+## 🎯 Advanced Settings
 
-### Personal Mod Özellikleri
+### Personal Mode Features
 
 ```yaml
 personal:
-  user_name: "Ahmet Yılmaz"
-  enable_reminders: true          # Hatırlatma sistemi
-  enable_personal_notes: true     # Kişisel notlar
-  privacy_level: "high"           # Gizlilik seviyesi
-  share_data: false               # Veri paylaşımı
+  user_name: "John Doe"
+  enable_reminders: true          # Reminder system
+  enable_personal_notes: true     # Personal notes
+  privacy_level: "high"           # Privacy level
+  share_data: false               # Data sharing
 ```
 
-### Business Mod Özellikleri
+### Business Mode Features
 
 ```yaml
 business:
-  company_name: "ABC Şirketi"
+  company_name: "ABC Company"
   departments:
-    - "Müşteri Hizmetleri"
-    - "Satış"
-    - "Teknik Destek"
-  enable_multi_user: true         # Çoklu kullanıcı
-  enable_reporting: true          # Raporlama
-  security_level: "high"          # Güvenlik seviyesi
+    - "Customer Service"
+    - "Sales"
+    - "Technical Support"
+  enable_multi_user: true         # Multi-user
+  enable_reporting: true          # Reporting
+  security_level: "high"          # Security level
 ```
 
-### Bilgi Bankası Yapılandırması
+### Knowledge Base Configuration
 
 ```yaml
 knowledge_base:
-  enabled: true                   # Bilgi bankasını aktif et
-  auto_load: true                 # Otomatik yükleme
-  default_kb: "ecommerce"         # Varsayılan KB
-  search_limit: 5                 # Arama sonuç limiti
-  min_relevance_score: 0.3        # Minimum ilgililik skoru
+  enabled: true                   # Enable knowledge base
+  auto_load: true                 # Auto-loading
+  default_kb: "ecommerce"         # Default KB
+  search_limit: 5                 # Search result limit
+  min_relevance_score: 0.3        # Minimum relevance score
 ```
 
-**Varsayılan KB'ler:**
-- `ecommerce`: E-ticaret için hazır bilgiler
-- `tech_support`: Teknik destek için hazır bilgiler
-- `custom`: Kendi KB'nizi yükleyin
+**Default KBs:**
+- `ecommerce`: Ready-made information for e-commerce
+- `tech_support`: Ready-made information for technical support
+- `custom`: Load your own KB
 
-### Güvenlik Ayarları
+### Security Settings
 
 ```yaml
 security:
-  filter_sensitive_data: true     # Hassas veri filtreleme
+  filter_sensitive_data: true     # Filter sensitive data
   sensitive_keywords:
-    - "kredi kartı"
-    - "şifre"
-    - "TC kimlik"
+    - "credit card"
+    - "password"
+    - "social security"
   rate_limit:
     enabled: true
     max_requests_per_minute: 60
 ```
 
-### Loglama
+### Logging
 
 ```yaml
 logging:
@@ -210,14 +210,14 @@ logging:
   max_size_mb: 10
   backup_count: 5
   log_user_messages: true
-  mask_sensitive: true            # Hassas bilgileri maskele
+  mask_sensitive: true            # Mask sensitive information
 ```
 
 ---
 
-## 💼 Kullanım Senaryoları
+## 💼 Use Cases
 
-### Senaryo 1: Kişisel Asistan (En Basit)
+### Scenario 1: Personal Assistant (Simplest)
 
 ```yaml
 # config.yaml - Minimal setup
@@ -231,35 +231,35 @@ memory:
   backend: "json"
 ```
 
-**Kullanım:**
+**Usage:**
 ```python
 from mem_agent import MemAgent
 
 agent = MemAgent(config_file="config.yaml")
-agent.set_user("ahmet123", name="Ahmet")
-response = agent.chat("Bugün ne yapmalıyım?")
+agent.set_user("john123", name="John")
+response = agent.chat("What should I do today?")
 ```
 
-### Senaryo 2: Müşteri Hizmetleri (Önerilen)
+### Scenario 2: Customer Service (Recommended)
 
 ```yaml
-# config.yaml - Müşteri hizmetleri için
+# config.yaml - For customer service
 
 usage_mode: "business"
 
 llm:
   model: "granite4:tiny-h"
-  temperature: 0.5              # Tutarlı cevaplar için
+  temperature: 0.5              # For consistent answers
 
 memory:
-  backend: "sql"                # Gelişmiş arama için
+  backend: "sql"                # For advanced search
   db_path: "customer_memories.db"
 
 prompt:
   template: "customer_service"
   variables:
-    company_name: "ABC Mağazası"
-    tone: "profesyonel ve yardımsever"
+    company_name: "ABC Store"
+    tone: "professional and helpful"
 
 knowledge_base:
   enabled: true
@@ -273,16 +273,16 @@ security:
     max_requests_per_minute: 100
 ```
 
-### Senaryo 3: Teknik Destek
+### Scenario 3: Technical Support
 
 ```yaml
-# config.yaml - Teknik destek için
+# config.yaml - For technical support
 
 usage_mode: "business"
 
 llm:
   model: "granite4:tiny-h"
-  temperature: 0.3              # Daha teknik, tutarlı
+  temperature: 0.3              # More technical, consistent
 
 memory:
   backend: "sql"
@@ -290,137 +290,136 @@ memory:
 prompt:
   template: "tech_support"
   variables:
-    product_name: "XYZ Yazılımı"
-    support_level: "L1 ve L2"
+    product_name: "XYZ Software"
+    support_level: "L1 and L2"
 
 knowledge_base:
   enabled: true
   default_kb: "tech_support"
-  search_limit: 10              # Daha fazla sonuç
+  search_limit: 10              # More results
 
 logging:
-  level: "DEBUG"                # Detaylı loglama
+  level: "DEBUG"                # Detailed logging
   log_user_messages: true
 ```
 
-### Senaryo 4: Eğitim Asistanı
+### Scenario 4: Education Assistant
 
 ```yaml
-# config.yaml - Eğitim için
+# config.yaml - For education
 
 usage_mode: "personal"
 
 llm:
   model: "granite4:tiny-h"
-  temperature: 0.6              # Açıklayıcı ve yaratıcı
+  temperature: 0.6              # Explanatory and creative
 
 prompt:
   template: "education_tutor"
   variables:
-    subject: "Python Programlama"
-    level: "başlangıç"
-    teaching_style: "adım adım"
+    subject: "Python Programming"
+    level: "beginner"
+    teaching_style: "step by step"
 
 memory:
-  backend: "sql"                # Öğrenme geçmişi için
+  backend: "sql"                # For learning history
 ```
 
 ---
 
-## 🔍 Sorun Giderme
+## 🔍 Troubleshooting
 
-### Hata: "Config dosyası bulunamadı"
+### Error: "Config file not found"
 
-**Çözüm:**
+**Solution:**
 ```bash
-# Config dosyasının doğru yerde olduğundan emin olun
+# Make sure config file is in the right place
 ls config.yaml
 
-# Yoksa oluşturun
+# If not, create it
 cp config.yaml.example config.yaml
 ```
 
-### Hata: "Ollama bağlantısı başarısız"
+### Error: "Ollama connection failed"
 
-**Çözüm:**
+**Solution:**
 ```yaml
-# config.yaml - URL'yi kontrol edin
+# config.yaml - Check URL
 llm:
-  base_url: "http://localhost:11434"  # Port numarasını kontrol edin
+  base_url: "http://localhost:11434"  # Check port number
 ```
 
 ```bash
-# Ollama servisini başlatın
+# Start Ollama service
 ollama serve
 
-# Bağlantıyı test edin
+# Test connection
 curl http://localhost:11434/api/tags
 ```
 
-### Hata: "Model bulunamadı"
+### Error: "Model not found"
 
-**Çözüm:**
+**Solution:**
 ```bash
-# Modeli indirin
+# Download model
 ollama pull granite4:tiny-h
 
-# Mevcut modelleri listeleyin
+# List available models
 ollama list
 
-# Config'de doğru model adını kullanın
+# Use correct model name in config
 ```
 
-### Hata: "SQL veritabanı hatası"
+### Error: "SQL database error"
 
-**Çözüm:**
+**Solution:**
 ```yaml
-# JSON'a geçiş yapın (daha basit)
+# Switch to JSON (simpler)
 memory:
   backend: "json"
   json_dir: "memories"
 ```
 
-### Performans Sorunları
+### Performance Issues
 
-**Çözüm 1: Daha küçük model kullanın**
+**Solution 1: Use smaller model**
 ```yaml
 llm:
-  model: "granite4:tiny-h"  # En hızlı
+  model: "granite4:tiny-h"  # Fastest
 ```
 
-**Çözüm 2: Token limitini düşürün**
+**Solution 2: Reduce token limit**
 ```yaml
 llm:
-  max_tokens: 300  # Daha kısa cevaplar
+  max_tokens: 300  # Shorter responses
 ```
 
-**Çözüm 3: Bellek limitini ayarlayın**
+**Solution 3: Adjust memory limit**
 ```yaml
 response:
-  recent_conversations_limit: 3  # Daha az geçmiş
+  recent_conversations_limit: 3  # Less history
 ```
 
 ---
 
-## 📚 Ek Kaynaklar
+## 📚 Additional Resources
 
-- **Hızlı Başlangıç**: [QUICKSTART_TR.md](../QUICKSTART_TR.md)
-- **Entegrasyon Rehberi**: [INTEGRATION_GUIDE.md](../INTEGRATION_GUIDE.md)
-- **Örnekler**: `examples/` klasörü
-- **Proje Yapısı**: [STRUCTURE.md](../STRUCTURE.md)
-
----
-
-## 💡 İpuçları
-
-1. **Başlangıç için JSON kullanın**: Daha sonra SQL'e geçebilirsiniz
-2. **Minimal config ile başlayın**: Sadece ihtiyacınız olanları ekleyin
-3. **Temperature'ı ayarlayın**: Görevinize göre optimize edin
-4. **Loglama açık tutun**: Hata ayıklama için faydalı
-5. **Güvenlik ayarlarını atlayın**: Production'da mutlaka aktif edin
+- **Quick Start**: [QUICKSTART.md](../QUICKSTART.md)
+- **Integration Guide**: [INTEGRATION_GUIDE.md](../INTEGRATION_GUIDE.md)
+- **Examples**: `examples/` folder
+- **Project Structure**: [STRUCTURE.md](../STRUCTURE.md)
 
 ---
 
-**Son güncelleme:** 2025-10-13  
-**Versiyon:** 2.0.0
+## 💡 Tips
 
+1. **Start with JSON**: You can switch to SQL later
+2. **Begin with minimal config**: Add only what you need
+3. **Adjust temperature**: Optimize for your task
+4. **Keep logging enabled**: Useful for debugging
+5. **Don't skip security settings**: Always enable in production
+
+---
+
+**Last updated:** 2025-01-13  
+**Version:** 2.0.0

@@ -1,4 +1,4 @@
-# 🧠 Mem-Agent: Belleği Olan Mini Asistan
+# 🧠 Mem-Agent: Memory-Enabled Mini Assistant
 
 <div align="center">
 
@@ -6,268 +6,268 @@
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Ollama](https://img.shields.io/badge/Ollama-Compatible-orange.svg)](https://ollama.ai/)
 
-**Sadece 4 milyon parametreli yerel bir LLM ile çalışan, kullanıcı etkileşimlerini hatırlayan ve bağlam farkındalığı ile cevap veren yapay zeka asistanı.**
+**A local AI assistant that remembers user interactions and responds with context awareness using a lightweight 4-billion parameter LLM.**
 
-[Hızlı Başlangıç](#-hızlı-başlangıç) • [Özellikler](#-özellikler) • [Dokümantasyon](#-dokümantasyon) • [Örnekler](#-kullanım-örnekleri)
+[Quick Start](#-quick-start) • [Features](#-features) • [Documentation](#-documentation) • [Examples](#-usage-examples)
 
 </div>
 
 ---
 
-## 🎯 Neden Mem-Agent?
+## 🎯 Why Mem-Agent?
 
-Büyük dil modellerinin (LLM) çoğu her konuşmayı "yeni" olarak görür ve geçmiş etkileşimleri hatırlamaz. **Mem-Agent**, yerel olarak çalışan küçük bir model kullanarak:
+Most Large Language Models (LLMs) treat every conversation as "new" and don't remember past interactions. **Mem-Agent** uses a small locally-running model to:
 
-- ✅ **Kullanıcı geçmişini hatırlar** - Her müşteri/kullanıcı için ayrı bellek
-- ✅ **Bağlam farkındalığı** - Önceki konuşmalara göre cevap verir
-- ✅ **Tamamen yerel** - İnternet bağlantısı gerektirmez
-- ✅ **Hafif ve hızlı** - Sadece 2.5 GB model boyutu
-- ✅ **Kolay entegrasyon** - 3 satır kod ile başlayın
+- ✅ **Remember user history** - Separate memory for each customer/user
+- ✅ **Context awareness** - Responds based on previous conversations
+- ✅ **Fully local** - No internet connection required
+- ✅ **Lightweight & fast** - Only 2.5 GB model size
+- ✅ **Easy integration** - Get started with 3 lines of code
 
-## 🚀 Hızlı Başlangıç
+## 🚀 Quick Start
 
-### 1. Ollama'yı Kurun
+### 1. Install Ollama
 
 ```bash
-# Windows/Mac/Linux için: https://ollama.ai/download
+# Windows/Mac/Linux: https://ollama.ai/download
 curl https://ollama.ai/install.sh | sh
 
-# Servisi başlatın
+# Start the service
 ollama serve
 ```
 
-### 2. Modeli İndirin
+### 2. Download Model
 
 ```bash
 ollama pull granite4:tiny-h
 ```
 
-### 3. Mem-Agent'ı Kullanın
+### 3. Use Mem-Agent
 
 ```python
 from mem_agent import MemAgent
 
-# Agent oluştur
+# Create agent
 agent = MemAgent(model="granite4:tiny-h")
 
-# Kullanıcı ayarla
-agent.set_user("ahmet123", name="Ahmet")
+# Set user
+agent.set_user("user123", name="John")
 
-# Konuşmaya başla
-response = agent.chat("Merhaba, siparişim nerede?")
+# Start chatting
+response = agent.chat("Hello, where is my order?")
 print(response)
 
-# Bot geçmişi hatırlayacak
-response = agent.chat("Kargo ne zaman gelir?")
-print(response)  # Önceki konuşmayı hatırlayarak cevap verir
+# Bot will remember history
+response = agent.chat("When will it arrive?")
+print(response)  # Responds remembering the previous conversation
 ```
 
-**Bu kadar!** ✨
+**That's it!** ✨
 
-## ⭐ Özellikler
+## ⭐ Features
 
-### 🧠 Bellek Sistemi
+### 🧠 Memory System
 
-- **JSON Bellek**: Basit, dosya bazlı bellek (başlangıç için)
-- **SQL Bellek**: Gelişmiş, ilişkisel veritabanı (production için)
-- **Kullanıcı Profilleri**: Her kullanıcı için ayrı veri
-- **Arama Özellikleri**: Geçmiş konuşmalarda arama
+- **JSON Memory**: Simple, file-based memory (for beginners)
+- **SQL Memory**: Advanced, relational database (for production)
+- **User Profiles**: Separate data for each user
+- **Search Features**: Search through conversation history
 
-### 🎨 Prompt Şablonları
+### 🎨 Prompt Templates
 
-8+ hazır kullanıma hazır şablon:
+8+ ready-to-use templates:
 
-| Şablon | Kullanım Alanı |
-|--------|----------------|
-| `personal_assistant` | Kişisel asistan |
-| `customer_service` | Müşteri hizmetleri |
-| `tech_support` | Teknik destek |
-| `sales_assistant` | Satış danışmanı |
-| `education_tutor` | Eğitim asistanı |
-| Ve daha fazlası... | |
+| Template | Use Case |
+|----------|----------|
+| `personal_assistant` | Personal assistant |
+| `customer_service` | Customer service |
+| `tech_support` | Technical support |
+| `sales_assistant` | Sales consultant |
+| `education_tutor` | Education assistant |
+| And more... | |
 
-### 📚 Bilgi Bankası
+### 📚 Knowledge Base
 
-- Sık sorulan soruları (FAQ) depolayın
-- Otomatik bilgi arama
-- Özel bilgi bankası yükleme
-- Excel/CSV import desteği
+- Store frequently asked questions (FAQ)
+- Automatic knowledge search
+- Custom knowledge base loading
+- Excel/CSV import support
 
-### 🛠️ Kullanıcı Araçları
+### 🛠️ User Tools
 
-Kullanıcılar doğal dille:
-- Geçmiş konuşmalarını görüntüleyebilir
-- Aramalar yapabilir
-- Verilerini dışa aktarabilir
-- Bellek yönetimi yapabilir
+Users can with natural language:
+- View conversation history
+- Perform searches
+- Export their data
+- Manage memory
 
-### 🔧 İki Kullanım Modu
+### 🔧 Two Usage Modes
 
-**Personal (Kişisel)** 🏠
-- Bireysel kullanım
-- Hatırlatmalar
-- Öğrenme takibi
-- Kişisel notlar
+**Personal** 🏠
+- Individual use
+- Reminders
+- Learning tracking
+- Personal notes
 
-**Business (Kurumsal)** 💼
-- Çoklu kullanıcı desteği
-- Müşteri hizmetleri
-- Raporlama
-- Güvenlik özellikleri
+**Business** 💼
+- Multi-user support
+- Customer service
+- Reporting
+- Security features
 
-## 💼 Kullanım Senaryoları
+## 💼 Use Cases
 
-### Müşteri Hizmetleri
+### Customer Service
 
 ```python
 from mem_agent import MemAgent
 
 agent = MemAgent(
-    config_file="config.yaml",  # Müşteri hizmetleri ayarları
-    use_sql=True,               # Çoklu kullanıcı için
-    load_knowledge_base=True    # FAQ için
+    config_file="config.yaml",  # Customer service settings
+    use_sql=True,               # For multi-user
+    load_knowledge_base=True    # For FAQ
 )
 
-# Müşteri 1
-agent.set_user("customer_001", name="Ali Yılmaz")
-response = agent.chat("Siparişim ne zaman gelecek?")
+# Customer 1
+agent.set_user("customer_001", name="John Doe")
+response = agent.chat("When will my order arrive?")
 
-# Müşteri 2
-agent.set_user("customer_002", name="Ayşe Demir")
-response = agent.chat("İade yapmak istiyorum")
+# Customer 2
+agent.set_user("customer_002", name="Jane Smith")
+response = agent.chat("I want to return an item")
 
-# Ali tekrar arıyor - geçmişi hatırlayacak
+# John calls again - will remember history
 agent.set_user("customer_001")
-response = agent.chat("Siparişimi iptal edebilir miyim?")
+response = agent.chat("Can I cancel my order?")
 ```
 
-### Kişisel Asistan
+### Personal Assistant
 
 ```python
-agent = MemAgent(use_sql=False)  # Basit kullanım
+agent = MemAgent(use_sql=False)  # Simple usage
 agent.set_user("me")
 
-agent.chat("Yarın saat 15:00'de diş randevum var, hatırlat")
-# ... bir gün sonra ...
-agent.chat("Bugün ne yapmam gerekiyor?")
-# Bot: "Saat 15:00'de diş randevunuz var!"
+agent.chat("Remind me about my dentist appointment tomorrow at 3 PM")
+# ... next day ...
+agent.chat("What do I need to do today?")
+# Bot: "You have a dentist appointment at 3 PM!"
 ```
 
-## 📊 Karşılaştırma
+## 📊 Comparison
 
-| Özellik | Standart LLM | Mem-Agent |
+| Feature | Standard LLM | Mem-Agent |
 |---------|--------------|-----------|
-| Kullanıcı Belleği | ❌ | ✅ |
-| Geçmiş Hatırlama | ❌ | ✅ |
-| Bağlam Farkındalığı | Sınırlı | ✅ Gelişmiş |
-| İnternet Gereksinimi | Genelde ✅ | ❌ Tamamen yerel |
-| Model Boyutu | 10GB+ | 2.5GB |
-| Başlatma Süresi | Yavaş | ⚡ Hızlı |
-| Maliyet | Ücretli API | 💰 Ücretsiz |
+| User Memory | ❌ | ✅ |
+| History Recall | ❌ | ✅ |
+| Context Awareness | Limited | ✅ Advanced |
+| Internet Required | Usually ✅ | ❌ Fully local |
+| Model Size | 10GB+ | 2.5GB |
+| Startup Time | Slow | ⚡ Fast |
+| Cost | Paid API | 💰 Free |
 
-## 📁 Proje Yapısı
+## 📁 Project Structure
 
 ```
 Memory LLM/
-├── 📦 Core Modüller
-│   ├── mem_agent.py          # Ana agent sınıfı
-│   ├── memory_manager.py     # JSON bellek
-│   ├── memory_db.py          # SQL bellek
-│   └── memory_tools.py       # Kullanıcı araçları
+├── 📦 Core Modules
+│   ├── mem_agent.py          # Main agent class
+│   ├── memory_manager.py     # JSON memory
+│   ├── memory_db.py          # SQL memory
+│   └── memory_tools.py       # User tools
 │
-├── 📚 examples/              # Kullanım örnekleri
+├── 📚 examples/              # Usage examples
 │   ├── example_simple.py
 │   ├── example_business_mode.py
 │   └── example_customer_service.py
 │
-├── 🧪 tests/                 # Test dosyaları
+├── 🧪 tests/                 # Test files
 │   └── run_all_tests.py
 │
-└── 📖 docs/                  # Dokümantasyon
-    ├── CONFIG_GUIDE.md       # Yapılandırma rehberi
-    └── INDEX.md              # Tüm dokümantasyon
+└── 📖 docs/                  # Documentation
+    ├── CONFIG_GUIDE.md       # Configuration guide
+    └── INDEX.md              # All documentation
 ```
 
-## 🛠️ Kurulum
+## 🛠️ Installation
 
-### Gereksinimler
+### Requirements
 
 - Python 3.8+
-- Ollama (yerel LLM sunucusu)
+- Ollama (local LLM server)
 - 4GB+ RAM
 
-### Adım Adım
+### Step by Step
 
 ```bash
-# 1. Projeyi klonlayın
+# 1. Clone the project
 git clone https://github.com/yourusername/mem-agent.git
 cd mem-agent
 
-# 2. Bağımlılıkları yükleyin
+# 2. Install dependencies
 pip install -r requirements.txt
 
-# 3. Config dosyası oluşturun (opsiyonel)
+# 3. Create config file (optional)
 cp config.yaml.example config.yaml
 
-# 4. İlk örneği çalıştırın
+# 4. Run first example
 cd examples
 python example_simple.py
 ```
 
-Detaylı kurulum için: [QUICKSTART_TR.md](QUICKSTART_TR.md)
+For detailed installation: [QUICKSTART_TR.md](QUICKSTART_TR.md)
 
-## 📖 Dokümantasyon
+## 📖 Documentation
 
-| Dosya | Açıklama |
-|-------|----------|
-| [QUICKSTART_TR.md](QUICKSTART_TR.md) | 5 dakikalık hızlı başlangıç |
-| [docs/CONFIG_GUIDE.md](docs/CONFIG_GUIDE.md) | Yapılandırma rehberi |
-| [INTEGRATION_GUIDE.md](INTEGRATION_GUIDE.md) | Entegrasyon rehberi |
-| [STRUCTURE.md](STRUCTURE.md) | Proje yapısı |
-| [CHANGELOG.md](CHANGELOG.md) | Değişiklik günlüğü |
+| File | Description |
+|------|-------------|
+| [QUICKSTART_TR.md](QUICKSTART_TR.md) | 5-minute quick start |
+| [docs/CONFIG_GUIDE.md](docs/CONFIG_GUIDE.md) | Configuration guide |
+| [INTEGRATION_GUIDE.md](INTEGRATION_GUIDE.md) | Integration guide |
+| [STRUCTURE.md](STRUCTURE.md) | Project structure |
+| [CHANGELOG.md](CHANGELOG.md) | Changelog |
 
-## 🎓 Kullanım Örnekleri
+## 🎓 Usage Examples
 
 ```python
-# Örnek 1: Basit Kullanım
+# Example 1: Simple Usage
 from mem_agent import MemAgent
 
 agent = MemAgent()
 agent.set_user("user123")
-response = agent.chat("Merhaba!")
+response = agent.chat("Hello!")
 
-# Örnek 2: Config ile
+# Example 2: With Config
 agent = MemAgent(config_file="config.yaml")
 
-# Örnek 3: SQL Bellek ile
+# Example 3: With SQL Memory
 agent = MemAgent(use_sql=True, load_knowledge_base=True)
 
-# Örnek 4: Metadata ile
+# Example 4: With Metadata
 response = agent.chat(
-    "Sipariş #12345 nerede?",
+    "Where is order #12345?",
     metadata={"order_id": "12345", "priority": "high"}
 )
 
-# Örnek 5: Geçmişte Arama
+# Example 5: Search History
 results = agent.search_history("laptop", user_id="user123")
 ```
 
-Daha fazla örnek için: [`examples/`](examples/) klasörü
+More examples in: [`examples/`](examples/) folder
 
-## 🧪 Testler
+## 🧪 Tests
 
 ```bash
 cd tests
 python run_all_tests.py
 
-# Veya belirli testler
+# Or specific tests
 python run_all_tests.py basic
 python run_all_tests.py integration
 ```
 
-## ⚙️ Yapılandırma
+## ⚙️ Configuration
 
-Minimal config örneği:
+Minimal config example:
 
 ```yaml
 # config.yaml
@@ -281,42 +281,42 @@ memory:
   backend: "json"
 ```
 
-Detaylı yapılandırma için: [docs/CONFIG_GUIDE.md](docs/CONFIG_GUIDE.md)
+For detailed configuration: [docs/CONFIG_GUIDE.md](docs/CONFIG_GUIDE.md)
 
-## 🤝 Katkıda Bulunma
+## 🤝 Contributing
 
-Katkılarınızı bekliyoruz! Lütfen:
+We welcome your contributions! Please:
 
-1. Fork yapın
-2. Feature branch oluşturun (`git checkout -b feature/amazing`)
-3. Commit edin (`git commit -m 'Add amazing feature'`)
-4. Push edin (`git push origin feature/amazing`)
-5. Pull Request açın
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing`)
+5. Open a Pull Request
 
-## 📝 Lisans
+## 📝 License
 
-Bu proje [MIT Lisansı](LICENSE) altında lisanslanmıştır.
+This project is licensed under the [MIT License](LICENSE).
 
-## 🌟 Yıldız Verin!
+## 🌟 Give it a Star!
 
-Bu proje işinize yaradıysa, lütfen ⭐ vererek destek olun!
+If this project helped you, please give it a ⭐!
 
-## 📧 İletişim
+## 📧 Contact
 
-- GitHub Issues: Hata raporları ve özellik istekleri
-- Discussions: Soru ve tartışmalar
+- GitHub Issues: Bug reports and feature requests
+- Discussions: Questions and discussions
 
-## 🙏 Teşekkürler
+## 🙏 Acknowledgments
 
-- [Ollama](https://ollama.ai/) - Yerel LLM altyapısı
-- Granite4 Model - Hafif ve güçlü model
-- Topluluğa katkıda bulunan herkese 🎉
+- [Ollama](https://ollama.ai/) - Local LLM infrastructure
+- Granite4 Model - Lightweight and powerful model
+- Everyone who contributed to the community 🎉
 
 ---
 
 <div align="center">
 
-**[⬆ Başa Dön](#-mem-agent-belleği-olan-mini-asistan)**
+**[⬆ Back to Top](#-mem-agent-memory-enabled-mini-assistant)**
 
 Made with ❤️ in Turkey
 

@@ -1,26 +1,26 @@
 """
-Mem-Agent: Birleşik Güçlü Sistem
-===============================
+Mem-Agent: Unified Powerful System
+==================================
 
-Tüm özellikleri tek bir sistemde birleştiren güçlü Mem-Agent.
+A powerful Mem-Agent that combines all features in a single system.
 
-Özellikler:
-- ✅ SQL ve JSON bellek desteği
-- ✅ Prompt şablonları sistemi
-- ✅ Bilgi bankası entegrasyonu
-- ✅ Kullanıcı araçları sistemi
-- ✅ Yapılandırma yönetimi
-- ✅ Gelişmiş loglama
-- ✅ Production-ready yapı
+Features:
+- ✅ SQL and JSON memory support
+- ✅ Prompt templates system
+- ✅ Knowledge base integration
+- ✅ User tools system
+- ✅ Configuration management
+- ✅ Advanced logging
+- ✅ Production-ready structure
 
-Kullanım:
+Usage:
 ```python
 from mem_agent import MemAgent
 
-# Basit kullanım
+# Simple usage
 agent = MemAgent()
 
-# Gelişmiş kullanım
+# Advanced usage
 agent = MemAgent(
     config_file="config.yaml",
     use_sql=True,
