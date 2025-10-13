@@ -1,0 +1,167 @@
+# Mem-Agent Yapılandırma Dosyası
+# Bu dosyayı kendi ihtiyaçlarınıza göre düzenleyin
+
+# Kullanım Modu: "personal" veya "business"
+usage_mode: "business"  # personal veya business
+
+# Business modu için ek ayarlar
+business:
+  company_name: "Şirketimiz"
+  departments:
+    - "Müşteri Hizmetleri"
+    - "Satış"
+    - "Teknik Destek"
+    - "İK"
+  user_roles:
+    - "admin"
+    - "manager"
+    - "employee"
+    - "customer"
+  enable_multi_user: true
+  enable_reporting: true
+  enable_api_integration: true
+  security_level: "high"  # low, medium, high
+
+# Personal modu için ek ayarlar
+personal:
+  user_name: "Kullanıcı"
+  enable_reminders: true
+  enable_personal_notes: true
+  privacy_level: "high"  # low, medium, high
+  share_data: false
+
+# LLM Ayarları
+llm:
+  model: "granite4:tiny-h"
+  base_url: "http://localhost:11434"
+  temperature: 0.7
+  max_tokens: 500
+  
+# Bellek Ayarları
+memory:
+  # "json" veya "sql"
+  backend: "sql"
+  
+  # JSON backend için
+  json_dir: "memories"
+  
+  # SQL backend için
+  db_path: "memories.db"
+  
+  # Bellek sınırları
+  max_conversations_per_user: 1000
+  auto_cleanup: true
+  cleanup_after_days: 90
+
+# Sistem Prompt Şablonu
+# Kullanılabilir şablonlar: customer_service, tech_support, sales_assistant,
+#                           education_tutor, health_advisor, personal_assistant,
+#                           booking_assistant, hr_assistant
+prompt:
+  template: "customer_service"
+  
+  # Şablon değişkenleri (her şablon için farklı olabilir)
+  variables:
+    company_name: "Şirketimiz"
+    tone: "samimi ve profesyonel"
+    
+  # Özel prompt (template yerine kullanılabilir)
+  custom_prompt: null
+
+# Bilgi Bankası
+knowledge_base:
+  enabled: true
+  
+  # Otomatik yükleme
+  auto_load: true
+  default_kb: "ecommerce"  # ecommerce, tech_support, veya custom
+  
+  # Özel bilgi bankası dosyası
+  custom_kb_file: null  # "knowledge_samples/my_kb.json"
+  
+  # Arama ayarları
+  search_limit: 5
+  min_relevance_score: 0.3
+
+# Yanıt Ayarları
+response:
+  # Bilgi bankası kullanımı
+  use_knowledge_base: true
+  
+  # Bellek kullanımı
+  use_memory: true
+  recent_conversations_limit: 5
+  
+  # Cevap formatı
+  format:
+    include_greeting: true
+    include_follow_up: true
+    max_length: 500
+    
+# Güvenlik ve Gizlilik
+security:
+  # Hassas bilgi filtreleme
+  filter_sensitive_data: true
+  sensitive_keywords:
+    - "kredi kartı"
+    - "şifre"
+    - "parola"
+    - "CVV"
+    - "TC kimlik"
+    
+  # Rate limiting (dakikada maksimum istek)
+  rate_limit:
+    enabled: true
+    max_requests_per_minute: 60
+    max_requests_per_user_per_minute: 10
+
+# Loglama
+logging:
+  enabled: true
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  file: "mem_agent.log"
+  max_size_mb: 10
+  backup_count: 5
+  
+  # Hassas bilgileri loglama
+  log_user_messages: true
+  log_bot_responses: true
+  mask_sensitive: true
+
+# Performans
+performance:
+  # Cache ayarları
+  enable_cache: true
+  cache_ttl_seconds: 3600
+  
+  # Paralel işleme
+  enable_parallel: false
+  max_workers: 4
+
+# İstatistikler ve Analytics
+analytics:
+  enabled: true
+  
+  # Metrikler
+  track_response_time: true
+  track_user_satisfaction: false
+  track_conversation_length: true
+  
+  # Export
+  export_interval_hours: 24
+  export_path: "analytics"
+
+# Özelleştirilmiş Ayarlar
+custom:
+  # Buraya kendi ayarlarınızı ekleyebilirsiniz
+  feature_flags:
+    enable_sentiment_analysis: false
+    enable_auto_translation: false
+    enable_voice_support: false
+  
+  # Entegrasyon bilgileri
+  integrations:
+    slack: null
+    discord: null
+    whatsapp: null
+
