@@ -3,11 +3,7 @@ Personal Mode Example
 MemAgent demo for personal use
 """
 
-import sys
-import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from mem_agent import MemAgent
+from memory_llm import MemAgent
 
 
 def personal_mode_demo():

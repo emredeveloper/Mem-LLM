@@ -3,21 +3,20 @@ Integration Tests
 Tests all system components working together
 """
 
-import sys
-import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 import unittest
 import tempfile
 import shutil
 
 # Import all modules
-from mem_agent import MemAgent
-from memory_manager import MemoryManager
-from memory_db import SQLMemoryManager
-from memory_tools import MemoryTools, ToolExecutor
-from prompt_templates import prompt_manager
-from config_manager import get_config
+from memory_llm import (
+    MemAgent,
+    MemoryManager,
+    SQLMemoryManager,
+    MemoryTools,
+    ToolExecutor,
+    prompt_manager,
+    get_config
+)
 
 
 class TestIntegration(unittest.TestCase):

@@ -1,5 +1,5 @@
 """
-Mem-Agent: Memory-Enabled Mini Assistant
+Memory-LLM: Memory-Enabled Mini Assistant
 AI library that remembers user interactions
 """
 
@@ -23,7 +23,7 @@ try:
 except ImportError:
     __all_pro__ = []
 
-__version__ = "2.0.0"
+__version__ = "1.0.0"
 __author__ = "C. Emre Karataş"
 
 __all__ = [

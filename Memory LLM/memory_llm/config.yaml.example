@@ -1,0 +1,52 @@
+# Memory-LLM Configuration File
+# Copy this file to config.yaml and edit as needed
+
+# Usage Mode: "personal" or "business"
+usage_mode: "personal"
+
+# LLM Settings
+llm:
+  model: "granite4:tiny-h"
+  base_url: "http://localhost:11434"
+  temperature: 0.7
+  max_tokens: 500
+
+# Memory Settings
+memory:
+  backend: "json"  # "json" or "sql"
+  json_dir: "memories"
+  db_path: "memories.db"
+
+# System Prompt Template
+prompt:
+  template: "personal_assistant"
+  variables:
+    user_name: "User"
+    tone: "friendly"
+
+# Knowledge Base
+knowledge_base:
+  enabled: true
+  auto_load: true
+  default_kb: "ecommerce"
+  search_limit: 5
+
+# Response Settings
+response:
+  use_knowledge_base: true
+  use_memory: true
+  recent_conversations_limit: 5
+
+# Logging
+logging:
+  enabled: true
+  level: "INFO"
+  file: "mem_agent.log"
+
+# Security
+security:
+  filter_sensitive_data: true
+  rate_limit:
+    enabled: true
+    max_requests_per_minute: 60
+

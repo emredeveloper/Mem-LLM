@@ -15,7 +15,7 @@ Features:
 
 Usage:
 ```python
-from mem_agent import MemAgent
+from memory_llm import MemAgent
 
 # Simple usage
 agent = MemAgent()
@@ -36,16 +36,16 @@ import json
 import os
 
 # Core dependencies
-from memory_manager import MemoryManager
-from llm_client import OllamaClient
+from .memory_manager import MemoryManager
+from .llm_client import OllamaClient
 
 # Advanced features (optional)
 try:
-    from memory_db import SQLMemoryManager
-    from prompt_templates import prompt_manager
-    from knowledge_loader import KnowledgeLoader
-    from config_manager import get_config
-    from memory_tools import ToolExecutor, MemoryTools
+    from .memory_db import SQLMemoryManager
+    from .prompt_templates import prompt_manager
+    from .knowledge_loader import KnowledgeLoader
+    from .config_manager import get_config
+    from .memory_tools import ToolExecutor, MemoryTools
     ADVANCED_AVAILABLE = True
 except ImportError:
     ADVANCED_AVAILABLE = False

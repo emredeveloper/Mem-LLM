@@ -2,15 +2,11 @@
 MemoryManager Specific Tests
 """
 
-import sys
-import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 import unittest
 import tempfile
 import shutil
 
-from memory_manager import MemoryManager
+from memory_llm import MemoryManager
 
 
 class TestMemoryManager(unittest.TestCase):

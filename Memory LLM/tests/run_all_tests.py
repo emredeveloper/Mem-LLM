@@ -11,9 +11,7 @@ Usage:
     python run_all_tests.py integration  # Sadece entegrasyon testleri çalıştır
 """
 
-import sys
-import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Test runner - no sys.path manipulation needed after package install
 
 import unittest
 import time

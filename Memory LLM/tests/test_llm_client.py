@@ -2,13 +2,9 @@
 LLM Client Specific Tests
 """
 
-import sys
-import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 import unittest
 
-from llm_client import OllamaClient
+from memory_llm import OllamaClient
 
 
 class TestLLMClient(unittest.TestCase):

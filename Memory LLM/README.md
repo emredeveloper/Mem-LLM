@@ -42,10 +42,10 @@ ollama serve
 ollama pull granite4:tiny-h
 ```
 
-### 3. Use Mem-Agent
+### 3. Use Memory-LLM
 
 ```python
-from mem_agent import MemAgent
+from memory_llm import MemAgent
 
 # Create agent
 agent = MemAgent(model="granite4:tiny-h")
@@ -120,7 +120,7 @@ Users can with natural language:
 ### Customer Service
 
 ```python
-from mem_agent import MemAgent
+from memory_llm import MemAgent
 
 agent = MemAgent(
     config_file="config.yaml",  # Customer service settings
@@ -196,22 +196,34 @@ Memory LLM/
 - Ollama (local LLM server)
 - 4GB+ RAM
 
-### Step by Step
+### From PyPI (Recommended)
+
+```bash
+# Install the package
+pip install memory-llm
+
+# Download model
+ollama pull granite4:tiny-h
+
+# Start using
+python -c "from memory_llm import MemAgent; agent = MemAgent(); print('✅ Ready!')"
+```
+
+### From Source (Development)
 
 ```bash
 # 1. Clone the project
-git clone https://github.com/yourusername/mem-agent.git
-cd mem-agent
+git clone https://github.com/yourusername/memory-llm.git
+cd memory-llm
 
-# 2. Install dependencies
-pip install -r requirements.txt
+# 2. Install in development mode
+pip install -e .
 
 # 3. Create config file (optional)
-cp config.yaml.example config.yaml
+cp memory_llm/config.yaml.example config.yaml
 
 # 4. Run first example
-cd examples
-python example_simple.py
+python -m memory_llm.examples.example_simple
 ```
 
 For detailed installation: [QUICKSTART_TR.md](QUICKSTART_TR.md)
@@ -230,7 +242,7 @@ For detailed installation: [QUICKSTART_TR.md](QUICKSTART_TR.md)
 
 ```python
 # Example 1: Simple Usage
-from mem_agent import MemAgent
+from memory_llm import MemAgent
 
 agent = MemAgent()
 agent.set_user("user123")

@@ -10,11 +10,7 @@ Users can now:
 - Hakkında ne bilindiğini öğrenebilir
 """
 
-import sys
-import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from mem_agent import MemAgent
+from memory_llm import MemAgent
 
 
 def demonstrate_memory_tools():

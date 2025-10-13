@@ -36,38 +36,12 @@ class MemoryTools:
                 },
                 "function": self._search_memories
             },
-            "delete_memory": {
-                "description": "Delete a specific conversation",
-                "parameters": {
-                    "user_id": "User ID",
-                    "conversation_id": "Conversation ID to delete",
-                    "confirm": "Deletion confirmation (true/false)"
-                },
-                "function": self._delete_memory
-            },
-            "clear_all_memories": {
-                "description": "Delete all user data",
-                "parameters": {
-                    "user_id": "User ID",
-                    "confirm": "Deletion confirmation (true/false)",
-                    "reason": "Deletion reason (optional)"
-                },
-                "function": self._clear_all_memories
-            },
             "show_user_info": {
                 "description": "Show information about user",
                 "parameters": {
                     "user_id": "User ID"
                 },
                 "function": self._show_user_info
-            },
-            "update_user_info": {
-                "description": "Update user information",
-                "parameters": {
-                    "user_id": "User ID",
-                    "updates": "Information to update"
-                },
-                "function": self._update_user_info
             },
             "export_memories": {
                 "description": "Export user data",
@@ -130,45 +104,6 @@ class MemoryTools:
         except Exception as e:
             return f"❌ Search error: {str(e)}"
 
-    def _delete_memory(self, user_id: str, conversation_id: str, confirm: bool = False) -> str:
-        """Delete a specific conversation"""
-        if not confirm:
-            return "⚠️  Use 'confirm=true' parameter for deletion."
-
-        try:
-            # For this simple version, reload all conversations and filter
-            # In real application, deletion by ID would be done in database
-            conversations = self.memory.get_recent_conversations(user_id, 1000)
-
-            # Simple deletion - would be more sophisticated in real application
-            original_count = len(conversations)
-
-            # For this demo, simulate deleting a random conversation
-            # In real application, conversation_id would be used
-
-            return f"✅ Conversation deleted. ({original_count} conversations exist)"
-
-        except Exception as e:
-            return f"❌ Deletion error: {str(e)}"
-
-    def _clear_all_memories(self, user_id: str, confirm: bool = False, reason: str = "") -> str:
-        """Delete all user data"""
-        if not confirm:
-            return "⚠️  Use 'confirm=true' parameter to delete all data."
-
-        try:
-            # Clear all conversations
-            conversations = self.memory.get_recent_conversations(user_id, 1000)
-
-            # Deletion simulation for this demo
-            # In real application, all records would be deleted from database
-
-            reason_text = f" (Reason: {reason})" if reason else ""
-            return f"🗑️  All data for user {user_id} has been deleted{reason_text}."
-
-        except Exception as e:
-            return f"❌ Deletion error: {str(e)}"
-
     def _show_user_info(self, user_id: str) -> str:
         """Show user information"""
         try:
@@ -185,32 +120,15 @@ class MemoryTools:
             if profile.get('first_seen'):
                 result += f"First conversation: {profile['first_seen']}\n"
 
-            if profile.get('last_interaction'):
-                result += f"Last interaction: {profile['last_interaction']}\n"
-
-            conversations = self.memory.get_recent_conversations(user_id, 1)
-            if conversations:
-                result += f"Total conversations: {len(self.memory.get_recent_conversations(user_id, 1000))}\n"
-
             return result
 
         except Exception as e:
             return f"❌ Information retrieval error: {str(e)}"
 
-    def _update_user_info(self, user_id: str, updates: Dict[str, Any]) -> str:
-        """Update user information"""
-        try:
-            self.memory.update_user_profile(user_id, updates)
-            return f"✅ User information for {user_id} updated."
-
-        except Exception as e:
-            return f"❌ Update error: {str(e)}"
-
     def _export_memories(self, user_id: str, format: str = "json") -> str:
         """Export user data"""
         try:
             if format == "json":
-                # Get all data in JSON format
                 profile = self.memory.get_user_profile(user_id)
                 conversations = self.memory.get_recent_conversations(user_id, 1000)
 
@@ -246,23 +164,13 @@ class MemoryTools:
             return f"❌ Export error: {str(e)}"
 
     def execute_tool(self, tool_name: str, parameters: Dict[str, Any]) -> str:
-        """
-        Execute the specified tool
-
-        Args:
-            tool_name: Tool name to execute
-            parameters: Tool parameters
-
-        Returns:
-            Tool result
-        """
+        """Execute the specified tool"""
         if tool_name not in self.tools:
             return f"❌ Tool '{tool_name}' not found."
 
         tool = self.tools[tool_name]
 
         try:
-            # Pass parameters to function
             if "user_id" in parameters:
                 result = tool["function"](**parameters)
             else:
@@ -290,40 +198,16 @@ class MemoryTools:
         return result
 
     def parse_user_command(self, user_message: str) -> tuple:
-        """
-        Extract tool call from user message
-
-        Returns:
-            (tool_name, parameters) or (None, None) if no tool call
-        """
-        # Command patterns
+        """Extract tool call from user message"""
         patterns = {
             "list_memories": [
                 r"show.*my.*past.*conversations",
                 r"list.*my.*conversations",
-                r"show.*all.*my.*conversations",
-                r"show.*my.*history"
-            ],
-            "search_memories": [
-                r"search.*my.*conversations.*about.*(.*)",
-                r"conversations.*with.*keyword.*(.*)",
-                r"find.*my.*conversations.*related.*to.*(.*)"
             ],
             "show_user_info": [
                 r"what.*do.*you.*know.*about.*me",
-                r"introduce.*me",
                 r"show.*my.*profile"
             ],
-            "clear_all_memories": [
-                r"forget.*everything",
-                r"delete.*all.*my.*data",
-                r"clear.*all.*my.*history"
-            ],
-            "export_memories": [
-                r"export.*my.*data",
-                r"export.*my.*history",
-                r"download.*my.*conversations"
-            ]
         }
 
         message_lower = user_message.lower()
@@ -332,14 +216,7 @@ class MemoryTools:
             for pattern in pattern_list:
                 match = re.search(pattern, message_lower)
                 if match:
-                    # Simple parameter extraction
-                    parameters = {"user_id": "current_user"}  # In real application, this would be taken from current user
-
-                    if tool_name == "search_memories":
-                        keyword = match.group(1).strip()
-                        if keyword:
-                            parameters["keyword"] = keyword
-
+                    parameters = {"user_id": "current_user"}
                     return tool_name, parameters
 
         return None, None
@@ -358,22 +235,12 @@ class ToolExecutor:
         self.current_user_id = current_user_id
 
     def execute_user_command(self, user_message: str, user_id: str = None) -> str:
-        """
-        Detect and execute tool call from user message
-
-        Args:
-            user_message: User message
-            user_id: User ID
-
-        Returns:
-            Tool result or None if no tool call
-        """
+        """Detect and execute tool call from user message"""
         uid = user_id or self.current_user_id
 
         tool_name, parameters = self.memory_tools.parse_user_command(user_message)
 
         if tool_name and uid:
-            # Add user_id to parameters
             parameters["user_id"] = uid
             return self.memory_tools.execute_tool(tool_name, parameters)
 
@@ -384,47 +251,3 @@ class ToolExecutor:
         tool_name, _ = self.memory_tools.parse_user_command(user_message)
         return tool_name is not None
 
-
-def create_sample_tool_usage():
-    """Create tool usage example"""
-    print("🛠️  MEMORY TOOLS EXAMPLE")
-    print("=" * 60)
-
-    # Simple memory manager for demo
-    from memory_manager import MemoryManager
-    memory = MemoryManager()
-
-    # Add sample user
-    memory.add_user("demo_user", "Demo User")
-    memory.add_interaction("demo_user", "Hello!", "Hello! How can I help you?")
-    memory.add_interaction("demo_user", "My name is Ahmet", "Nice to meet you Ahmet!")
-
-    tools = MemoryTools(memory)
-
-    print("📋 Available tools:")
-    print(tools.list_available_tools())
-
-    print("\n" + "=" * 60)
-    print("🎯 EXAMPLE USAGE:")
-    print("=" * 60)
-
-    # Execute tools manually
-    print("1️⃣  List past conversations:")
-    result = tools.execute_tool("list_memories", {"user_id": "demo_user", "limit": 5})
-    print(result)
-
-    print("\n2️⃣  Search for 'Hello' keyword:")
-    result = tools.execute_tool("search_memories", {"user_id": "demo_user", "keyword": "Hello"})
-    print(result)
-
-    print("\n3️⃣  Show user information:")
-    result = tools.execute_tool("show_user_info", {"user_id": "demo_user"})
-    print(result)
-
-    print("\n4️⃣  Export data (JSON):")
-    result = tools.execute_tool("export_memories", {"user_id": "demo_user", "format": "json"})
-    print(result[:200] + "...")  # First 200 characters
-
-
-if __name__ == "__main__":
-    create_sample_tool_usage()

@@ -6,11 +6,7 @@ This example shows how a memory-enabled chatbot works.
 We will have 3 very simple conversations and test the bot's memory.
 """
 
-import sys
-import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from mem_agent import MemAgent
+from memory_llm import MemAgent
 
 
 def main():

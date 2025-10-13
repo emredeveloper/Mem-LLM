@@ -1,0 +1,11 @@
+include README.md
+include requirements.txt
+include CHANGELOG.md
+include QUICKSTART.md
+include QUICKSTART_TR.md
+include INTEGRATION_GUIDE.md
+include STRUCTURE.md
+recursive-include memory_llm *.yaml
+recursive-include memory_llm *.example
+recursive-include docs *.md
+

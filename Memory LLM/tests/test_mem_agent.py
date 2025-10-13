@@ -3,10 +3,6 @@ Mem-Agent Comprehensive Test Suite
 Tests all basic functions
 """
 
-import sys
-import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 import unittest
 import tempfile
 import json
@@ -14,9 +10,7 @@ import time
 import shutil
 
 # Test edilecek modüller
-from mem_agent import MemAgent
-from memory_manager import MemoryManager
-from llm_client import OllamaClient
+from memory_llm import MemAgent, MemoryManager, OllamaClient
 
 
 class TestMemAgent(unittest.TestCase):

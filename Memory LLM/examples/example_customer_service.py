@@ -3,11 +3,7 @@ Example Usage: Customer Service Bot
 Customer service assistant example suitable for your scenario
 """
 
-import sys
-import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from mem_agent import MemAgent
+from memory_llm import MemAgent
 import time
 
 

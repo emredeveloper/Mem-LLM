@@ -3,11 +3,7 @@ Business Mode Example
 MemAgent demo for corporate use
 """
 
-import sys
-import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from mem_agent import MemAgent
+from memory_llm import MemAgent
 
 
 def business_mode_demo():

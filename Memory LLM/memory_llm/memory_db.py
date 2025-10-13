@@ -260,73 +260,6 @@ class SQLMemoryManager:
             """, values)
             self.conn.commit()
     
-    # === Senaryo Şablonları ===
-    
-    def add_scenario_template(self, name: str, system_prompt: str,
-                             description: Optional[str] = None,
-                             examples: Optional[List[Dict]] = None) -> int:
-        """
-        Yeni senaryo şablonu ekler
-        
-        Args:
-            name: Şablon adı
-            system_prompt: Sistem promptu
-            description: Açıklama
-            examples: Örnek etkileşimler
-            
-        Returns:
-            Şablon ID'si
-        """
-        cursor = self.conn.cursor()
-        cursor.execute("""
-            INSERT INTO scenario_templates 
-            (name, description, system_prompt, example_interactions)
-            VALUES (?, ?, ?, ?)
-            ON CONFLICT(name) DO UPDATE SET
-                description = excluded.description,
-                system_prompt = excluded.system_prompt,
-                example_interactions = excluded.example_interactions
-        """, (name, description, system_prompt, 
-              json.dumps(examples or [])))
-        
-        self.conn.commit()
-        return cursor.lastrowid
-    
-    def get_scenario_template(self, name: str) -> Optional[Dict]:
-        """
-        Senaryo şablonunu getirir
-        
-        Args:
-            name: Şablon adı
-            
-        Returns:
-            Şablon bilgisi veya None
-        """
-        cursor = self.conn.cursor()
-        cursor.execute("""
-            SELECT * FROM scenario_templates WHERE name = ?
-        """, (name,))
-        
-        row = cursor.fetchone()
-        if row:
-            data = dict(row)
-            if data.get('example_interactions'):
-                data['example_interactions'] = json.loads(data['example_interactions'])
-            return data
-        return None
-    
-    def list_scenario_templates(self) -> List[Dict]:
-        """Tüm senaryo şablonlarını listeler"""
-        cursor = self.conn.cursor()
-        cursor.execute("""
-            SELECT name, description FROM scenario_templates
-            ORDER BY name
-        """)
-        
-        return [dict(row) for row in cursor.fetchall()]
-    
-    # === Bilgi Bankası (Knowledge Base) ===
-    
     def add_knowledge(self, category: str, question: str, answer: str,
                      keywords: Optional[List[str]] = None,
                      priority: int = 0) -> int:
@@ -423,6 +356,12 @@ class SQLMemoryManager:
             "knowledge_base_entries": kb_count,
             "avg_interactions_per_user": total_interactions / total_users if total_users > 0 else 0
         }
+    
+    def clear_memory(self, user_id: str) -> None:
+        """Delete all user conversations"""
+        cursor = self.conn.cursor()
+        cursor.execute("DELETE FROM conversations WHERE user_id = ?", (user_id,))
+        self.conn.commit()
     
     def close(self) -> None:
         """Veritabanı bağlantısını kapatır"""
