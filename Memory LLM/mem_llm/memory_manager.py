@@ -259,4 +259,54 @@ class MemoryManager:
             self.load_memory(user_id)
 
         return self.user_profiles.get(user_id)
+    
+    def update_user_profile(self, user_id: str, updates: Dict) -> None:
+        """
+        Update user profile (SQL-compatible alias)
+        
+        Args:
+            user_id: User ID
+            updates: Fields to update
+        """
+        return self.update_profile(user_id, updates)
+    
+    def add_user(self, user_id: str, name: Optional[str] = None, metadata: Optional[Dict] = None) -> None:
+        """
+        Add or update user (SQL-compatible method)
+        
+        Args:
+            user_id: User ID
+            name: User name (optional)
+            metadata: Additional metadata (optional)
+        """
+        self.load_memory(user_id)
+        if name and 'name' not in self.user_profiles[user_id]:
+            self.user_profiles[user_id]['name'] = name
+        if metadata:
+            self.user_profiles[user_id].update(metadata)
+        self.save_memory(user_id)
+    
+    def get_statistics(self) -> Dict:
+        """
+        Get general statistics (SQL-compatible method)
+        
+        Returns:
+            Statistics dictionary
+        """
+        all_users = list(self.memory_dir.glob("*.json"))
+        total_interactions = 0
+        
+        for user_file in all_users:
+            try:
+                with open(user_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    total_interactions += len(data.get('conversations', []))
+            except:
+                pass
+        
+        return {
+            'total_users': len(all_users),
+            'total_interactions': total_interactions,
+            'knowledge_base_entries': 0  # JSON doesn't have KB
+        }
 

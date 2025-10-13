@@ -24,7 +24,7 @@ try:
 except ImportError:
     __all_pro__ = []
 
-__version__ = "1.0.6"
+__version__ = "1.0.4"
 __author__ = "C. Emre Karataş"
 
 __all__ = [
