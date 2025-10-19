@@ -10,6 +10,8 @@ import json
 import time
 from pathlib import Path
 
+import pytest
+
 # Color codes for better output
 class Colors:
     GREEN = '\033[92m'
@@ -36,6 +38,9 @@ def print_warning(text):
 def print_info(text):
     print(f"{Colors.BLUE}ℹ️  {text}{Colors.END}")
 
+# Default model used across tests (can be overridden via environment variable)
+DEFAULT_MODEL = os.environ.get("MEM_LLM_TEST_MODEL", "granite4:tiny-h")
+
 # Test results
 test_results = {
     'passed': 0,
@@ -43,6 +48,24 @@ test_results = {
     'warnings': 0,
     'details': []
 }
+
+
+def ensure_ollama_available(agent, require_model=True):
+    """Skip the calling test if Ollama or the target model is unavailable."""
+    status = agent.check_setup()
+
+    if not status.get('ollama_running'):
+        print_warning("Ollama is not running - skipping test")
+        pytest.skip("Ollama service is not running")
+
+    if require_model and not status.get('model_ready'):
+        print_warning(f"Model {status.get('target_model')} not found")
+        available = status.get('available_models')
+        if available:
+            print_info(f"Available models: {available}")
+        pytest.skip(f"Model {status.get('target_model')} is not available")
+
+    return status
 
 def run_test(name, func):
     """Run a single test"""
@@ -102,38 +125,37 @@ def test_imports():
 
 def test_agent_creation_json():
     """Test creating agent with JSON memory"""
-    agent = MemAgent(model="granite4:tiny-h", use_sql=False, memory_dir="test_json_mem")
+    agent = MemAgent(model=DEFAULT_MODEL, use_sql=False, memory_dir="test_json_mem")
     assert agent is not None, "Agent creation failed"
     assert agent.current_user is None, "Current user should be None initially"
     print_success("Agent created with JSON memory")
 
 def test_agent_creation_sql():
     """Test creating agent with SQL memory"""
-    agent = MemAgent(model="granite4:tiny-h", use_sql=True, memory_dir="test_sql.db")
+    agent = MemAgent(model=DEFAULT_MODEL, use_sql=True, memory_dir="test_sql.db")
     assert agent is not None, "Agent creation failed"
     assert hasattr(agent.memory, 'add_knowledge'), "SQL memory should have add_knowledge"
     print_success("Agent created with SQL memory")
 
 def test_ollama_connection():
     """Test Ollama connection"""
-    agent = MemAgent(model="granite4:tiny-h", use_sql=False)
-    status = agent.check_setup()
-    
-    if status['ollama_running']:
-        print_success("Ollama is running")
-    else:
-        print_warning("Ollama is not running - some tests will be skipped")
-        raise AssertionError("Ollama not running")
-    
+    agent = MemAgent(model=DEFAULT_MODEL, use_sql=False)
+    status = ensure_ollama_available(agent, require_model=False)
+
+    print_success("Ollama is running")
+
     if status['model_ready']:
         print_success(f"Model {status['target_model']} is ready")
     else:
         print_warning(f"Model {status['target_model']} not found")
-        print_info(f"Available models: {status['available_models']}")
+        available = status.get('available_models')
+        if available:
+            print_info(f"Available models: {available}")
+        pytest.skip(f"Model {status['target_model']} is not available")
 
 def test_user_management():
     """Test user management"""
-    agent = MemAgent(model="granite4:tiny-h", use_sql=False, memory_dir="test_user_mgmt")
+    agent = MemAgent(model=DEFAULT_MODEL, use_sql=False, memory_dir="test_user_mgmt")
     
     # Set user
     agent.set_user("test_user_1", name="Test User")
@@ -147,14 +169,11 @@ def test_user_management():
 
 def test_basic_chat():
     """Test basic chat functionality"""
-    agent = MemAgent(model="granite4:tiny-h", use_sql=False, memory_dir="test_chat")
+    agent = MemAgent(model=DEFAULT_MODEL, use_sql=False, memory_dir="test_chat")
     agent.set_user("chat_user")
-    
+
     # Check if Ollama is running
-    status = agent.check_setup()
-    if not status['ollama_running']:
-        print_warning("Skipping chat test - Ollama not running")
-        raise AssertionError("Ollama not running")
+    ensure_ollama_available(agent)
     
     response = agent.chat("Hello, my name is Alice")
     assert response is not None, "Response should not be None"
@@ -163,20 +182,17 @@ def test_basic_chat():
 
 def test_memory_persistence():
     """Test if memory is saved and loaded correctly"""
-    agent = MemAgent(model="granite4:tiny-h", use_sql=False, memory_dir="test_persistence")
+    agent = MemAgent(model=DEFAULT_MODEL, use_sql=False, memory_dir="test_persistence")
     agent.set_user("persist_user")
-    
+
     # Check if Ollama is running
-    status = agent.check_setup()
-    if not status['ollama_running']:
-        print_warning("Skipping persistence test - Ollama not running")
-        raise AssertionError("Ollama not running")
+    ensure_ollama_available(agent)
     
     # Add interaction
     agent.chat("My favorite color is blue")
     
     # Create new agent with same memory
-    agent2 = MemAgent(model="granite4:tiny-h", use_sql=False, memory_dir="test_persistence")
+    agent2 = MemAgent(model=DEFAULT_MODEL, use_sql=False, memory_dir="test_persistence")
     agent2.set_user("persist_user")
     
     # Check conversation history
@@ -187,7 +203,7 @@ def test_memory_persistence():
 
 def test_knowledge_base_sql():
     """Test knowledge base functionality (SQL only)"""
-    agent = MemAgent(model="granite4:tiny-h", use_sql=True, memory_dir="test_kb.db")
+    agent = MemAgent(model=DEFAULT_MODEL, use_sql=True, memory_dir="test_kb.db")
     
     # Add knowledge
     kb_id = agent.add_knowledge(
@@ -207,14 +223,11 @@ def test_knowledge_base_sql():
 
 def test_user_profile_extraction():
     """Test automatic user profile extraction"""
-    agent = MemAgent(model="granite4:tiny-h", use_sql=True, memory_dir="test_profile.db")
+    agent = MemAgent(model=DEFAULT_MODEL, use_sql=True, memory_dir="test_profile.db")
     agent.set_user("profile_user", name="John")
     
     # Check if Ollama is running
-    status = agent.check_setup()
-    if not status['ollama_running']:
-        print_warning("Skipping profile extraction test - Ollama not running")
-        raise AssertionError("Ollama not running")
+    ensure_ollama_available(agent)
     
     # Share personal info
     agent.chat("My name is John")
@@ -233,14 +246,11 @@ def test_user_profile_extraction():
 
 def test_statistics():
     """Test statistics gathering"""
-    agent = MemAgent(model="granite4:tiny-h", use_sql=True, memory_dir="test_stats.db")
+    agent = MemAgent(model=DEFAULT_MODEL, use_sql=True, memory_dir="test_stats.db")
     agent.set_user("stats_user")
     
     # Check if Ollama is running
-    status = agent.check_setup()
-    if not status['ollama_running']:
-        print_warning("Skipping statistics test - Ollama not running")
-        raise AssertionError("Ollama not running")
+    ensure_ollama_available(agent)
     
     # Add some interactions
     agent.chat("Hello")
