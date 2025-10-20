@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=70.0,<77.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mem-llm"
+version = "1.0.10"
+description = "Memory-enabled AI assistant with local LLM support"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "C. Emre Karataş", email = "karatasqemre@gmail.com"}
+]
+keywords = ["llm", "ai", "memory", "agent", "chatbot", "ollama", "local"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "requests>=2.31.0",
+    "pyyaml>=6.0.1",
+    "click>=8.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "black>=23.7.0",
+    "flake8>=6.1.0",
+]
+web = [
+    "flask>=3.0.0",
+    "flask-cors>=4.0.0",
+]
+api = [
+    "fastapi>=0.104.0",
+    "uvicorn>=0.24.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/emredeveloper/Mem-LLM"
+"Bug Reports" = "https://github.com/emredeveloper/Mem-LLM/issues"
+Source = "https://github.com/emredeveloper/Mem-LLM"
+
+[project.scripts]
+mem-llm = "mem_llm.cli:main"
+
+[tool.setuptools]
+packages = ["mem_llm"]
+
+[tool.setuptools.package-data]
+mem_llm = ["config.yaml.example"]

@@ -8,10 +8,11 @@ import json
 import sys
 from typing import Optional
 from .mem_agent import MemAgent
+from . import __version__
 
 
 @click.group()
-@click.version_option(version="1.0.7", prog_name="mem-llm")
+@click.version_option(version=__version__, prog_name="mem-llm")
 def cli():
     """
     Mem-LLM - Memory-enabled AI Assistant CLI
