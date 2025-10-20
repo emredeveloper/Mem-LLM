@@ -29,8 +29,6 @@ MANIFEST
 *.manifest
 *.spec
 
-.gitignore
-
 # Unit test / coverage reports
 htmlcov/
 .tox/
@@ -118,6 +116,15 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# Ruff
+.ruff_cache/
+
+# pyright
+pyrightconfig.json
+
+# Python 3.11+ cache
+__pypackages__/
+
 # Memory LLM specific
 # Memory files
 memories/
@@ -129,6 +136,10 @@ mem_agent.log
 # Config files (keep .example versions)
 config.yaml
 !config.yaml.example
+
+# Release documentation (generated)
+GITHUB_RELEASE_*.md
+RELEASE_NOTES_*.md
 
 # Knowledge base
 knowledge_samples/
@@ -175,3 +186,15 @@ desktop.ini
 *.tmp
 *.temp
 *.bak
+
+# GitHub Actions
+.github/workflows/*.log
+
+# Local development
+.local/
+scratch/
+playground/
+
+# Package testing
+test-install/
+.tox/
