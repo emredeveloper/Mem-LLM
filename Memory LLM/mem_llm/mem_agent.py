@@ -178,12 +178,12 @@ class MemAgent:
             log_config = self.config.get("logging", {})
 
         if log_config.get("enabled", True):
+            # Only console logging (no file) - keep workspace clean
             logging.basicConfig(
                 level=getattr(logging, log_config.get("level", "INFO")),
                 format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                 handlers=[
-                    logging.FileHandler(log_config.get("file", "mem_agent.log")),
-                    logging.StreamHandler()
+                    logging.StreamHandler()  # Console only
                 ]
             )
 
