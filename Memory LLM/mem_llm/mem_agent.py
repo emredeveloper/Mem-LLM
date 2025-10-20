@@ -42,10 +42,10 @@ from .llm_client import OllamaClient
 # Advanced features (optional)
 try:
     from .memory_db import SQLMemoryManager
-    from .prompt_templates import prompt_manager
     from .knowledge_loader import KnowledgeLoader
     from .config_manager import get_config
     from .memory_tools import ToolExecutor, MemoryTools
+    from .dynamic_prompt import dynamic_prompt_builder
     ADVANCED_AVAILABLE = True
 except ImportError:
     ADVANCED_AVAILABLE = False
@@ -100,6 +100,10 @@ class MemAgent:
         # Setup logging
         self._setup_logging()
 
+        # Initialize flags first
+        self.has_knowledge_base: bool = False  # Track KB status
+        self.has_tools: bool = False  # Track tools status
+
         # Memory system selection
         if use_sql and ADVANCED_AVAILABLE:
             # SQL memory (advanced)
@@ -111,6 +115,10 @@ class MemAgent:
             json_dir = memory_dir or self.config.get("memory.json_dir", "memories") if self.config else "memories"
             self.memory = MemoryManager(json_dir)
             self.logger.info(f"JSON memory system active: {json_dir}")
+
+        # Active user and system prompt
+        self.current_user: Optional[str] = None
+        self.current_system_prompt: Optional[str] = None
 
         # LLM client
         self.model = model  # Store model name
@@ -154,15 +162,17 @@ class MemAgent:
         
         self.logger.info(f"LLM client ready: {model}")
 
+        # Initialize state variables FIRST
+        self.current_user: Optional[str] = None
+        self.current_system_prompt: Optional[str] = None
+
         # Advanced features (if available)
         if ADVANCED_AVAILABLE:
             self._setup_advanced_features(load_knowledge_base)
         else:
             print("⚠️  Load additional packages for advanced features")
-
-        # Active user and system prompt
-        self.current_user: Optional[str] = None
-        self.current_system_prompt: Optional[str] = None
+            # Build basic prompt even without advanced features
+            self._build_dynamic_system_prompt()
 
         # Tool system (always available)
         self.tool_executor = ToolExecutor(self.memory)
@@ -209,79 +219,73 @@ class MemAgent:
                     if default_kb == "ecommerce":
                         count = kb_loader.load_default_ecommerce_kb()
                         self.logger.info(f"E-commerce knowledge base loaded: {count} records")
+                        self.has_knowledge_base = True  # KB loaded!
                     elif default_kb == "tech_support":
                         count = kb_loader.load_default_tech_support_kb()
                         self.logger.info(f"Technical support knowledge base loaded: {count} records")
+                        self.has_knowledge_base = True  # KB loaded!
                     elif default_kb == "business_tech_support":
                         count = kb_loader.load_default_tech_support_kb()
                         self.logger.info(f"Corporate technical support knowledge base loaded: {count} records")
+                        self.has_knowledge_base = True  # KB loaded!
                     elif default_kb == "personal_learning":
                         # Simple KB for personal learning
                         count = kb_loader.load_default_ecommerce_kb()  # Temporarily use the same KB
                         self.logger.info(f"Personal learning knowledge base loaded: {count} records")
+                        self.has_knowledge_base = True  # KB loaded!
                 except Exception as e:
                     self.logger.error(f"Knowledge base loading error: {e}")
+                    self.has_knowledge_base = False
 
-        # Load system prompt (according to usage mode)
+        # Build dynamic system prompt based on active features
+        self._build_dynamic_system_prompt()
+
+    def _build_dynamic_system_prompt(self) -> None:
+        """Build dynamic system prompt based on active features"""
+        if not ADVANCED_AVAILABLE:
+            # Fallback simple prompt
+            self.current_system_prompt = "You are a helpful AI assistant."
+            return
+        
+        # Get config data
+        business_config = None
+        personal_config = None
+        
         if hasattr(self, 'config') and self.config:
-            prompt_config = self.config.get("prompt", {})
-
-            # Select default template according to usage mode
-            if self.usage_mode == "business":
-                default_template = "business_customer_service"
-            else:  # personal
-                default_template = "personal_assistant"
-
-            template_name = prompt_config.get("template", default_template)
-            variables = prompt_config.get("variables", {})
-
-            # Additional variables for business mode
             if self.usage_mode == "business":
                 business_config = self.config.get("business", {})
-                variables.update({
-                    "company_name": business_config.get("company_name", "Our Company"),
-                    "founded_year": business_config.get("founded_year", "2010"),
-                    "employee_count": business_config.get("employee_count", "100+"),
-                    "industry": business_config.get("industry", "Teknoloji")
-                })
-            else:  # personal
+            else:
                 personal_config = self.config.get("personal", {})
-                variables.update({
-                    "user_name": personal_config.get("user_name", "User"),
-                    "timezone": personal_config.get("timezone", "Europe/London")
-                })
-
-            try:
-                variables['current_date'] = datetime.now().strftime("%Y-%m-%d")
-                self.current_system_prompt = prompt_manager.render_prompt(template_name, **variables)
-                self.logger.info(f"Prompt template loaded: {template_name} (Mode: {self.usage_mode})")
-            except Exception as e:
-                self.logger.error(f"Prompt template loading error: {e}")
-                # Simple, short and effective default prompt
-                self.current_system_prompt = """You are a helpful AI assistant with access to a knowledge base.
-
-CRITICAL RULES (FOLLOW EXACTLY):
-1. If KNOWLEDGE BASE information is provided below, USE IT FIRST - it's the correct answer!
-2. Knowledge base answers are marked with "📚 RELEVANT KNOWLEDGE BASE"
-3. Keep responses SHORT (1-3 sentences maximum)
-4. When user shares personal info: Just acknowledge briefly ("Got it!" or "Noted!")
-5. Answer from knowledge base EXACTLY as written, don't make up information
-6. If knowledge base has no info, use conversation history or say "I don't have that information"
-
-RESPONSE PRIORITY:
-1st Priority: Knowledge Base (if available) ← USE THIS!
-2nd Priority: Conversation History
-3rd Priority: General knowledge (be brief)
-
-EXAMPLES:
-User: "What's the shipping cost?"
-Knowledge Base: "Shipping is free over $150"
-You: "Shipping is free for orders over $150!"
-
-User: "My name is Alice" → You: "Nice to meet you, Alice!"
-User: "What's my name?" → You: "Your name is Alice."
-
-REMEMBER: Knowledge base = truth. Always use it when provided!"""
+        
+        # Check if tools are enabled (future feature)
+        # For now, tools are always available but not advertised in prompt
+        # self.has_tools = False  # Will be enabled when tool system is ready
+        
+        # Build prompt using dynamic builder
+        try:
+            self.current_system_prompt = dynamic_prompt_builder.build_prompt(
+                usage_mode=self.usage_mode,
+                has_knowledge_base=self.has_knowledge_base,
+                has_tools=False,  # Not advertised yet
+                is_multi_user=False,  # Always False for now, per-session state
+                business_config=business_config,
+                personal_config=personal_config,
+                memory_type="sql" if self.use_sql else "json"
+            )
+            
+            # Log feature summary
+            feature_summary = dynamic_prompt_builder.get_feature_summary(
+                has_knowledge_base=self.has_knowledge_base,
+                has_tools=False,
+                is_multi_user=False,
+                memory_type="sql" if self.use_sql else "json"
+            )
+            self.logger.info(f"Dynamic prompt built: {feature_summary}")
+            
+        except Exception as e:
+            self.logger.error(f"Dynamic prompt building error: {e}")
+            # Fallback
+            self.current_system_prompt = "You are a helpful AI assistant."
 
     def check_setup(self) -> Dict[str, Any]:
         """Check system setup"""
@@ -420,8 +424,25 @@ REMEMBER: Knowledge base = truth. Always use it when provided!"""
             response = self.llm.chat(
                 messages=messages,
                 temperature=self.config.get("llm.temperature", 0.2) if hasattr(self, 'config') and self.config else 0.2,  # Very focused
-                max_tokens=self.config.get("llm.max_tokens", 150) if hasattr(self, 'config') and self.config else 150  # Max 2-3 sentences
+                max_tokens=self.config.get("llm.max_tokens", 2000) if hasattr(self, 'config') and self.config else 2000  # Enough tokens for thinking models
             )
+            
+            # Fallback: If response is empty (can happen with thinking models)
+            if not response or response.strip() == "":
+                self.logger.warning(f"Empty response from model {self.llm.model}, retrying with simpler prompt...")
+                
+                # Retry with just the current message, no history
+                simple_messages = [
+                    {"role": "system", "content": "You are a helpful assistant. Respond directly and concisely."},
+                    {"role": "user", "content": message}
+                ]
+                response = self.llm.chat(simple_messages, temperature=0.7, max_tokens=2000)
+                
+                # If still empty, provide fallback
+                if not response or response.strip() == "":
+                    response = "I'm having trouble responding right now. Could you rephrase your question?"
+                    self.logger.error(f"Model {self.llm.model} returned empty response even after retry")
+                    
         except Exception as e:
             self.logger.error(f"LLM response error: {e}")
             response = "Sorry, I cannot respond right now. Please try again later."

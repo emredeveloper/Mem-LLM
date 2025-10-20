@@ -17,14 +17,14 @@ except ImportError:
 # Pro version imports (optional)
 try:
     from .memory_db import SQLMemoryManager
-    from .prompt_templates import prompt_manager
     from .config_manager import get_config
     from .config_from_docs import create_config_from_document
-    __all_pro__ = ["SQLMemoryManager", "prompt_manager", "get_config", "create_config_from_document"]
+    from .dynamic_prompt import dynamic_prompt_builder
+    __all_pro__ = ["SQLMemoryManager", "get_config", "create_config_from_document", "dynamic_prompt_builder"]
 except ImportError:
     __all_pro__ = []
 
-__version__ = "1.0.7"
+__version__ = "1.0.9"
 __author__ = "C. Emre Karataş"
 
 # CLI

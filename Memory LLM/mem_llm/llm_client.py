@@ -89,9 +89,9 @@ class OllamaClient:
             return f"Connection error: {str(e)}"
     
     def chat(self, messages: List[Dict[str, str]], 
-             temperature: float = 0.7, max_tokens: int = 500) -> str:
+             temperature: float = 0.7, max_tokens: int = 2000) -> str:
         """
-        Chat format interaction
+        Chat format interaction - Compatible with ALL Ollama models
         
         Args:
             messages: Message history [{"role": "user/assistant/system", "content": "..."}]
@@ -108,17 +108,57 @@ class OllamaClient:
             "options": {
                 "temperature": temperature,
                 "num_predict": max_tokens,
-                "num_ctx": 2048,  # Context window
+                "num_ctx": 4096,  # Context window
                 "top_k": 40,  # Limit vocab
                 "top_p": 0.9,  # Nucleus sampling
-                "stop": ["\n\n\n", "---"]  # Stop sequences
+                "num_thread": 8  # Parallel processing
             }
         }
         
+        # For thinking-enabled models (like qwen3), disable thinking mode
+        # to get direct answers instead of reasoning process
+        if 'qwen' in self.model.lower() or 'deepseek' in self.model.lower():
+            payload["options"]["enable_thinking"] = False
+        
         try:
-            response = requests.post(self.chat_url, json=payload, timeout=60)
+            response = requests.post(self.chat_url, json=payload, timeout=120)
             if response.status_code == 200:
-                return response.json().get('message', {}).get('content', '').strip()
+                response_data = response.json()
+                message = response_data.get('message', {})
+                
+                # Get content - primary response field
+                result = message.get('content', '').strip()
+                
+                # Fallback: If content is empty but thinking exists
+                # This happens when thinking mode couldn't be disabled
+                if not result and message.get('thinking'):
+                    thinking = message.get('thinking', '')
+                    
+                    # Try to extract the actual answer from thinking process
+                    # Usually the answer is at the end after reasoning
+                    if thinking:
+                        # Split by common patterns that indicate final answer
+                        for separator in ['\n\nAnswer:', '\n\nFinal answer:', 
+                                        '\n\nResponse:', '\n\nSo the answer is:',
+                                        '\n\n---\n', '\n\nOkay,']:
+                            if separator in thinking:
+                                parts = thinking.split(separator)
+                                if len(parts) > 1:
+                                    result = parts[-1].strip()
+                                    break
+                        
+                        # If no separator found, try to get last meaningful paragraph
+                        if not result:
+                            paragraphs = [p.strip() for p in thinking.split('\n\n') if p.strip()]
+                            if paragraphs:
+                                # Take the last paragraph as likely answer
+                                last_para = paragraphs[-1]
+                                # Avoid meta-commentary like "Wait, let me think..."
+                                if not any(word in last_para.lower() for word in 
+                                         ['wait', 'hmm', 'let me', 'thinking', 'okay']):
+                                    result = last_para
+                
+                return result
             else:
                 return f"Error: {response.status_code} - {response.text}"
         except Exception as e:

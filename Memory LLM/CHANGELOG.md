@@ -5,6 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.9] - 2025-10-20
+
+### Added
+- 📝 **PyPI-Optimized README**: Complete rewrite with practical examples
+  - 5 comprehensive usage examples with full code and output
+  - Print statements in all examples for better user experience
+  - Step-by-step workflows showing complete processes
+  - Real-world customer service scenario example
+  - Turkish language support demonstration
+  - User profile extraction example
+- 📄 **Document Configuration Examples**: Added example demonstrating PDF/DOCX/TXT config generation
+- 🧪 **Config Update Testing**: Verification that manual YAML edits work correctly
+
+### Changed
+- 🗑️ **Removed docs folder**: Consolidated documentation into main README
+- 🪵 **Logging Behavior**: Changed from file+console to console-only logging
+  - No more `mem_agent.log` files cluttering workspace
+  - Keeps workspace clean with only `.db` and `.yaml` files
+- 📖 **Example Format**: All examples now include:
+  - Print statements for visibility
+  - Expected output blocks
+  - Full conversation flows
+  - Real usage scenarios
+
+### Fixed
+- 🐛 **Log File Pollution**: Removed FileHandler from logging, only StreamHandler now
+- 📝 **README Examples**: Fixed examples that didn't show actual output or complete process
+
+### Improved
+- 🎯 **User Experience**: Much clearer examples for new users
+- 📚 **Documentation Quality**: Professional PyPI-ready documentation
+- 🔍 **Example Clarity**: Each example shows input, process, and output
+
+### Technical Details
+- Modified `mem_llm/mem_agent.py` - removed FileHandler from logging setup
+- Rewrote `README.md` with 5 detailed examples
+- Created `examples/07_document_config.py` for PDF/DOCX/TXT feature
+- Verified config changes work correctly with manual YAML edits
+
 ## [1.0.8] - 2025-10-20
 
 ### Added
