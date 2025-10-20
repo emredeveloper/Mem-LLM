@@ -123,7 +123,7 @@ from mem_llm import MemAgent
 agent = MemAgent()
 agent.set_user("alice")
 
-# First conversation
+# İlk konuşma
 agent.chat("I love pizza")
 
 # Later on...
@@ -146,7 +146,7 @@ agent.chat("Adımı hatırlıyor musun?")
 ```python
 agent = MemAgent()
 
-# Customer 1
+# Müşteri 1
 agent.set_user("customer_001")
 agent.chat("My order #12345 is delayed")
 
