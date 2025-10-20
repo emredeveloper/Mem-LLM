@@ -1,36 +1,36 @@
-# 🧠 mem-llm# 🧠 mem-llm# 🧠 mem-llm# 🧠 mem-llm
+# 🧠 mem-llm# 🧠 mem-llm
 
 
 
-**Memory-enabled AI assistant that remembers conversations using local LLMs**
+**Memory-enabled AI assistant that remembers conversations using local LLMs****Memory-enabled AI assistant that remembers conversations using local LLMs**
 
 
 
-[![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/downloads/)**Memory-enabled AI assistant that remembers conversations using local LLMs**
+[![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/downloads/)[![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/downloads/)
 
 [![PyPI](https://img.shields.io/pypi/v/mem-llm?label=PyPI)](https://pypi.org/project/mem-llm/)
 
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)[![PyPI](https://img.shields.io/pypi/v/mem-llm?label=PyPI)](https://pypi.org/project/mem-llm/)
 
 
 
----[![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/downloads/)**Memory-enabled AI assistant that remembers conversations using local LLMs****Memory-enabled AI assistant that remembers conversations using local LLMs**
+---[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 
 
-## 🎯 What is mem-llm?[![PyPI](https://img.shields.io/pypi/v/mem-llm?label=PyPI)](https://pypi.org/project/mem-llm/)
+## 🎯 What is mem-llm?
 
 
 
-`mem-llm` is a lightweight Python library that adds **persistent memory** to your local LLM chatbots. Each user gets their own conversation history that persists across sessions.[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+`mem-llm` is a lightweight Python library that adds **persistent memory** to your local LLM chatbots. Each user gets their own conversation history that persists across sessions, enabling truly personalized AI interactions.---[![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/downloads/)**Memory-enabled AI assistant that remembers conversations using local LLMs****Memory-enabled AI assistant that remembers conversations using local LLMs**
 
 
 
-**Use Cases:**
+**Key Use Cases:**
 
-- 💬 Customer service bots
+- 💬 Customer service bots with conversation history
 
-- 🤖 Personal assistants---[![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/downloads/)[![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/downloads/)
+- 🤖 Personal assistants that remember your preferences## 🎯 What is mem-llm?[![PyPI](https://img.shields.io/pypi/v/mem-llm?label=PyPI)](https://pypi.org/project/mem-llm/)
 
 - 📝 Context-aware applications
 
@@ -38,7 +38,7 @@
 
 
 
----## 🎯 What is mem-llm?[![PyPI](https://img.shields.io/pypi/v/mem-llm?label=PyPI)](https://pypi.org/project/mem-llm/)[![PyPI](https://img.shields.io/pypi/v/mem-llm?label=PyPI)](https://pypi.org/project/mem-llm/)
+---`mem-llm` is a lightweight Python library that adds **persistent memory** to your local LLM chatbots. Each user gets their own conversation history that persists across sessions.[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 
 
@@ -46,31 +46,31 @@
 
 
 
-### 1. Install the package`mem-llm` is a lightweight Python library that adds **persistent memory** to your local LLM chatbots. Each user gets their own conversation history that persists across sessions.[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+### 1. Install the package**Use Cases:**
 
 
 
-```bash
+```bash- 💬 Customer service bots
 
 pip install mem-llm
 
-```**Use Cases:**
+```- 🤖 Personal assistants---[![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/downloads/)[![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/downloads/)
 
 
 
-### 2. Start Ollama and download a model (one-time setup)- 💬 Customer service bots
+### 2. Start Ollama and download a model (one-time setup)- 📝 Context-aware applications
 
 
 
-```bash- 🤖 Personal assistants------
+```bash- 🏢 Business automation solutions
 
 # Start Ollama service
 
-ollama serve- 📝 Context-aware applications
+ollama serve
 
 
 
-# Download lightweight model (~2.5GB)- 🏢 Business automation solutions
+# Download a lightweight model (~2.5GB)---## 🎯 What is mem-llm?[![PyPI](https://img.shields.io/pypi/v/mem-llm?label=PyPI)](https://pypi.org/project/mem-llm/)[![PyPI](https://img.shields.io/pypi/v/mem-llm?label=PyPI)](https://pypi.org/project/mem-llm/)
 
 ollama pull granite4:tiny-h
 
@@ -78,263 +78,271 @@ ollama pull granite4:tiny-h
 
 
 
-> 💡 Keep `ollama serve` running in one terminal, run your Python code in another.---## 🎯 What is mem-llm?## 📚 İçindekiler
+> 💡 Keep `ollama serve` running in one terminal, run your Python code in another.## ⚡ Quick Start
 
 
 
-### 3. Create your first agent
+### 3. Create your first memory-enabled agent
 
 
 
-```python## ⚡ Quick Start
+```python### 1. Install the package`mem-llm` is a lightweight Python library that adds **persistent memory** to your local LLM chatbots. Each user gets their own conversation history that persists across sessions.[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 from mem_llm import MemAgent
 
 
 
-# Create agent in one line
+# Create agent
 
-agent = MemAgent()### 1. Install the package`mem-llm` is a lightweight Python library that adds **persistent memory** to your local LLM chatbots. Each user gets their own conversation history that persists across sessions.- [🎯 mem-llm nedir?](#-mem-llm-nedir)
+agent = MemAgent()```bash
 
 
 
-# Set user (each user gets separate memory)
+# Set user (each user gets separate memory)pip install mem-llm
 
 agent.set_user("john")
 
-```bash- [⚡ Hızlı başlangıç](#-hızlı-başlangıç)
+```**Use Cases:**
 
-# Chat with memory!
+# Chat with memory
 
-response = agent.chat("My name is John")pip install mem-llm
+response = agent.chat("My name is John")
 
 print(response)
 
-```**Use Cases:**- [🧑‍🏫 Tutorial](#-tutorial)
+### 2. Start Ollama and download a model (one-time setup)- 💬 Customer service bots
+
+# Later conversation - memory is retained
 
 response = agent.chat("What's my name?")
 
 print(response)  # Output: "Your name is John"
 
-```
-
-### 2. Start Ollama and download a model (one-time setup)- 💬 Customer service bots- [💡 Özellikler](#-özellikler)
-
-### 4. Verify your setup (optional)
+``````bash- 🤖 Personal assistants------
 
 
 
-```bash
+### 4. Verify your setup (optional)# Start Ollama service
 
-# Using CLI```bash- 🤖 Personal assistants- [📖 Kullanım örnekleri](#-kullanım-örnekleri)
+
+
+```bashollama serve- 📝 Context-aware applications
+
+# Using CLI
 
 mem-llm check
 
-# Start Ollama service
-
-# Or in Python
-
-agent.check_setup()ollama serve- 📝 Context-aware applications- [🔧 Yapılandırma seçenekleri](#-yapılandırma-seçenekleri)
-
-```
 
 
+# Or in Python# Download lightweight model (~2.5GB)- 🏢 Business automation solutions
 
----
+agent.check_setup()
 
-# Download lightweight model (~2.5GB)- 🏢 Business automation solutions- [🗂 Bilgi tabanı ve dokümanlardan yapılandırma](#-bilgi-tabanı-ve-dokümanlardan-yapılandırma)
+```ollama pull granite4:tiny-h
+
+
+
+---```
+
+
 
 ## 💡 Features
 
-ollama pull granite4:tiny-h
-
-| Feature | Description |
-
-|---------|-------------|```- [🔥 Desteklenen modeller](#-desteklenen-modeller)
-
-| 🧠 **Memory** | Remembers each user's conversation history |
-
-| 👥 **Multi-user** | Separate memory for each user |
-
-| 🔒 **Privacy** | 100% local, no cloud/API needed |
-
-| ⚡ **Fast** | Lightweight SQLite/JSON storage |> 💡 Keep `ollama serve` running in one terminal, run your Python code in another.---- [📦 Gereksinimler](#-gereksinimler)
-
-| 🎯 **Simple** | 3 lines of code to get started |
-
-| 📚 **Knowledge Base** | Config-free document integration |
-
-| 🌍 **Multi-language** | Works with any language |
-
-| 🛠️ **CLI Tool** | Built-in command-line interface |### 3. Create your first agent- [🐛 Sık karşılaşılan problemler](#-sık-karşılaşılan-problemler)
 
 
+| Feature | Description |> 💡 Keep `ollama serve` running in one terminal, run your Python code in another.---## 🎯 What is mem-llm?## 📚 İçindekiler
+
+|---------|-------------|
+
+| 🧠 **Persistent Memory** | Remembers each user's conversation history |
+
+| 👥 **Multi-User Support** | Separate memory for each user |
+
+| 🔒 **100% Private** | Completely local, no cloud/API needed |### 3. Create your first agent
+
+| ⚡ **Fast & Lightweight** | SQLite or JSON storage options |
+
+| 🎯 **Simple API** | Get started with just 3 lines of code |
+
+| 📚 **Knowledge Base** | Optional document integration |
+
+| 🌍 **Multi-Language** | Works with any language |```python## ⚡ Quick Start
+
+| 🛠️ **CLI Tool** | Built-in command-line interface |
+
+from mem_llm import MemAgent
 
 ---
 
 
 
-## 🔄 Memory Backend Comparison```python## ⚡ Quick Start
+## 🔄 Memory Backend Comparison
 
+# Create agent in one line
 
+Choose the right backend for your needs:
 
-Choose the right backend for your needs:from mem_llm import MemAgent
+agent = MemAgent()### 1. Install the package`mem-llm` is a lightweight Python library that adds **persistent memory** to your local LLM chatbots. Each user gets their own conversation history that persists across sessions.- [🎯 mem-llm nedir?](#-mem-llm-nedir)
 
-
-
-| Feature | JSON Mode | SQL Mode |---
+| Feature | JSON Mode | SQL Mode |
 
 |---------|-----------|----------|
 
-| **Setup** | ✅ Zero config | ⚙️ Minimal config |# Create agent in one line
+| **Setup** | ✅ Zero config | ⚙️ Minimal config |
 
-| **Conversation Memory** | ✅ Yes | ✅ Yes |
+| **Conversation Memory** | ✅ Yes | ✅ Yes |# Set user (each user gets separate memory)
 
-| **User Profiles** | ✅ Yes | ✅ Yes |agent = MemAgent()### 1. Install the package
+| **User Profiles** | ✅ Yes | ✅ Yes |
 
-| **Knowledge Base** | ❌ No | ✅ Yes |
+| **Knowledge Base** | ❌ No | ✅ Yes |agent.set_user("john")
 
 | **Advanced Search** | ❌ No | ✅ Yes |
 
-| **Multi-user Performance** | ⭐⭐ Good | ⭐⭐⭐ Excellent |
+| **Multi-User Performance** | ⭐⭐ Good | ⭐⭐⭐ Excellent |```bash- [⚡ Hızlı başlangıç](#-hızlı-başlangıç)
 
-| **Data Queries** | ❌ Limited | ✅ Full SQL |# Set user (each user gets separate memory)## 🎯 mem-llm nedir?
+| **Data Queries** | ❌ Limited | ✅ Full SQL support |
 
-| **Best For** | 🏠 Personal use | 🏢 Business use |
+| **Best For** | 🏠 Personal use | 🏢 Business/Production |# Chat with memory!
 
-agent.set_user("john")
 
-**Recommendation:**
 
-- **JSON Mode**: Perfect for personal assistants and quick prototypes```bash
+**Recommendation:**response = agent.chat("My name is John")pip install mem-llm
 
-- **SQL Mode**: Ideal for customer service, multi-user apps, and production
+- **JSON Mode**: Perfect for personal assistants and quick prototypes
 
-# Chat with memory!
+- **SQL Mode**: Ideal for customer service, multi-user apps, and production environmentsprint(response)
 
----
 
-response = agent.chat("My name is John")pip install mem-llm`mem-llm`, yerel bir LLM ile çalışan sohbet botlarınıza **kalıcı hafıza** kazandıran hafif bir Python kütüphanesidir. Her kullanıcı için ayrı bir konuşma geçmişi tutulur ve yapay zeka bu geçmişi bir sonraki oturumda otomatik olarak kullanır.
 
-## 📖 Usage Examples
+---```**Use Cases:**- [🧑‍🏫 Tutorial](#-tutorial)
+
+
+
+## 📖 Usage Examplesresponse = agent.chat("What's my name?")
+
+
+
+### Example 1: Basic Conversation with Memoryprint(response)  # Output: "Your name is John"
+
+
+
+```python```
+
+from mem_llm import MemAgent
+
+### 2. Start Ollama and download a model (one-time setup)- 💬 Customer service bots- [💡 Özellikler](#-özellikler)
+
+# Create agent
+
+agent = MemAgent()### 4. Verify your setup (optional)
+
+agent.set_user("alice")
+
+
+
+# First conversation
+
+response = agent.chat("I love pizza")```bash
 
 print(response)
 
-### Example 1: Basic Conversation with Memory
+# Using CLI```bash- 🤖 Personal assistants- [📖 Kullanım örnekleri](#-kullanım-örnekleri)
+
+# Memory test - bot remembers
+
+response = agent.chat("What's my favorite food?")mem-llm check
+
+print(response)  # Output: "Your favorite food is pizza!"
+
+```# Start Ollama service
+
+
+
+### Example 2: Multi-User Support# Or in Python
+
+
+
+```pythonagent.check_setup()ollama serve- 📝 Context-aware applications- [🔧 Yapılandırma seçenekleri](#-yapılandırma-seçenekleri)
+
+from mem_llm import MemAgent
 
 ```
-
-```python
-
-from mem_llm import MemAgentresponse = agent.chat("What's my name?")
-
-
-
-# Create agentprint(response)  # Output: "Your name is John"**Nerelerde kullanılabilir?**
 
 agent = MemAgent()
 
-agent.set_user("alice")```
 
 
+# Customer 1
 
-# First conversation### 2. Start Ollama and download a model (one-time setup)- 💬 Müşteri hizmetleri botları
+agent.set_user("customer_john")---
 
-response1 = agent.chat("I love pizza")
+agent.chat("My order #12345 is delayed")
 
-print(response1)### 4. Verify your setup (optional)
+# Download lightweight model (~2.5GB)- 🏢 Business automation solutions- [🗂 Bilgi tabanı ve dokümanlardan yapılandırma](#-bilgi-tabanı-ve-dokümanlardan-yapılandırma)
 
+# Customer 2 - SEPARATE MEMORY
 
+agent.set_user("customer_sarah")## 💡 Features
 
-# Memory test - bot remembers!- 🤖 Kişisel asistanlar
+agent.chat("I want to return item #67890")
 
-response2 = agent.chat("What's my favorite food?")
+ollama pull granite4:tiny-h
 
-print(response2)  # Output: "Your favorite food is pizza!"```bash
+# Back to Customer 1 - remembers previous conversation
+
+agent.set_user("customer_john")| Feature | Description |
+
+response = agent.chat("What was my order number?")
+
+print(response)  # Output: "Your order number is #12345"|---------|-------------|```- [🔥 Desteklenen modeller](#-desteklenen-modeller)
 
 ```
-
-# Using CLI```bash- 📝 Bağlama duyarlı uygulamalar
-
-### Example 2: Multi-User Support
-
-mem-llm check
-
-```python
-
-from mem_llm import MemAgent# Start Ollama service- 🏢 İş süreçlerini otomatikleştiren çözümler
-
-
-
-agent = MemAgent()# Or in Python
-
-
-
-# Customer 1agent.check_setup()ollama serve
-
-agent.set_user("customer_john")
-
-agent.chat("My order #12345 is delayed")```
-
-
-
-# Customer 2 - SEPARATE MEMORY!---
-
-agent.set_user("customer_sarah")
-
-agent.chat("I want to return item #67890")---
-
-
-
-# Back to Customer 1 - remembers previous conversation!# Download lightweight model (~2.5GB)
-
-agent.set_user("customer_john")
-
-response = agent.chat("What was my order number?")## 💡 Features
-
-print(response)  # Output: "Your order number is #12345"
-
-```ollama pull granite4:tiny-h## ⚡ Hızlı başlangıç
-
-
-
-### Example 3: Multi-language Support| Feature | Description |
-
-
-
-```python|---------|-------------|```
-
-from mem_llm import MemAgent
 
 | 🧠 **Memory** | Remembers each user's conversation history |
 
-agent = MemAgent()
+### Example 3: Multi-Language Support
 
-agent.set_user("ahmet")| 👥 **Multi-user** | Separate memory for each user |### 0. Gereksinimleri kontrol edin
+| 👥 **Multi-user** | Separate memory for each user |
 
+```python
 
-
-# Turkish conversation| 🔒 **Privacy** | 100% local, no cloud/API needed |
-
-agent.chat("Benim adım Ahmet ve İstanbul'da yaşıyorum")
-
-agent.chat("Nerede yaşıyorum?")  # → "İstanbul'da yaşıyorsunuz"| ⚡ **Fast** | Lightweight SQLite/JSON storage |> 💡 Keep `ollama serve` running in one terminal, run your Python code in another.
-
-agent.chat("Adımı hatırlıyor musun?")  # → "Evet, adınız Ahmet!"
-
-```| 🎯 **Simple** | 3 lines of code to get started |
+from mem_llm import MemAgent| 🔒 **Privacy** | 100% local, no cloud/API needed |
 
 
 
-### Example 4: User Profile Extraction| 📚 **Knowledge Base** | Config-free document integration |- Python 3.8 veya üzeri
+agent = MemAgent()| ⚡ **Fast** | Lightweight SQLite/JSON storage |> 💡 Keep `ollama serve` running in one terminal, run your Python code in another.---- [📦 Gereksinimler](#-gereksinimler)
+
+agent.set_user("ahmet")
+
+| 🎯 **Simple** | 3 lines of code to get started |
+
+# Turkish conversation
+
+agent.chat("Benim adım Ahmet ve İstanbul'da yaşıyorum")| 📚 **Knowledge Base** | Config-free document integration |
+
+response = agent.chat("Nerede yaşıyorum?")
+
+print(response)  # Output: "İstanbul'da yaşıyorsunuz"| 🌍 **Multi-language** | Works with any language |
 
 
 
-```python| 🌍 **Multi-language** | Works with any language |
+response = agent.chat("Adımı hatırlıyor musun?")| 🛠️ **CLI Tool** | Built-in command-line interface |### 3. Create your first agent- [🐛 Sık karşılaşılan problemler](#-sık-karşılaşılan-problemler)
+
+print(response)  # Output: "Evet, adınız Ahmet!"
+
+```
+
+
+
+### Example 4: User Profile Extraction---
+
+
+
+```python
 
 from mem_llm import MemAgent
 
-| 🛠️ **CLI Tool** | Built-in command-line interface |### 3. Create your first agent- [Ollama](https://ollama.ai/) kurulu ve çalışır durumda
+## 🔄 Memory Backend Comparison```python## ⚡ Quick Start
 
 agent = MemAgent()
 
@@ -342,7 +350,7 @@ agent.set_user("alice")
 
 
 
-# Have natural conversations---- En az 4GB RAM ve 5GB disk alanı
+# Have natural conversationsChoose the right backend for your needs:from mem_llm import MemAgent
 
 agent.chat("My name is Alice and I'm 28 years old")
 
@@ -350,55 +358,440 @@ agent.chat("I live in New York City")
 
 agent.chat("I work as a software engineer")
 
-agent.chat("My favorite food is pizza")## 🔄 Memory Backend Comparison```python
+agent.chat("My favorite food is pizza")| Feature | JSON Mode | SQL Mode |---
 
 
 
-# Extract profile automatically
+# Extract profile automatically|---------|-----------|----------|
 
 profile = agent.get_user_profile()
 
-print(profile)Choose the right backend for your needs:from mem_llm import MemAgent### 1. Paketi yükleyin
+print(profile)| **Setup** | ✅ Zero config | ⚙️ Minimal config |# Create agent in one line
 
-# Output: {'name': 'Alice', 'age': 28, 'location': 'NYC', ...}
+# Output: {'name': 'Alice', 'age': 28, 'location': 'New York City', ...}
+
+```| **Conversation Memory** | ✅ Yes | ✅ Yes |
+
+
+
+---| **User Profiles** | ✅ Yes | ✅ Yes |agent = MemAgent()### 1. Install the package
+
+
+
+## 🔧 Configuration Options| **Knowledge Base** | ❌ No | ✅ Yes |
+
+
+
+### JSON Memory (Simple, Default)| **Advanced Search** | ❌ No | ✅ Yes |
+
+
+
+```python| **Multi-user Performance** | ⭐⭐ Good | ⭐⭐⭐ Excellent |
+
+agent = MemAgent(
+
+    model="granite4:tiny-h",| **Data Queries** | ❌ Limited | ✅ Full SQL |# Set user (each user gets separate memory)## 🎯 mem-llm nedir?
+
+    use_sql=False,  # JSON file-based memory
+
+    memory_dir="memories"| **Best For** | 🏠 Personal use | 🏢 Business use |
+
+)
+
+```agent.set_user("john")
+
+
+
+### SQL Memory (Advanced, Recommended for Production)**Recommendation:**
+
+
+
+```python- **JSON Mode**: Perfect for personal assistants and quick prototypes```bash
+
+agent = MemAgent(
+
+    model="granite4:tiny-h",- **SQL Mode**: Ideal for customer service, multi-user apps, and production
+
+    use_sql=True,  # SQLite-based memory
+
+    memory_dir="memories.db"# Chat with memory!
+
+)
+
+```---
+
+
+
+### Custom Configurationresponse = agent.chat("My name is John")pip install mem-llm`mem-llm`, yerel bir LLM ile çalışan sohbet botlarınıza **kalıcı hafıza** kazandıran hafif bir Python kütüphanesidir. Her kullanıcı için ayrı bir konuşma geçmişi tutulur ve yapay zeka bu geçmişi bir sonraki oturumda otomatik olarak kullanır.
+
+
+
+```python## 📖 Usage Examples
+
+agent = MemAgent(
+
+    model="llama2",  # Any Ollama modelprint(response)
+
+    ollama_url="http://localhost:11434",
+
+    check_connection=True  # Verify setup on startup### Example 1: Basic Conversation with Memory
+
+)
+
+``````
+
+
+
+---```python
+
+
+
+## 🛠️ Command Line Interfacefrom mem_llm import MemAgentresponse = agent.chat("What's my name?")
+
+
+
+```bash
+
+# Start interactive chat
+
+mem-llm chat --user john# Create agentprint(response)  # Output: "Your name is John"**Nerelerde kullanılabilir?**
+
+
+
+# Check system statusagent = MemAgent()
+
+mem-llm check
+
+agent.set_user("alice")```
+
+# View statistics
+
+mem-llm stats
+
+
+
+# Export user data# First conversation### 2. Start Ollama and download a model (one-time setup)- 💬 Müşteri hizmetleri botları
+
+mem-llm export john --format json
+
+response1 = agent.chat("I love pizza")
+
+# Clear user data
+
+mem-llm clear johnprint(response1)### 4. Verify your setup (optional)
+
+
+
+# Get help
+
+mem-llm --help
+
+```# Memory test - bot remembers!- 🤖 Kişisel asistanlar
+
+
+
+**Available CLI Commands:**response2 = agent.chat("What's my favorite food?")
+
+
+
+| Command | Description | Example |print(response2)  # Output: "Your favorite food is pizza!"```bash
+
+|---------|-------------|---------|
+
+| `chat` | Interactive chat session | `mem-llm chat --user alice` |```
+
+| `check` | Verify system setup | `mem-llm check` |
+
+| `stats` | Show statistics | `mem-llm stats --user john` |# Using CLI```bash- 📝 Bağlama duyarlı uygulamalar
+
+| `export` | Export user data | `mem-llm export john` |
+
+| `clear` | Delete user data | `mem-llm clear john` |### Example 2: Multi-User Support
+
+
+
+---mem-llm check
+
+
+
+## 📚 API Reference```python
+
+
+
+### MemAgent Classfrom mem_llm import MemAgent# Start Ollama service- 🏢 İş süreçlerini otomatikleştiren çözümler
+
+
+
+```python
+
+# Initialize
+
+agent = MemAgent(agent = MemAgent()# Or in Python
+
+    model="granite4:tiny-h",
+
+    use_sql=True,
+
+    memory_dir=None,
+
+    ollama_url="http://localhost:11434",# Customer 1agent.check_setup()ollama serve
+
+    check_connection=False
+
+)agent.set_user("customer_john")
+
+
+
+# Set active useragent.chat("My order #12345 is delayed")```
+
+agent.set_user(user_id: str, name: Optional[str] = None)
+
+
+
+# Chat (returns response string)
+
+response = agent.chat(message: str, metadata: Optional[Dict] = None) -> str# Customer 2 - SEPARATE MEMORY!---
+
+
+
+# Get user profile (auto-extracted from conversations)agent.set_user("customer_sarah")
+
+profile = agent.get_user_profile(user_id: Optional[str] = None) -> Dict
+
+agent.chat("I want to return item #67890")---
+
+# System check
+
+status = agent.check_setup() -> Dict
+
+```
+
+# Back to Customer 1 - remembers previous conversation!# Download lightweight model (~2.5GB)
+
+---
+
+agent.set_user("customer_john")
+
+## 🔥 Supported Models
+
+response = agent.chat("What was my order number?")## 💡 Features
+
+Works with any [Ollama](https://ollama.ai/) model. Recommended models:
+
+print(response)  # Output: "Your order number is #12345"
+
+| Model | Size | Speed | Quality | Best For |
+
+|-------|------|-------|---------|----------|```ollama pull granite4:tiny-h## ⚡ Hızlı başlangıç
+
+| `granite4:tiny-h` | 2.5GB | ⚡⚡⚡ | ⭐⭐ | Quick testing |
+
+| `llama2` | 4GB | ⚡⚡ | ⭐⭐⭐ | General use |
+
+| `mistral` | 4GB | ⚡⚡ | ⭐⭐⭐⭐ | Balanced performance |
+
+| `llama3` | 5GB | ⚡ | ⭐⭐⭐⭐⭐ | Best quality |### Example 3: Multi-language Support| Feature | Description |
+
+
+
+```bash
+
+# Download a model
+
+ollama pull <model-name>```python|---------|-------------|```
+
+
+
+# List installed modelsfrom mem_llm import MemAgent
+
+ollama list
+
+```| 🧠 **Memory** | Remembers each user's conversation history |
+
+
+
+---agent = MemAgent()
+
+
+
+## 📦 Requirementsagent.set_user("ahmet")| 👥 **Multi-user** | Separate memory for each user |### 0. Gereksinimleri kontrol edin
+
+
+
+- Python 3.8+
+
+- [Ollama](https://ollama.ai/) (for local LLM)
+
+- Minimum 4GB RAM# Turkish conversation| 🔒 **Privacy** | 100% local, no cloud/API needed |
+
+- 5GB disk space
+
+agent.chat("Benim adım Ahmet ve İstanbul'da yaşıyorum")
+
+**Python Dependencies (auto-installed):**
+
+- `requests >= 2.31.0`agent.chat("Nerede yaşıyorum?")  # → "İstanbul'da yaşıyorsunuz"| ⚡ **Fast** | Lightweight SQLite/JSON storage |> 💡 Keep `ollama serve` running in one terminal, run your Python code in another.
+
+- `pyyaml >= 6.0.1`
+
+- `click >= 8.1.0`agent.chat("Adımı hatırlıyor musun?")  # → "Evet, adınız Ahmet!"
+
+
+
+---```| 🎯 **Simple** | 3 lines of code to get started |
+
+
+
+## 🐛 Troubleshooting
+
+
+
+### Ollama not running?### Example 4: User Profile Extraction| 📚 **Knowledge Base** | Config-free document integration |- Python 3.8 veya üzeri
+
+
+
+```bash
+
+ollama serve
+
+``````python| 🌍 **Multi-language** | Works with any language |
+
+
+
+### Model not found error?from mem_llm import MemAgent
+
+
+
+```bash| 🛠️ **CLI Tool** | Built-in command-line interface |### 3. Create your first agent- [Ollama](https://ollama.ai/) kurulu ve çalışır durumda
+
+# Download the model
+
+ollama pull granite4:tiny-hagent = MemAgent()
+
+
+
+# Check installed modelsagent.set_user("alice")
+
+ollama list
 
 ```
 
 
 
+### Connection error?# Have natural conversations---- En az 4GB RAM ve 5GB disk alanı
+
+
+
+```bashagent.chat("My name is Alice and I'm 28 years old")
+
+# Check if Ollama is running
+
+curl http://localhost:11434agent.chat("I live in New York City")
+
+
+
+# Restart Ollamaagent.chat("I work as a software engineer")
+
+ollama serve
+
+```agent.chat("My favorite food is pizza")## 🔄 Memory Backend Comparison```python
+
+
+
+### Import error?
+
+
+
+```bash# Extract profile automatically
+
+# Upgrade to latest version
+
+pip install --upgrade mem-llmprofile = agent.get_user_profile()
+
+```
+
+print(profile)Choose the right backend for your needs:from mem_llm import MemAgent### 1. Paketi yükleyin
+
+> 💡 If issues persist, run `mem-llm check` or `agent.check_setup()` and share the output when opening an issue.
+
+# Output: {'name': 'Alice', 'age': 28, 'location': 'NYC', ...}
+
+---
+
+```
+
+## 📄 License
+
+
+
+MIT License - Free to use in personal and commercial projects.
+
 ---| Feature | JSON Mode | SQL Mode |
 
+---
 
+
+
+## 🔗 Links
 
 ## 🔧 Configuration Options|---------|-----------|----------|
 
+- **PyPI:** https://pypi.org/project/mem-llm/
 
+- **GitHub:** https://github.com/emredeveloper/Mem-LLM
 
-### JSON Memory (Simple, Default)| **Setup** | ✅ Zero config | ⚙️ Minimal config |# Create agent in one line```bash
+- **Ollama:** https://ollama.ai/
 
-
-
-```python| **Conversation Memory** | ✅ Yes | ✅ Yes |
-
-agent = MemAgent(
-
-    model="granite4:tiny-h",| **User Profiles** | ✅ Yes | ✅ Yes |agent = MemAgent()pip install mem-llm==1.0.7
-
-    use_sql=False,  # JSON file-based memory
-
-    memory_dir="memories"| **Knowledge Base** | ❌ No | ✅ Yes |
-
-)
-
-```| **Advanced Search** | ❌ No | ✅ Yes |```
+- **Documentation:** [GitHub Wiki](https://github.com/emredeveloper/Mem-LLM/wiki)### JSON Memory (Simple, Default)| **Setup** | ✅ Zero config | ⚙️ Minimal config |# Create agent in one line```bash
 
 
 
-### SQL Memory (Advanced, Recommended for Production)| **Multi-user Performance** | ⭐⭐ Good | ⭐⭐⭐ Excellent |
+---
 
 
 
-```python| **Data Queries** | ❌ Limited | ✅ Full SQL |# Set user (each user gets separate memory)
+## 🌟 Support Us```python| **Conversation Memory** | ✅ Yes | ✅ Yes |
+
+
+
+If you find this project useful, please ⭐ [star it on GitHub](https://github.com/emredeveloper/Mem-LLM)!agent = MemAgent(
+
+
+
+---    model="granite4:tiny-h",| **User Profiles** | ✅ Yes | ✅ Yes |agent = MemAgent()pip install mem-llm==1.0.7
+
+
+
+## 🤝 Contributing    use_sql=False,  # JSON file-based memory
+
+
+
+Contributions are welcome! Please feel free to submit a Pull Request.    memory_dir="memories"| **Knowledge Base** | ❌ No | ✅ Yes |
+
+
+
+1. Fork the repository)
+
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)```| **Advanced Search** | ❌ No | ✅ Yes |```
+
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+
+5. Open a Pull Request
+
+
+
+---### SQL Memory (Advanced, Recommended for Production)| **Multi-user Performance** | ⭐⭐ Good | ⭐⭐⭐ Excellent |
+
+
+
+<div align="center">
+
+Made with ❤️ by <a href="https://github.com/emredeveloper">C. Emre Karataş</a>
+
+</div>```python| **Data Queries** | ❌ Limited | ✅ Full SQL |# Set user (each user gets separate memory)
+
 
 agent = MemAgent(
 
