@@ -5,6 +5,7 @@ Works with Granite4:tiny-h model
 
 import requests
 import json
+import time
 from typing import List, Dict, Optional
 
 
@@ -79,14 +80,32 @@ class OllamaClient:
         if system_prompt:
             payload["system"] = system_prompt
         
-        try:
-            response = requests.post(self.api_url, json=payload, timeout=60)
-            if response.status_code == 200:
-                return response.json().get('response', '').strip()
-            else:
-                return f"Error: {response.status_code} - {response.text}"
-        except Exception as e:
-            return f"Connection error: {str(e)}"
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                response = requests.post(self.api_url, json=payload, timeout=60)
+                if response.status_code == 200:
+                    return response.json().get('response', '').strip()
+                else:
+                    if attempt < max_retries - 1:
+                        time.sleep(1.0 * (2 ** attempt))  # Exponential backoff
+                        continue
+                    return f"Error: {response.status_code} - {response.text}"
+            except requests.exceptions.Timeout:
+                if attempt < max_retries - 1:
+                    time.sleep(2.0 * (2 ** attempt))
+                    continue
+                return "Error: Request timeout. Please check if Ollama is running."
+            except requests.exceptions.ConnectionError:
+                if attempt < max_retries - 1:
+                    time.sleep(1.0 * (2 ** attempt))
+                    continue
+                return "Error: Cannot connect to Ollama. Make sure Ollama service is running."
+            except Exception as e:
+                if attempt < max_retries - 1:
+                    time.sleep(1.0 * (2 ** attempt))
+                    continue
+                return f"Connection error: {str(e)}"
     
     def chat(self, messages: List[Dict[str, str]], 
              temperature: float = 0.7, max_tokens: int = 2000) -> str:

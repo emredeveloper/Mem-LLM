@@ -66,7 +66,8 @@ class MemAgent:
                  memory_dir: Optional[str] = None,
                  load_knowledge_base: bool = True,
                  ollama_url: str = "http://localhost:11434",
-                 check_connection: bool = False):
+                 check_connection: bool = False,
+                 enable_security: bool = False):
         """
         Args:
             model: LLM model to use
@@ -76,7 +77,25 @@ class MemAgent:
             load_knowledge_base: Automatically load knowledge base
             ollama_url: Ollama API URL
             check_connection: Verify Ollama connection on startup (default: False)
+            enable_security: Enable prompt injection protection (v1.1.0+, default: False for backward compatibility)
         """
+        
+        # Setup logging first
+        self._setup_logging()
+        
+        # Security features (v1.1.0+)
+        self.enable_security = enable_security
+        self.security_detector = None
+        self.security_sanitizer = None
+        
+        if enable_security:
+            try:
+                from .prompt_security import PromptInjectionDetector, InputSanitizer
+                self.security_detector = PromptInjectionDetector()
+                self.security_sanitizer = InputSanitizer()
+                self.logger.info("🔒 Security features enabled (prompt injection protection)")
+            except ImportError:
+                self.logger.warning("⚠️  Security features requested but not available")
 
         # Load configuration
         self.config = None
@@ -96,9 +115,6 @@ class MemAgent:
         else:
             # No config file
             self.usage_mode = "personal"
-
-        # Setup logging
-        self._setup_logging()
 
         # Initialize flags first
         self.has_knowledge_base: bool = False  # Track KB status
@@ -364,6 +380,33 @@ class MemAgent:
             return "Error: User ID not specified."
 
         user_id = self.current_user
+        
+        # Security check (v1.1.0+) - opt-in
+        security_info = {}
+        if self.enable_security and self.security_detector and self.security_sanitizer:
+            # Detect injection attempts
+            risk_level = self.security_detector.get_risk_level(message)
+            is_suspicious, patterns = self.security_detector.detect(message)
+            
+            if risk_level in ["high", "critical"]:
+                self.logger.warning(f"🚨 Blocked {risk_level} risk input from {user_id}: {len(patterns)} patterns detected")
+                return f"⚠️ Your message was blocked due to security concerns. Please rephrase your request."
+            
+            if is_suspicious:
+                self.logger.info(f"⚠️ Suspicious input from {user_id} (risk: {risk_level}): {len(patterns)} patterns")
+            
+            # Sanitize input
+            original_message = message
+            message = self.security_sanitizer.sanitize(message, aggressive=(risk_level == "medium"))
+            
+            if message != original_message:
+                self.logger.debug(f"Input sanitized for {user_id}")
+            
+            security_info = {
+                "risk_level": risk_level,
+                "sanitized": message != original_message,
+                "patterns_detected": len(patterns)
+            }
 
         # Check tool commands first
         tool_result = self.tool_executor.execute_user_command(message, user_id)

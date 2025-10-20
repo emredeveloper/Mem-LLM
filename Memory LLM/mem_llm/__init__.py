@@ -24,7 +24,26 @@ try:
 except ImportError:
     __all_pro__ = []
 
-__version__ = "1.0.11"
+# Security features (optional, v1.1.0+)
+try:
+    from .prompt_security import (
+        PromptInjectionDetector,
+        InputSanitizer,
+        SecurePromptBuilder
+    )
+    __all_security__ = ["PromptInjectionDetector", "InputSanitizer", "SecurePromptBuilder"]
+except ImportError:
+    __all_security__ = []
+
+# Enhanced features (v1.1.0+)
+try:
+    from .logger import get_logger, MemLLMLogger
+    from .retry_handler import exponential_backoff_retry, SafeExecutor
+    __all_enhanced__ = ["get_logger", "MemLLMLogger", "exponential_backoff_retry", "SafeExecutor"]
+except ImportError:
+    __all_enhanced__ = []
+
+__version__ = "1.1.0"
 __author__ = "C. Emre Karataş"
 
 # CLI
@@ -38,4 +57,4 @@ __all__ = [
     "MemAgent",
     "MemoryManager", 
     "OllamaClient",
-] + __all_tools__ + __all_pro__ + __all_cli__
+] + __all_tools__ + __all_pro__ + __all_cli__ + __all_security__ + __all_enhanced__

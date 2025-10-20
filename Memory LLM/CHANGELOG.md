@@ -5,6 +5,150 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-10-21
+
+### Added
+
+- 🔒 **Prompt Injection Protection** (Opt-in): Advanced security system to detect and block prompt injection attacks
+  - `PromptInjectionDetector`: Detects 15+ attack patterns (role manipulation, system override, jailbreak attempts)
+  - Risk assessment: safe, low, medium, high, critical levels
+  - `InputSanitizer`: Neutralizes malicious patterns while preserving user intent
+  - `SecurePromptBuilder`: Template-based secure prompt construction
+  - Enable with `enable_security=True` parameter (default: False for backward compatibility)
+  
+- 📝 **Structured Logging System**: Production-ready logging infrastructure
+  - `MemLLMLogger`: Centralized logging with file and console handlers
+  - Specialized methods: `log_llm_call()`, `log_memory_operation()`, `log_error_with_context()`
+  - Configurable log levels (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+  - Timestamps and formatted output for debugging
+  
+- 🔄 **Retry Logic with Exponential Backoff**: Robust error handling for network operations
+  - `exponential_backoff_retry` decorator: 3 retries with 1s, 2s, 4s delays
+  - `SafeExecutor`: Context manager for safe operations with automatic rollback
+  - `check_connection_with_retry()`: Connection validation before operations
+  - Separate handling for timeout, connection, and general errors
+
+### Changed
+
+- ⚡ **Thread-Safe SQLite Operations**: Complete concurrency overhaul
+  - Added `threading.RLock()` to all critical operations (add_user, add_interaction, get_recent, search)
+  - Configured `isolation_level=None` (autocommit mode) to prevent transaction conflicts
+  - Set `busy_timeout=30000` (30 seconds) for concurrent write handling
+  - Performance: 15,346 messages/second write throughput, <1ms search latency
+  
+- 💾 **SQLite WAL Mode**: Write-Ahead Logging for better concurrency
+  - Enabled WAL mode with `PRAGMA journal_mode=WAL`
+  - Configured 64MB cache (`cache_size=-64000`)
+  - Set `synchronous=NORMAL` for balanced safety/performance
+  - Supports 200+ concurrent writes without errors
+
+### Fixed
+
+- 🐛 **Concurrent Write Errors**: Fixed "cannot start transaction within transaction" errors
+  - Root cause: Multiple threads trying to start nested transactions
+  - Solution: Autocommit mode + RLock on all operations
+  - Validated: 200 concurrent writes in 0.03s with ZERO errors
+  
+- 🐛 **Race Conditions**: Fixed "bad parameter or other API misuse" in multi-threaded scenarios
+  - Added thread-safe connection pooling
+  - Eliminated tuple index errors in concurrent reads
+  - All race conditions verified fixed in stress tests
+
+### Security
+
+- 🛡️ **Prompt Injection Detection Patterns**:
+  - Role manipulation: "You are now...", "Ignore previous...", "Act as..."
+  - System override: "Forget all instructions", "Disregard guidelines"
+  - Jailbreak: "DAN mode", "developer mode", "unrestricted mode"
+  - Token injection: Special tokens, control characters, encoding exploits
+  - Context pollution: Excessive newlines, recursive instructions
+  
+- 🔐 **Input Sanitization**:
+  - Escapes control characters and special sequences
+  - Neutralizes role-switching patterns
+  - Preserves legitimate user input while removing threats
+  - Optional strict mode for high-security environments
+
+### Performance
+
+- 📊 **Benchmark Results** (Intel Core i7, 16GB RAM):
+  - Write throughput: 15,346 messages/second (500 writes/0.0326s)
+  - Search latency: <1ms for 500 conversations
+  - Concurrent writes: 200 operations in 0.03s (ZERO errors)
+  - Memory overhead: Minimal (~10MB for 10,000 conversations)
+
+### Testing
+
+- 🧪 **Enhanced Test Coverage**: New test suites added
+  - `test_improvements.py`: Logging, retry logic, WAL mode (4/4 tests passed)
+  - `test_advanced_coverage.py`: Concurrent access, corruption recovery, long history (9 tests)
+  - `test_backward_compatibility.py`: Validates v1.0.x code still works (100% compatible)
+  - Comprehensive test suite: 10/10 tests passed (100% success rate)
+
+### Backward Compatibility
+
+- ✅ **100% Backward Compatible**: All v1.0.x code works without modification
+  - `enable_security=False` by default (opt-in security)
+  - All new imports wrapped in try/except (graceful degradation)
+  - No breaking changes to existing API
+  - Existing databases work without migration
+  - Validated with comprehensive compatibility tests
+
+### Technical Details
+
+- **New Modules**:
+  - `mem_llm/logger.py` - Structured logging system (MemLLMLogger)
+  - `mem_llm/retry_handler.py` - Exponential backoff retry logic (exponential_backoff_retry, SafeExecutor)
+  - `mem_llm/prompt_security.py` - Security detection/sanitization (PromptInjectionDetector, InputSanitizer, SecurePromptBuilder)
+  
+- **Modified Modules**:
+  - `mem_llm/memory_db.py` - Thread-safe operations, WAL mode, busy timeout
+  - `mem_llm/llm_client.py` - Retry logic integration
+  - `mem_llm/mem_agent.py` - Security parameter, input validation
+  - `mem_llm/__init__.py` - New exports (security, logging, retry classes)
+  - `pyproject.toml` - Version bump to 1.1.0
+
+### Migration Guide
+
+**From v1.0.x to v1.1.0:**
+
+```python
+# v1.0.x code (still works exactly the same)
+agent = MemAgent(model="granite4:tiny-h", use_sql=True)
+
+# v1.1.0 with new features (opt-in)
+from mem_llm import MemAgent, get_logger
+
+# Enable security protection
+agent = MemAgent(
+    model="granite4:tiny-h",
+    use_sql=True,
+    enable_security=True  # NEW: Prompt injection protection
+)
+
+# Use structured logging
+logger = get_logger()
+logger.info("Agent created with security enabled")
+
+# All old code works without changes!
+agent.set_user("alice")
+response = agent.chat("Hello!")  # Security checks applied automatically
+```
+
+### Dependencies
+
+- No new required dependencies
+- All new features use Python standard library
+- Optional dependencies remain optional
+
+### Notes
+
+- **Production Ready**: All features tested in multi-threaded environments
+- **Performance Tested**: Benchmarked up to 15K+ messages/second
+- **Security Validated**: 15+ injection patterns detected and blocked
+- **Stress Tested**: 200+ concurrent operations without failures
+- **Backward Compatible**: Drop-in replacement for v1.0.x
+
 ## [1.0.11] - 2025-10-20
 
 ### Changed

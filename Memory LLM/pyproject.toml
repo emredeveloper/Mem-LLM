@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mem-llm"
-version = "1.0.11"
-description = "Memory-enabled AI assistant with local LLM support"
+version = "1.1.0"
+description = "Memory-enabled AI assistant with local LLM support - Now with security and performance improvements"
 readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}
