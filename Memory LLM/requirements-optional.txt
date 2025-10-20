@@ -1,0 +1,26 @@
+# Optional Dependencies
+# Install only if you need specific features
+
+# Include core requirements
+-r requirements.txt
+
+# Web Dashboard (Flask-based UI)
+flask>=3.0.0
+flask-cors>=4.0.0
+
+# Web API (FastAPI-based REST API)
+fastapi>=0.104.0
+uvicorn>=0.24.0
+
+# Database Options (if you want PostgreSQL instead of SQLite)
+psycopg2-binary>=2.9.9
+
+# Data Import/Export
+pandas>=2.1.0
+openpyxl>=3.1.2
+
+# Monitoring & Observability
+prometheus-client>=0.19.0
+
+# Rate Limiting
+flask-limiter>=3.5.0

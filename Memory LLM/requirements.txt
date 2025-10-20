@@ -1,28 +1,14 @@
-# Mem-Agent Gereksinimleri
+# Mem-LLM Core Requirements
+# These are the minimal dependencies needed for basic functionality
 
-# Core dependencies
+# LLM Communication
 requests>=2.31.0
+
+# Configuration Management
 pyyaml>=6.0.1
 
-# Development dependencies (opsiyonel)
-# pytest>=7.4.0
-# black>=23.7.0
-# flake8>=6.1.0
+# CLI Interface
+click>=8.1.0
 
-# Web API (opsiyonel - entegrasyon için)
-# flask>=3.0.0
-# fastapi>=0.104.0
-# uvicorn>=0.24.0
-
-# Database (opsiyonel - PostgreSQL kullanıyorsanız)
-# psycopg2-binary>=2.9.9
-
-# Excel import (opsiyonel)
-# pandas>=2.1.0
-# openpyxl>=3.1.2
-
-# Monitoring (opsiyonel)
-# prometheus-client>=0.19.0
-
-# Rate limiting (opsiyonel)
-# flask-limiter>=3.5.0
+# For development and testing, see requirements-dev.txt
+# For optional features (web UI, etc.), see requirements-optional.txt

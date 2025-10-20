@@ -35,12 +35,27 @@ setup(
     install_requires=[
         "requests>=2.31.0",
         "pyyaml>=6.0.1",
+        "click>=8.1.0",  # CLI support
     ],
     extras_require={
         "dev": [
             "pytest>=7.4.0",
+            "pytest-cov>=4.1.0",
             "black>=23.7.0",
             "flake8>=6.1.0",
+        ],
+        "web": [
+            "flask>=3.0.0",
+            "flask-cors>=4.0.0",
+        ],
+        "api": [
+            "fastapi>=0.104.0",
+            "uvicorn>=0.24.0",
+        ],
+    },
+    entry_points={
+        'console_scripts': [
+            'mem-llm=mem_llm.cli:main',
         ],
     },
     include_package_data=True,

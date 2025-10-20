@@ -66,12 +66,67 @@ agent.chat("What's my name?")  # → "Your name is John"
 | ⚡ **Fast** | Lightweight SQLite/JSON storage |
 | 🎯 **Simple** | 3 lines of code to get started |
 | 📚 **Knowledge Base** | Config-free document integration |
-| 🌍 **Turkish Support** | Native Turkish language processing |
-| 🛠️ **Tools** | Extensible tool system for agents |
+| 🌍 **Multi-language** | Works with any language |
+| 🛠️ **CLI Tool** | Built-in command-line interface |
+
+---
+
+## 🔄 Memory Backend Comparison
+
+Choose the right backend for your needs:
+
+| Feature | JSON Mode | SQL Mode |
+|---------|-----------|----------|
+| **Setup** | ✅ Zero config | ⚙️ Minimal config |
+| **Conversation Memory** | ✅ Yes | ✅ Yes |
+| **User Profiles** | ✅ Yes | ✅ Yes |
+| **Knowledge Base** | ❌ No | ✅ Yes |
+| **Advanced Search** | ❌ No | ✅ Yes |
+| **Multi-user Performance** | ⭐⭐ Good | ⭐⭐⭐ Excellent |
+| **Data Queries** | ❌ Limited | ✅ Full SQL |
+| **Best For** | 🏠 Personal use | 🏢 Business use |
+
+**Recommendation:**
+- **JSON Mode**: Perfect for personal assistants and quick prototypes
+- **SQL Mode**: Ideal for customer service, multi-user apps, and production
 
 ---
 
 ## 📖 Usage Examples
+
+### Command Line Interface (CLI)
+
+The easiest way to get started:
+
+```bash
+# Install with CLI support
+pip install mem-llm
+
+# Start interactive chat
+mem-llm chat --user john
+
+# Check system status
+mem-llm check
+
+# View statistics
+mem-llm stats
+
+# Export user data
+mem-llm export john --format json --output data.json
+
+# Get help
+mem-llm --help
+```
+
+**Available CLI Commands:**
+
+| Command | Description | Example |
+|---------|-------------|---------|
+| `chat` | Interactive chat session | `mem-llm chat --user alice` |
+| `check` | Verify system setup | `mem-llm check` |
+| `stats` | Show statistics | `mem-llm stats --user john` |
+| `export` | Export user data | `mem-llm export john` |
+| `clear` | Delete user data | `mem-llm clear john` |
 
 ### Basic Chat
 
@@ -89,14 +144,14 @@ agent.chat("What's my favorite food?")
 # → "Your favorite food is pizza"
 ```
 
-### Turkish Language Support
+### Multi-language Support
 
 ```python
-# Works seamlessly with Turkish
+# Works with any language
 agent.set_user("ahmet")
 agent.chat("Benim adım Ahmet ve pizza seviyorum")
 agent.chat("Adımı hatırlıyor musun?")
-# → "Tabii ki Ahmet! Sizin pizza sevdiğinizi hatırlıyorum"
+# → "Evet, adınız Ahmet!"
 ```
 
 ### Customer Service Bot

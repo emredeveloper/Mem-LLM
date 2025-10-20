@@ -27,9 +27,15 @@ except ImportError:
 __version__ = "1.0.7"
 __author__ = "C. Emre Karataş"
 
+# CLI
+try:
+    from .cli import cli
+    __all_cli__ = ["cli"]
+except ImportError:
+    __all_cli__ = []
+
 __all__ = [
     "MemAgent",
-    "MemoryManager",
+    "MemoryManager", 
     "OllamaClient",
-] + __all_tools__ + __all_pro__
-
+] + __all_tools__ + __all_pro__ + __all_cli__

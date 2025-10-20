@@ -65,7 +65,8 @@ class MemAgent:
                  use_sql: bool = True,
                  memory_dir: Optional[str] = None,
                  load_knowledge_base: bool = True,
-                 ollama_url: str = "http://localhost:11434"):
+                 ollama_url: str = "http://localhost:11434",
+                 check_connection: bool = False):
         """
         Args:
             model: LLM model to use
@@ -74,6 +75,7 @@ class MemAgent:
             memory_dir: Memory directory
             load_knowledge_base: Automatically load knowledge base
             ollama_url: Ollama API URL
+            check_connection: Verify Ollama connection on startup (default: False)
         """
 
         # Load configuration
@@ -114,6 +116,42 @@ class MemAgent:
         self.model = model  # Store model name
         self.use_sql = use_sql  # Store SQL usage flag
         self.llm = OllamaClient(model, ollama_url)
+        
+        # Optional connection check on startup
+        if check_connection:
+            self.logger.info("Checking Ollama connection...")
+            if not self.llm.check_connection():
+                error_msg = (
+                    "❌ ERROR: Cannot connect to Ollama service!\n"
+                    "   \n"
+                    "   Solutions:\n"
+                    "   1. Start Ollama: ollama serve\n"
+                    "   2. Check if Ollama is running: http://localhost:11434\n"
+                    "   3. Verify ollama_url parameter is correct\n"
+                    "   \n"
+                    "   To skip this check, use: MemAgent(check_connection=False)"
+                )
+                self.logger.error(error_msg)
+                raise ConnectionError("Ollama service not available")
+            
+            # Check if model exists
+            available_models = self.llm.list_models()
+            if model not in available_models:
+                error_msg = (
+                    f"❌ ERROR: Model '{model}' not found!\n"
+                    f"   \n"
+                    f"   Solutions:\n"
+                    f"   1. Download model: ollama pull {model}\n"
+                    f"   2. Use an available model: {', '.join(available_models[:3])}\n"
+                    f"   \n"
+                    f"   Available models: {len(available_models)} found\n"
+                    f"   To skip this check, use: MemAgent(check_connection=False)"
+                )
+                self.logger.error(error_msg)
+                raise ValueError(f"Model '{model}' not available")
+            
+            self.logger.info(f"✅ Ollama connection verified, model '{model}' ready")
+        
         self.logger.info(f"LLM client ready: {model}")
 
         # Advanced features (if available)
