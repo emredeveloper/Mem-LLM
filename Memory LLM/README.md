@@ -12,6 +12,7 @@
 
 - [🎯 mem-llm nedir?](#-mem-llm-nedir)
 - [⚡ Hızlı başlangıç](#-hızlı-başlangıç)
+- [🧑‍🏫 Tutorial](#-tutorial)
 - [💡 Özellikler](#-özellikler)
 - [📖 Kullanım örnekleri](#-kullanım-örnekleri)
 - [🔧 Yapılandırma seçenekleri](#-yapılandırma-seçenekleri)
@@ -102,9 +103,19 @@ Kurulum sırasında sorun yaşarsanız [🐛 Sık karşılaşılan problemler](#
 
 ---
 
+## 🧑‍🏫 Tutorial
+
+Tamamlanmış örnekleri adım adım incelemek için [examples](examples) klasöründeki rehberleri izleyebilirsiniz. Bu dizinde hem temel kullanım senaryoları hem de ileri seviye entegrasyonlar yer alır. Öne çıkan içerikler:
+
+- [Basic usage walkthrough](examples/basic_usage.py) – ilk hafızalı ajanın nasıl oluşturulacağını gösterir.
+- [Customer support workflow](examples/customer_support.py) – çok kullanıcılı müşteri destek senaryosu.
+- [Knowledge base ingestion](examples/knowledge_base.py) – dokümanlardan bilgi yükleme.
+
+Her dosyada kodun yanında açıklamalar bulunur; komutları kopyalayıp çalıştırarak sonuçları deneyimleyebilirsiniz.
+
 ## 📖 Kullanım örnekleri
 
-### Temel sohbet
+### Basic conversation
 
 ```python
 from mem_llm import MemAgent
@@ -115,22 +126,22 @@ agent.set_user("alice")
 # İlk konuşma
 agent.chat("I love pizza")
 
-# Daha sonra...
+# Later on...
 agent.chat("What's my favorite food?")
 # → "Your favorite food is pizza"
 ```
 
-### Türkçe dil desteği
+### Turkish language support
 
 ```python
-# Türkçe diyaloğu doğal şekilde destekler
+# Handles Turkish dialogue naturally
 agent.set_user("ahmet")
 agent.chat("Benim adım Ahmet ve pizza seviyorum")
 agent.chat("Adımı hatırlıyor musun?")
 # → "Tabii ki Ahmet! Sizin pizza sevdiğinizi hatırlıyorum"
 ```
 
-### Müşteri hizmetleri senaryosu
+### Customer service scenario
 
 ```python
 agent = MemAgent()
@@ -139,15 +150,15 @@ agent = MemAgent()
 agent.set_user("customer_001")
 agent.chat("My order #12345 is delayed")
 
-# Müşteri 2 (ayrı hafıza!)
+# Customer 2 (separate memory!)
 agent.set_user("customer_002")
 agent.chat("I want to return item #67890")
 ```
 
-### Kullanıcı profilini kontrol etme
+### Inspecting the user profile
 
 ```python
-# Otomatik çıkarılan kullanıcı bilgilerini alın
+# Retrieve automatically extracted user information
 profile = agent.get_user_profile()
 # {'name': 'Alice', 'favorite_food': 'pizza', 'location': 'NYC'}
 ```
