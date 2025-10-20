@@ -5,6 +5,66 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.10] - 2025-10-20
+
+### Added
+- 🧠 **Dynamic Prompt System**: Context-aware system prompts that adapt to active features
+  - Prevents hallucinations by only including instructions for enabled features
+  - Separate prompt sections for KB, tools, business/personal modes
+  - Automatic feature detection (Knowledge Base presence, tools availability)
+  - Logging shows active features: "✅ Knowledge Base | ❌ Tools | 💾 Memory: SQL"
+- 🔄 **Universal Ollama Model Compatibility**: Full support for ALL Ollama models
+  - Thinking-enabled models (Qwen3, DeepSeek, etc.) now work correctly
+  - Auto-detection and handling of thinking mode
+  - `enable_thinking: false` parameter for direct responses
+  - Fallback extraction from thinking process when needed
+  - Empty response retry with simpler prompts
+- 📊 **Comprehensive Test Suite**: Pre-publish validation system
+  - 34 automated tests covering all major features
+  - Tests: imports, CLI, Ollama, JSON/SQL memory, MemAgent, config, multi-user
+  - User scenario testing with output analysis
+  - Hallucination detection and context verification
+
+### Changed
+- ⚡ **LLM Token Limits**: Increased from 150 to 2000 tokens for thinking models
+- 🧹 **Removed Obsolete Module**: Deleted `prompt_templates.py` (replaced by dynamic system)
+- 📝 **Context Window**: Increased from 2048 to 4096 tokens for better context
+- 🎯 **Response Quality**: Better handling of empty responses with automatic retry
+
+### Fixed
+- 🐛 **Thinking Model Issue**: Qwen3 and similar models now respond correctly
+  - Fixed empty responses from thinking-mode models
+  - Proper content extraction from model responses
+  - System prompt instructions to suppress thinking process
+- 🔧 **Stop Sequences**: Removed problematic stop sequences that interfered with models
+- ⚠️ **Empty Response Handling**: Automatic retry with fallback for reliability
+
+### Improved
+- 🎨 **Prompt Quality**: Feature-specific instructions prevent confusion
+- 🚀 **Model Performance**: Works seamlessly with granite4, qwen3, llama3, and all Ollama models
+- 📈 **User Experience**: No more irrelevant feature mentions in responses
+- 🧪 **Testing Coverage**: Complete validation before releases
+
+### Technical Details
+- Created `mem_llm/dynamic_prompt.py` (350+ lines) - modular prompt builder
+- Modified `mem_llm/mem_agent.py`:
+  - Added `has_knowledge_base` and `has_tools` tracking flags
+  - Implemented `_build_dynamic_system_prompt()` method
+  - Removed ~70 lines of old static prompt code
+  - Added empty response retry logic
+- Modified `mem_llm/llm_client.py`:
+  - Added thinking mode detection and suppression
+  - Increased token limits and context window
+  - Improved response extraction logic
+  - Added fallback for thinking-enabled models
+- Updated `mem_llm/__init__.py` - exported `dynamic_prompt_builder`
+- Cleaned `MANIFEST.in` - removed non-existent files
+- Created `comprehensive_test.py` - 34 automated tests
+- Created `user_test.py` - real-world scenario validation
+
+### Breaking Changes
+- None - fully backward compatible
+
 ## [1.0.9] - 2025-10-20
 
 ### Added

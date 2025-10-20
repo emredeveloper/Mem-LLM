@@ -11,7 +11,7 @@ long_description = (this_directory / "README.md").read_text(encoding='utf-8')
 
 setup(
     name="mem-llm",
-    version="1.0.9",
+    version="1.0.10",
     author="C. Emre Karataş",
     author_email="karatasqemre@gmail.com",  # PyPI için gerekli - kendi emailinizi yazın
     description="Memory-enabled AI assistant with local LLM support",
