@@ -49,6 +49,9 @@ python -m pytest -c "Memory LLM/pyproject.toml"
 
 You can also run the provided `tests/run_all_tests.py` script for an end-to-end verification of all features.
 
+### Continuous Integration
+All pushes and pull requests targeting `main` automatically run the same pytest command through [GitHub Actions](.github/workflows/ci.yml). Keeping the workflow green ensures that new changes respect the documented development workflow before merging.
+
 ## Contributing
 Contributions, bug reports, and feature requests are welcome! Please open an issue or submit a pull request describing your changes. Make sure to include test coverage and follow the formatting guidelines enforced by the existing codebase.
 
