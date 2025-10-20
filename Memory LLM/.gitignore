@@ -29,6 +29,8 @@ MANIFEST
 *.manifest
 *.spec
 
+.gitignore
+
 # Unit test / coverage reports
 htmlcov/
 .tox/
