@@ -38,6 +38,4 @@ Quick, ready-to-run scripts that show how to get the most out of Mem-LLM.
 - Integration guide: `Memory LLM/INTEGRATION_GUIDE.md`
 - Changelog: `Memory LLM/CHANGELOG.md`
 
-Have a new example idea? Follow the `XX_description.py` naming pattern and keep it focused.
-
 **Happy coding!** 🎉
