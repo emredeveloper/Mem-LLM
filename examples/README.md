@@ -32,10 +32,4 @@ Quick, ready-to-run scripts that show how to get the most out of Mem-LLM.
 - **Model missing?** `ollama pull granite4:tiny-h`
 - **Import error?** `pip install mem-llm --upgrade`
 
-## 📚 More Resources
-- Main docs: `Memory LLM/README.md`
-- Configuration guide: `Memory LLM/docs/CONFIG_GUIDE.md`
-- Integration guide: `Memory LLM/INTEGRATION_GUIDE.md`
-- Changelog: `Memory LLM/CHANGELOG.md`
-
 **Happy coding!** 🎉
