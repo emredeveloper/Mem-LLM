@@ -64,6 +64,7 @@ class MemAgent:
                  config_file: Optional[str] = None,
                  use_sql: bool = True,
                  memory_dir: Optional[str] = None,
+                 db_path: Optional[str] = None,
                  load_knowledge_base: bool = True,
                  ollama_url: str = "http://localhost:11434",
                  check_connection: bool = False,
@@ -73,7 +74,8 @@ class MemAgent:
             model: LLM model to use
             config_file: Configuration file (optional)
             use_sql: Use SQL database (True) or JSON (False)
-            memory_dir: Memory directory
+            memory_dir: Memory directory (for JSON mode or if db_path not specified)
+            db_path: SQLite database path (for SQL mode, e.g., ":memory:" or "path/to/db.db")
             load_knowledge_base: Automatically load knowledge base
             ollama_url: Ollama API URL
             check_connection: Verify Ollama connection on startup (default: False)
@@ -120,12 +122,29 @@ class MemAgent:
         self.has_knowledge_base: bool = False  # Track KB status
         self.has_tools: bool = False  # Track tools status
 
-        # Memory system selection
+        # Memory system
         if use_sql and ADVANCED_AVAILABLE:
             # SQL memory (advanced)
-            db_path = memory_dir or self.config.get("memory.db_path", "memories.db") if self.config else "memories.db"
-            self.memory = SQLMemoryManager(db_path)
-            self.logger.info(f"SQL memory system active: {db_path}")
+            # Determine database path
+            if db_path:
+                # Use provided db_path (can be ":memory:" for in-memory DB)
+                final_db_path = db_path
+            elif memory_dir:
+                final_db_path = memory_dir
+            elif self.config:
+                final_db_path = self.config.get("memory.db_path", "memories/memories.db")
+            else:
+                final_db_path = "memories/memories.db"
+            
+            # Ensure memories directory exists (skip for :memory:)
+            import os
+            if final_db_path != ":memory:":
+                db_dir = os.path.dirname(final_db_path)
+                if db_dir and not os.path.exists(db_dir):
+                    os.makedirs(db_dir, exist_ok=True)
+            
+            self.memory = SQLMemoryManager(final_db_path)
+            self.logger.info(f"SQL memory system active: {final_db_path}")
         else:
             # JSON memory (simple)
             json_dir = memory_dir or self.config.get("memory.json_dir", "memories") if self.config else "memories"
@@ -203,10 +222,13 @@ class MemAgent:
         if ADVANCED_AVAILABLE and hasattr(self, 'config') and self.config:
             log_config = self.config.get("logging", {})
 
+        # Default to WARNING level to keep console clean (users can override in config)
+        default_level = "WARNING"
+        
         if log_config.get("enabled", True):
             # Only console logging (no file) - keep workspace clean
             logging.basicConfig(
-                level=getattr(logging, log_config.get("level", "INFO")),
+                level=getattr(logging, log_config.get("level", default_level)),
                 format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                 handlers=[
                     logging.StreamHandler()  # Console only
@@ -214,6 +236,9 @@ class MemAgent:
             )
 
         self.logger = logging.getLogger("MemAgent")
+        
+        # Set default level for mem_llm loggers
+        logging.getLogger("mem_llm").setLevel(getattr(logging, log_config.get("level", default_level)))
 
     def _setup_advanced_features(self, load_knowledge_base: bool) -> None:
         """Setup advanced features"""

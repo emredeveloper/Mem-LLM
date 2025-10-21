@@ -36,4 +36,5 @@ desktop.ini
 *.tmp
 *.bak
 
-.gitignore
+# Memory LLM directory (exclude from git)
+Memory LLM/

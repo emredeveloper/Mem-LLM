@@ -124,7 +124,7 @@ class ConnectionPool:
 class ThreadSafeSQLMemory:
     """Thread-safe wrapper for SQL memory operations"""
     
-    def __init__(self, db_path: str = "memories.db", pool_size: int = 5):
+    def __init__(self, db_path: str = "memories/memories.db", pool_size: int = 5):
         """
         Initialize thread-safe SQL memory
         
@@ -133,6 +133,12 @@ class ThreadSafeSQLMemory:
             pool_size: Connection pool size
         """
         self.db_path = Path(db_path)
+        
+        # Ensure directory exists
+        db_dir = self.db_path.parent
+        if not db_dir.exists():
+            db_dir.mkdir(parents=True, exist_ok=True)
+        
         self.pool = ConnectionPool(str(db_path), pool_size)
         self.logger = logging.getLogger(__name__)
         self._init_database()

@@ -8,16 +8,23 @@
 
 Mem-LLM is a powerful Python library that brings persistent memory capabilities to local Large Language Models. Build AI assistants that remember user interactions, manage knowledge bases, and work completely offline with Ollama.
 
-## 🆕 What's New in v1.1.0
+## 🔗 Links
 
-- 🛡️ **Prompt Injection Protection**: Detects and blocks 15+ attack patterns (opt-in with `enable_security=True`)
-- ⚡ **Thread-Safe Operations**: Fixed all race conditions, supports 200+ concurrent writes
-- 🔄 **Retry Logic**: Exponential backoff for network errors (3 retries: 1s, 2s, 4s)
-- 📝 **Structured Logging**: Production-ready logging with `MemLLMLogger`
-- 💾 **SQLite WAL Mode**: Write-Ahead Logging for better concurrency (15K+ msg/s)
-- ✅ **100% Backward Compatible**: All v1.0.x code works without changes
+- **PyPI**: https://pypi.org/project/mem-llm/
+- **GitHub**: https://github.com/emredeveloper/Mem-LLM
+- **Issues**: https://github.com/emredeveloper/Mem-LLM/issues
+- **Documentation**: See examples/ directory
 
-[See full changelog](CHANGELOG.md#110---2025-10-21)
+## 🆕 What's New in v1.2.0
+
+- � **Conversation Summarization**: Automatic conversation compression (~40-60% token reduction)
+- 📤 **Data Export/Import**: JSON, CSV, SQLite, PostgreSQL, MongoDB support
+- 🗄️ **Multi-Database**: Enterprise-ready PostgreSQL & MongoDB integration
+- �️ **In-Memory DB**: Use `:memory:` for temporary operations
+- � **Cleaner Logs**: Default WARNING level for production-ready output
+- � **Bug Fixes**: Database path handling, organized SQLite files
+
+[See full changelog](CHANGELOG.md#120---2025-10-21)
 
 ## ✨ Key Features
 
@@ -34,13 +41,36 @@ Mem-LLM is a powerful Python library that brings persistent memory capabilities 
 - 🛡️ **Prompt Injection Protection** (v1.1.0+) - Advanced security against prompt attacks (opt-in)
 - ⚡ **High Performance** (v1.1.0+) - Thread-safe operations, 15K+ msg/s throughput
 - 🔄 **Retry Logic** (v1.1.0+) - Automatic exponential backoff for network errors
+- 📊 **Conversation Summarization** (v1.2.0+) - Automatic token compression (~40-60% reduction)
+- 📤 **Data Export/Import** (v1.2.0+) - Multi-format support (JSON, CSV, SQLite, PostgreSQL, MongoDB)
 
 ## 🚀 Quick Start
 
 ### Installation
 
+**Basic Installation:**
 ```bash
 pip install mem-llm
+```
+
+**With Optional Dependencies:**
+```bash
+# PostgreSQL support
+pip install mem-llm[postgresql]
+
+# MongoDB support
+pip install mem-llm[mongodb]
+
+# All database support (PostgreSQL + MongoDB)
+pip install mem-llm[databases]
+
+# All optional features
+pip install mem-llm[all]
+```
+
+**Upgrade:**
+```bash
+pip install -U mem-llm
 ```
 
 ### Prerequisites
@@ -355,33 +385,8 @@ stats = agent.get_memory_stats()
 - **MemoryTools**: Search, export, statistics
 - **ConfigManager**: YAML configuration
 - **CLI**: Command-line interface
-
-## 🧪 Testing
-
-Run the comprehensive test suite:
-
-```bash
-# Install dev dependencies
-pip install -r requirements-dev.txt
-
-# Run all tests (34+ automated tests)
-cd tests
-python run_all_tests.py
-
-# Run specific test
-python -m pytest test_mem_agent.py -v
-```
-
-### Test Coverage
-- ✅ Core imports and dependencies
-- ✅ CLI functionality
-- ✅ Ollama connection and models
-- ✅ JSON memory operations
-- ✅ SQL memory operations
-- ✅ MemAgent features
-- ✅ Configuration management
-- ✅ Multi-user scenarios
-- ✅ Hallucination detection
+- **ConversationSummarizer**: Token compression (v1.2.0+)
+- **DataExporter/DataImporter**: Multi-database support (v1.2.0+)
 
 ## 📝 Examples
 
@@ -394,53 +399,32 @@ The `examples/` directory contains ready-to-run demonstrations:
 5. **05_knowledge_base.py** - FAQ/support system
 6. **06_cli_demo.py** - Command-line interface examples
 7. **07_document_config.py** - Configuration from documents
+8. **08_conversation_summarization.py** - Token compression with auto-summary (v1.2.0+)
+9. **09_data_export_import.py** - Multi-format export/import demo (v1.2.0+)
+10. **10_database_connection_test.py** - Enterprise PostgreSQL/MongoDB migration (v1.2.0+)
 
-## 🛠️ Development
+## 📊 Project Status
 
-### Setup Development Environment
+- **Version**: 1.2.0
+- **Status**: Production Ready
+- **Last Updated**: October 21, 2025
+- **Test Coverage**: 16/16 automated tests (100% success rate)
+- **Performance**: Thread-safe operations, <1ms search latency
+- **Databases**: SQLite, PostgreSQL, MongoDB, In-Memory
 
-```bash
-git clone https://github.com/emredeveloper/Mem-LLM.git
-cd Mem-LLM
-pip install -e .
-pip install -r requirements-dev.txt
-```
+## 📈 Roadmap
 
-### Running Tests
-
-```bash
-pytest tests/ -v --cov=mem_llm
-```
-
-### Building Package
-
-```bash
-python -m build
-twine upload dist/*
-```
-
-## 📋 Requirements
-
-### Core Dependencies
-- Python 3.8+
-- requests>=2.31.0
-- pyyaml>=6.0.1
-- click>=8.1.0
-
-### Optional Dependencies
-- pytest>=7.4.0 (for testing)
-- flask>=3.0.0 (for web interface)
-- fastapi>=0.104.0 (for API server)
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+- [x] ~~Thread-safe operations~~ (v1.1.0)
+- [x] ~~Prompt injection protection~~ (v1.1.0)
+- [x] ~~Structured logging~~ (v1.1.0)
+- [x] ~~Retry logic~~ (v1.1.0)
+- [x] ~~Conversation Summarization~~ (v1.2.0)
+- [x] ~~Multi-Database Export/Import~~ (v1.2.0)
+- [x] ~~In-Memory Database~~ (v1.2.0)
+- [ ] Web UI dashboard
+- [ ] REST API server
+- [ ] Vector database integration
+- [ ] Advanced analytics dashboard
 
 ## 📄 License
 
@@ -457,35 +441,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Built with [Ollama](https://ollama.ai) for local LLM support
 - Inspired by the need for privacy-focused AI assistants
 - Thanks to all contributors and users
-
-## 📊 Project Status
-
-- **Version**: 1.1.0
-- **Status**: Production Ready
-- **Last Updated**: October 21, 2025
-- **Performance**: 15,346 msg/s write throughput, <1ms search latency
-- **Thread-Safe**: Supports 200+ concurrent operations
-- **Test Coverage**: 44+ automated tests (100% success rate)
-
-## 🔗 Links
-
-- **PyPI**: https://pypi.org/project/mem-llm/
-- **GitHub**: https://github.com/emredeveloper/Mem-LLM
-- **Issues**: https://github.com/emredeveloper/Mem-LLM/issues
-- **Documentation**: See examples/ directory
-
-## 📈 Roadmap
-
-- [x] ~~Thread-safe operations~~ (v1.1.0)
-- [x] ~~Prompt injection protection~~ (v1.1.0)
-- [x] ~~Structured logging~~ (v1.1.0)
-- [x] ~~Retry logic~~ (v1.1.0)
-- [ ] Web UI dashboard
-- [ ] REST API server
-- [ ] Vector database integration
-- [ ] Multi-language support
-- [ ] Cloud backup options
-- [ ] Advanced analytics
 
 ---
 

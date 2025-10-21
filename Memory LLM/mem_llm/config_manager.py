@@ -43,7 +43,7 @@ class ConfigManager:
             "memory": {
                 "backend": "sql",
                 "json_dir": "memories",
-                "db_path": "memories.db",
+                "db_path": "memories/memories.db",
                 "max_conversations_per_user": 1000,
                 "auto_cleanup": True,
                 "cleanup_after_days": 90

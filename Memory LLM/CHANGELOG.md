@@ -5,6 +5,55 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2025-10-21
+
+### Added
+
+- 📊 **Conversation Summarization**: Automatic conversation history compression
+  - `ConversationSummarizer`: Generates concise summaries from conversation histories
+  - `AutoSummarizer`: Threshold-based automatic summary updates
+  - Token compression: ~40-60% reduction in context size
+  - Key facts extraction: Automatic user profile insights
+  - Configurable thresholds and conversation limits
+  
+- 📤 **Data Export/Import System**: Multi-format and multi-database support
+  - `DataExporter`: Export conversations to JSON, CSV, SQLite, PostgreSQL, MongoDB
+  - `DataImporter`: Import from JSON, CSV, SQLite, PostgreSQL, MongoDB
+  - Auto-create databases: PostgreSQL and MongoDB databases created automatically if missing
+  - Enterprise-ready: Support for analytics (PostgreSQL) and real-time dashboards (MongoDB)
+  - Optional dependencies: `pip install mem-llm[postgresql]`, `pip install mem-llm[mongodb]`, `pip install mem-llm[databases]`
+  
+- 🗄️ **In-Memory Database Support**: Temporary database operations
+  - `db_path=":memory:"` parameter for MemAgent
+  - No file creation: Perfect for testing and temporary workflows
+  - Full SQL functionality without persistent storage
+
+### Changed
+
+- 🔇 **Reduced Logging Verbosity**: Cleaner console output
+  - Default log level changed from INFO to WARNING
+  - Less noise in production environments
+  - Users can still enable detailed logs via config
+  - Examples suppress logs for cleaner demonstrations
+  
+- 📦 **Enhanced Package Structure**: Better optional dependencies
+  - `pip install mem-llm[postgresql]` - PostgreSQL support only
+  - `pip install mem-llm[mongodb]` - MongoDB support only  
+  - `pip install mem-llm[databases]` - Both PostgreSQL and MongoDB
+  - `pip install mem-llm[all]` - Everything included
+
+### Fixed
+
+- 🗄️ **Database Path Handling**: SQLite files now organized in memories/ folder
+  - All SQLite files (.db, .db-shm, .db-wal) now in memories/ directory
+  - Cleaner workspace: No database files cluttering project root
+  - Automatic directory creation: memories/ folder created if missing
+  
+- 🔧 **MemAgent db_path Parameter**: Added missing parameter
+  - New `db_path` parameter in MemAgent.__init__()
+  - Enables custom database locations and in-memory databases
+  - Better control over database file placement
+
 ## [1.1.0] - 2025-10-21
 
 ### Added

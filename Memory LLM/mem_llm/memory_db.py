@@ -14,12 +14,18 @@ from pathlib import Path
 class SQLMemoryManager:
     """SQLite-based memory management system with thread-safety"""
     
-    def __init__(self, db_path: str = "memories.db"):
+    def __init__(self, db_path: str = "memories/memories.db"):
         """
         Args:
             db_path: SQLite database file path
         """
         self.db_path = Path(db_path)
+        
+        # Ensure directory exists
+        db_dir = self.db_path.parent
+        if not db_dir.exists():
+            db_dir.mkdir(parents=True, exist_ok=True)
+        
         self.conn = None
         self._lock = threading.RLock()  # Reentrant lock for thread safety
         self._init_database()

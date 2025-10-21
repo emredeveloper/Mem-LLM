@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mem-llm"
-version = "1.1.0"
-description = "Memory-enabled AI assistant with local LLM support - Now with security and performance improvements"
+version = "1.2.0"
+description = "Memory-enabled AI assistant with local LLM support - Now with data import/export and multi-database support"
 readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}
@@ -45,6 +45,28 @@ web = [
 api = [
     "fastapi>=0.104.0",
     "uvicorn>=0.24.0",
+]
+postgresql = [
+    "psycopg2-binary>=2.9.9",
+]
+mongodb = [
+    "pymongo>=4.6.0",
+]
+databases = [
+    "psycopg2-binary>=2.9.9",
+    "pymongo>=4.6.0",
+]
+all = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "black>=23.7.0",
+    "flake8>=6.1.0",
+    "flask>=3.0.0",
+    "flask-cors>=4.0.0",
+    "fastapi>=0.104.0",
+    "uvicorn>=0.24.0",
+    "psycopg2-binary>=2.9.9",
+    "pymongo>=4.6.0",
 ]
 
 [project.urls]

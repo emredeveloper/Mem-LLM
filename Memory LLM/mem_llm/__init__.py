@@ -43,7 +43,21 @@ try:
 except ImportError:
     __all_enhanced__ = []
 
-__version__ = "1.1.0"
+# Conversation Summarization (v1.2.0+)
+try:
+    from .conversation_summarizer import ConversationSummarizer, AutoSummarizer
+    __all_summarizer__ = ["ConversationSummarizer", "AutoSummarizer"]
+except ImportError:
+    __all_summarizer__ = []
+
+# Data Export/Import (v1.2.0+)
+try:
+    from .data_export_import import DataExporter, DataImporter
+    __all_export_import__ = ["DataExporter", "DataImporter"]
+except ImportError:
+    __all_export_import__ = []
+
+__version__ = "1.2.0"
 __author__ = "C. Emre Karataş"
 
 # CLI
@@ -57,4 +71,4 @@ __all__ = [
     "MemAgent",
     "MemoryManager", 
     "OllamaClient",
-] + __all_tools__ + __all_pro__ + __all_cli__ + __all_security__ + __all_enhanced__
+] + __all_tools__ + __all_pro__ + __all_cli__ + __all_security__ + __all_enhanced__ + __all_summarizer__ + __all_export_import__
