@@ -5,6 +5,72 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1] - 2025-10-31
+
+### 📝 Documentation
+
+- ✅ **README Update**: Fixed PyPI package README to show v1.3.0 features correctly
+- ✅ No code changes - all v1.3.0 functionality remains the same
+
+## [1.3.0] - 2025-10-31
+
+### 🎉 Major Features
+
+- 🔌 **Multi-Backend LLM Support**: Choose your preferred LLM backend
+  - **Ollama**: Local, privacy-first, 100+ models
+  - **LM Studio**: Fast local inference with easy GUI
+  - **Google Gemini**: Powerful cloud models (gemini-2.5-flash)
+  - Unified API across all backends
+  - Seamless switching between backends
+
+- 🏗️ **Factory Pattern Architecture**: Clean, extensible design
+  - `LLMClientFactory`: Central backend management
+  - `BaseLLMClient`: Abstract interface for all backends
+  - Easy to add new backends in the future
+
+- 🔍 **Auto-Detection**: Automatically find available LLM service
+  - `auto_detect_backend=True` parameter
+  - Checks Ollama → LM Studio → other local services
+  - No manual configuration needed
+
+### 🆕 New Components
+
+- `BaseLLMClient`: Abstract base class for all LLM backends
+- `LLMClientFactory`: Factory pattern for backend creation
+- `OllamaClient` (refactored): Now inherits from BaseLLMClient
+- `LMStudioClient`: OpenAI-compatible local inference
+- `GeminiClient`: Google Gemini API integration
+
+### 📚 New Examples
+
+- `11_lmstudio_example.py`: Using LM Studio backend
+- `12_gemini_example.py`: Using Google Gemini API
+- `13_multi_backend_comparison.py`: Compare backend performance
+- `14_auto_detect_backend.py`: Auto-detection feature
+
+### 📖 New Documentation
+
+- `MULTI_BACKEND_GUIDE.md`: Comprehensive guide for multi-backend setup
+
+### 🔄 Changed
+
+- **MemAgent**: Now supports multiple backends (backward compatible)
+- **Examples**: All simplified for clarity
+- **Package structure**: Better organized with `clients/` subdirectory
+
+### ⚡ Improved
+
+- **Backward Compatibility**: All v1.2.0 code still works
+- **Error Messages**: Backend-specific troubleshooting
+- **Connection Checks**: Improved availability detection
+
+### 🧪 Testing
+
+- 16+ new tests for multi-backend support
+- Factory pattern tests
+- Backend availability checks
+- MemAgent integration tests
+
 ## [1.2.0] - 2025-10-21
 
 ### Added

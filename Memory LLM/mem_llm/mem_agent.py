@@ -37,7 +37,9 @@ import os
 
 # Core dependencies
 from .memory_manager import MemoryManager
-from .llm_client import OllamaClient
+from .llm_client import OllamaClient  # Backward compatibility
+from .llm_client_factory import LLMClientFactory
+from .base_llm_client import BaseLLMClient
 
 # Advanced features (optional)
 try:
@@ -61,25 +63,48 @@ class MemAgent:
 
     def __init__(self,
                  model: str = "granite4:tiny-h",
+                 backend: str = "ollama",
                  config_file: Optional[str] = None,
                  use_sql: bool = True,
                  memory_dir: Optional[str] = None,
                  db_path: Optional[str] = None,
                  load_knowledge_base: bool = True,
                  ollama_url: str = "http://localhost:11434",
+                 base_url: Optional[str] = None,
+                 api_key: Optional[str] = None,
+                 auto_detect_backend: bool = False,
                  check_connection: bool = False,
-                 enable_security: bool = False):
+                 enable_security: bool = False,
+                 **llm_kwargs):
         """
         Args:
             model: LLM model to use
+            backend: LLM backend ('ollama', 'lmstudio', 'gemini') - NEW in v1.3.0
             config_file: Configuration file (optional)
             use_sql: Use SQL database (True) or JSON (False)
             memory_dir: Memory directory (for JSON mode or if db_path not specified)
             db_path: SQLite database path (for SQL mode, e.g., ":memory:" or "path/to/db.db")
             load_knowledge_base: Automatically load knowledge base
-            ollama_url: Ollama API URL
-            check_connection: Verify Ollama connection on startup (default: False)
+            ollama_url: Ollama API URL (backward compatibility, use base_url instead)
+            base_url: Backend API URL (for local backends) - NEW in v1.3.0
+            api_key: API key (for cloud backends like Gemini) - NEW in v1.3.0
+            auto_detect_backend: Auto-detect available LLM backend - NEW in v1.3.0
+            check_connection: Verify LLM connection on startup (default: False)
             enable_security: Enable prompt injection protection (v1.1.0+, default: False for backward compatibility)
+            **llm_kwargs: Additional backend-specific parameters
+        
+        Examples:
+            # Default Ollama
+            agent = MemAgent()
+            
+            # LM Studio
+            agent = MemAgent(backend='lmstudio', model='llama-3-8b')
+            
+            # Gemini
+            agent = MemAgent(backend='gemini', model='gemini-1.5-flash', api_key='your-key')
+            
+            # Auto-detect
+            agent = MemAgent(auto_detect_backend=True)
         """
         
         # Setup logging first
@@ -158,48 +183,109 @@ class MemAgent:
         # LLM client
         self.model = model  # Store model name
         self.use_sql = use_sql  # Store SQL usage flag
-        self.llm = OllamaClient(model, ollama_url)
+        
+        # Initialize LLM client (v1.3.0: Multi-backend support)
+        # Prepare backend configuration
+        llm_config = llm_kwargs.copy()
+        
+        # Handle backward compatibility: ollama_url -> base_url
+        if base_url is None and backend == "ollama":
+            base_url = ollama_url
+        
+        # Add base_url for local backends
+        if base_url and backend in ['ollama', 'lmstudio']:
+            llm_config['base_url'] = base_url
+        
+        # Add api_key for cloud backends
+        if api_key and backend in ['gemini']:
+            llm_config['api_key'] = api_key
+        
+        # Auto-detect backend if requested
+        if auto_detect_backend:
+            self.logger.info("🔍 Auto-detecting available LLM backend...")
+            self.llm = LLMClientFactory.auto_detect()
+            if self.llm:
+                detected_backend = self.llm.__class__.__name__
+                self.logger.info(f"✅ Detected and using: {detected_backend}")
+            else:
+                self.logger.error("❌ No LLM backend available.")
+                raise RuntimeError(
+                    "No LLM backend detected. Please start a local LLM service (Ollama/LM Studio) "
+                    "or provide Gemini API key."
+                )
+        else:
+            # Create client using factory
+            try:
+                self.llm = LLMClientFactory.create(
+                    backend=backend,
+                    model=model,
+                    **llm_config
+                )
+                self.logger.info(f"✅ Initialized {backend} backend with model: {model}")
+            except Exception as e:
+                self.logger.error(f"❌ Failed to initialize {backend} backend: {e}")
+                raise
         
         # Optional connection check on startup
         if check_connection:
-            self.logger.info("Checking Ollama connection...")
+            backend_name = backend if not auto_detect_backend else "LLM service"
+            self.logger.info(f"Checking {backend_name} connection...")
             if not self.llm.check_connection():
-                error_msg = (
-                    "❌ ERROR: Cannot connect to Ollama service!\n"
-                    "   \n"
-                    "   Solutions:\n"
-                    "   1. Start Ollama: ollama serve\n"
-                    "   2. Check if Ollama is running: http://localhost:11434\n"
-                    "   3. Verify ollama_url parameter is correct\n"
-                    "   \n"
-                    "   To skip this check, use: MemAgent(check_connection=False)"
-                )
+                error_msg = f"❌ ERROR: Cannot connect to {backend_name}!\n"
+                
+                if backend == "ollama":
+                    error_msg += (
+                        "   \n"
+                        "   Solutions:\n"
+                        "   1. Start Ollama: ollama serve\n"
+                        "   2. Check if Ollama is running: http://localhost:11434\n"
+                        "   3. Verify base_url parameter is correct\n"
+                    )
+                elif backend == "lmstudio":
+                    error_msg += (
+                        "   \n"
+                        "   Solutions:\n"
+                        "   1. Start LM Studio\n"
+                        "   2. Load a model in LM Studio\n"
+                        "   3. Start local server (default: http://localhost:1234)\n"
+                        "   4. Verify base_url parameter is correct\n"
+                    )
+                elif backend == "gemini":
+                    error_msg += (
+                        "   \n"
+                        "   Solutions:\n"
+                        "   1. Check your internet connection\n"
+                        "   2. Verify Gemini API key is correct\n"
+                        "   3. Check API quota/billing status\n"
+                        "   Get key: https://makersuite.google.com/app/apikey\n"
+                    )
+                
+                error_msg += "   \n   To skip this check, use: MemAgent(check_connection=False)"
                 self.logger.error(error_msg)
-                raise ConnectionError("Ollama service not available")
+                raise ConnectionError(f"{backend_name} not available")
             
-            # Check if model exists
-            available_models = self.llm.list_models()
-            if model not in available_models:
-                error_msg = (
-                    f"❌ ERROR: Model '{model}' not found!\n"
-                    f"   \n"
-                    f"   Solutions:\n"
-                    f"   1. Download model: ollama pull {model}\n"
-                    f"   2. Use an available model: {', '.join(available_models[:3])}\n"
-                    f"   \n"
-                    f"   Available models: {len(available_models)} found\n"
-                    f"   To skip this check, use: MemAgent(check_connection=False)"
-                )
-                self.logger.error(error_msg)
-                raise ValueError(f"Model '{model}' not available")
+            # Check if model exists (for backends that support listing)
+            try:
+                available_models = self.llm.list_models()
+                if available_models and model not in available_models:
+                    error_msg = (
+                        f"❌ ERROR: Model '{model}' not found in {backend}!\n"
+                        f"   \n"
+                        f"   Available models: {', '.join(available_models[:5])}\n"
+                        f"   Total: {len(available_models)} models available\n"
+                        f"   \n"
+                        f"   To skip this check, use: MemAgent(check_connection=False)"
+                    )
+                    self.logger.error(error_msg)
+                    raise ValueError(f"Model '{model}' not available")
+            except:
+                # Some backends may not support list_models, skip check
+                pass
             
-            self.logger.info(f"✅ Ollama connection verified, model '{model}' ready")
+            self.logger.info(f"✅ {backend_name} connection verified, model '{model}' ready")
         
-        self.logger.info(f"LLM client ready: {model}")
+        self.logger.info(f"LLM client ready: {model} on {backend}")
 
-        # Initialize state variables FIRST
-        self.current_user: Optional[str] = None
-        self.current_system_prompt: Optional[str] = None
 
         # Advanced features (if available)
         if ADVANCED_AVAILABLE:

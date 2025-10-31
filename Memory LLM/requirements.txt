@@ -3,6 +3,7 @@
 
 # LLM Communication
 requests>=2.31.0
+google-generativeai>=0.3.0
 
 # Configuration Management
 pyyaml>=6.0.1

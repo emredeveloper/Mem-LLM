@@ -4,15 +4,15 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mem-llm"
-version = "1.2.0"
-description = "Memory-enabled AI assistant with local LLM support - Now with data import/export and multi-database support"
+version = "1.3.1"
+description = "Memory-enabled AI assistant with multi-backend LLM support (Ollama, LM Studio, Gemini) - Local and cloud ready"
 readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}
 authors = [
     {name = "C. Emre Karataş", email = "karatasqemre@gmail.com"}
 ]
-keywords = ["llm", "ai", "memory", "agent", "chatbot", "ollama", "local"]
+keywords = ["llm", "ai", "memory", "agent", "chatbot", "ollama", "lmstudio", "gemini", "multi-backend", "local"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -29,6 +29,7 @@ dependencies = [
     "requests>=2.31.0",
     "pyyaml>=6.0.1",
     "click>=8.1.0",
+    "google-generativeai>=0.3.0",
 ]
 
 [project.optional-dependencies]
@@ -78,7 +79,7 @@ Source = "https://github.com/emredeveloper/Mem-LLM"
 mem-llm = "mem_llm.cli:main"
 
 [tool.setuptools]
-packages = ["mem_llm"]
+packages = ["mem_llm", "mem_llm.clients"]
 
 [tool.setuptools.package-data]
 mem_llm = ["config.yaml.example"]

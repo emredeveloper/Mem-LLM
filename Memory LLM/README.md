@@ -4,9 +4,9 @@
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Memory-enabled AI assistant with local LLM support**
+**Memory-enabled AI assistant with multi-backend LLM support (Ollama, LM Studio, Gemini)**
 
-Mem-LLM is a powerful Python library that brings persistent memory capabilities to local Large Language Models. Build AI assistants that remember user interactions, manage knowledge bases, and work completely offline with Ollama.
+Mem-LLM is a powerful Python library that brings persistent memory capabilities to Large Language Models. Build AI assistants that remember user interactions, manage knowledge bases, and choose between local (Ollama, LM Studio) or cloud (Gemini) backends.
 
 ## 🔗 Links
 
@@ -15,29 +15,31 @@ Mem-LLM is a powerful Python library that brings persistent memory capabilities 
 - **Issues**: https://github.com/emredeveloper/Mem-LLM/issues
 - **Documentation**: See examples/ directory
 
-## 🆕 What's New in v1.2.0
+## 🆕 What's New in v1.3.0
 
-- � **Conversation Summarization**: Automatic conversation compression (~40-60% token reduction)
-- 📤 **Data Export/Import**: JSON, CSV, SQLite, PostgreSQL, MongoDB support
-- 🗄️ **Multi-Database**: Enterprise-ready PostgreSQL & MongoDB integration
-- �️ **In-Memory DB**: Use `:memory:` for temporary operations
-- � **Cleaner Logs**: Default WARNING level for production-ready output
-- � **Bug Fixes**: Database path handling, organized SQLite files
+- 🔌 **Multi-Backend Support**: Choose between Ollama (local), LM Studio (local), or Google Gemini (cloud)
+- 🏗️ **Factory Pattern**: Clean, extensible architecture for easy backend switching
+- 🔍 **Auto-Detection**: Automatically finds and uses available local LLM services
+- ⚡ **Unified API**: Same code works across all backends - just change one parameter
+- 📚 **New Examples**: 4 additional examples showing multi-backend usage
+- 🎯 **Backward Compatible**: All v1.2.0 code still works without changes
 
-[See full changelog](CHANGELOG.md#120---2025-10-21)
+[See full changelog](CHANGELOG.md#130---2025-10-31)
 
 ## ✨ Key Features
 
+- 🔌 **Multi-Backend Support** (v1.3.0+) - Choose Ollama, LM Studio, or Gemini with unified API
+- 🔍 **Auto-Detection** (v1.3.0+) - Automatically find and use available LLM services
 - 🧠 **Persistent Memory** - Remembers conversations across sessions
-- 🤖 **Universal Ollama Support** - Works with ALL Ollama models (Qwen3, DeepSeek, Llama3, Granite, etc.)
+- 🤖 **Universal Model Support** - Works with 100+ Ollama models, LM Studio models, and Gemini
 - 💾 **Dual Storage Modes** - JSON (simple) or SQLite (advanced) memory backends
 - 📚 **Knowledge Base** - Built-in FAQ/support system with categorized entries
 - 🎯 **Dynamic Prompts** - Context-aware system prompts that adapt to active features
 - 👥 **Multi-User Support** - Separate memory spaces for different users
 - 🔧 **Memory Tools** - Search, export, and manage stored memories
 - 🎨 **Flexible Configuration** - Personal or business usage modes
-- 📊 **Production Ready** - Comprehensive test suite with 34+ automated tests
-- 🔒 **100% Local & Private** - No cloud dependencies, your data stays yours
+- 📊 **Production Ready** - Comprehensive test suite with 50+ automated tests
+- 🔒 **Privacy Options** - 100% local (Ollama/LM Studio) or cloud (Gemini)
 - 🛡️ **Prompt Injection Protection** (v1.1.0+) - Advanced security against prompt attacks (opt-in)
 - ⚡ **High Performance** (v1.1.0+) - Thread-safe operations, 15K+ msg/s throughput
 - 🔄 **Retry Logic** (v1.1.0+) - Automatic exponential backoff for network errors
@@ -75,8 +77,9 @@ pip install -U mem-llm
 
 ### Prerequisites
 
-Install and start [Ollama](https://ollama.ai):
+**Choose one of the following LLM backends:**
 
+#### Option 1: Ollama (Local, Privacy-First)
 ```bash
 # Install Ollama (visit https://ollama.ai)
 # Then pull a model
@@ -86,15 +89,38 @@ ollama pull granite4:tiny-h
 ollama serve
 ```
 
+#### Option 2: LM Studio (Local, GUI-Based)
+```bash
+# 1. Download and install LM Studio: https://lmstudio.ai
+# 2. Download a model from the UI
+# 3. Start the local server (default port: 1234)
+```
+
+#### Option 3: Google Gemini (Cloud, Powerful)
+```bash
+# Get API key from: https://makersuite.google.com/app/apikey
+# Set environment variable
+export GEMINI_API_KEY="your-api-key-here"
+```
+
 ### Basic Usage
 
 ```python
 from mem_llm import MemAgent
 
-# Create an agent
+# Option 1: Use Ollama (default)
 agent = MemAgent(model="granite4:tiny-h")
 
-# Set user and chat
+# Option 2: Use LM Studio
+agent = MemAgent(backend='lmstudio', model='local-model')
+
+# Option 3: Use Gemini
+agent = MemAgent(backend='gemini', model='gemini-2.5-flash', api_key='your-key')
+
+# Option 4: Auto-detect available backend
+agent = MemAgent(auto_detect_backend=True)
+
+# Set user and chat (same for all backends!)
 agent.set_user("alice")
 response = agent.chat("My name is Alice and I love Python!")
 print(response)
@@ -104,9 +130,33 @@ response = agent.chat("What's my name and what do I love?")
 print(response)  # Agent remembers: "Your name is Alice and you love Python!"
 ```
 
-That's it! Just 5 lines of code to get started.
+That's it! Just 5 lines of code to get started with any backend.
 
 ## 📖 Usage Examples
+
+### Multi-Backend Examples (v1.3.0+)
+
+```python
+from mem_llm import MemAgent
+
+# LM Studio - Fast local inference
+agent = MemAgent(
+    backend='lmstudio',
+    model='local-model',
+    base_url='http://localhost:1234'
+)
+
+# Google Gemini - Cloud power
+agent = MemAgent(
+    backend='gemini',
+    model='gemini-2.5-flash',
+    api_key='your-api-key'
+)
+
+# Auto-detect - Universal compatibility
+agent = MemAgent(auto_detect_backend=True)
+print(f"Using: {agent.llm.get_backend_info()['name']}")
+```
 
 ### Multi-User Conversations
 
@@ -324,16 +374,21 @@ Mem-LLM works with **ALL Ollama models**, including:
 ```
 mem-llm/
 ├── mem_llm/
-│   ├── mem_agent.py           # Main agent class
-│   ├── memory_manager.py      # JSON memory backend
-│   ├── memory_db.py           # SQL memory backend
-│   ├── llm_client.py          # Ollama API client
-│   ├── knowledge_loader.py    # Knowledge base system
-│   ├── dynamic_prompt.py      # Context-aware prompts
-│   ├── memory_tools.py        # Memory management tools
-│   ├── config_manager.py      # Configuration handler
-│   └── cli.py                 # Command-line interface
-└── examples/                  # Usage examples
+│   ├── mem_agent.py              # Main agent class (multi-backend)
+│   ├── base_llm_client.py        # Abstract LLM interface
+│   ├── llm_client_factory.py     # Backend factory pattern
+│   ├── clients/                  # LLM backend implementations
+│   │   ├── ollama_client.py      # Ollama integration
+│   │   ├── lmstudio_client.py    # LM Studio integration
+│   │   └── gemini_client.py      # Google Gemini integration
+│   ├── memory_manager.py         # JSON memory backend
+│   ├── memory_db.py              # SQL memory backend
+│   ├── knowledge_loader.py       # Knowledge base system
+│   ├── dynamic_prompt.py         # Context-aware prompts
+│   ├── memory_tools.py           # Memory management tools
+│   ├── config_manager.py         # Configuration handler
+│   └── cli.py                    # Command-line interface
+└── examples/                     # Usage examples (14 total)
 ```
 
 ## 🔥 Advanced Features
@@ -375,10 +430,12 @@ stats = agent.get_memory_stats()
 ## 📦 Project Structure
 
 ### Core Components
-- **MemAgent**: Main interface for building AI assistants
+- **MemAgent**: Main interface for building AI assistants (multi-backend support)
+- **LLMClientFactory**: Factory pattern for backend creation
+- **BaseLLMClient**: Abstract interface for all LLM backends
+- **OllamaClient / LMStudioClient / GeminiClient**: Backend implementations
 - **MemoryManager**: JSON-based memory storage (simple)
 - **SQLMemoryManager**: SQLite-based storage (advanced)
-- **OllamaClient**: LLM communication handler
 - **KnowledgeLoader**: Knowledge base management
 
 ### Optional Features
@@ -402,14 +459,19 @@ The `examples/` directory contains ready-to-run demonstrations:
 8. **08_conversation_summarization.py** - Token compression with auto-summary (v1.2.0+)
 9. **09_data_export_import.py** - Multi-format export/import demo (v1.2.0+)
 10. **10_database_connection_test.py** - Enterprise PostgreSQL/MongoDB migration (v1.2.0+)
+11. **11_lmstudio_example.py** - Using LM Studio backend (v1.3.0+)
+12. **12_gemini_example.py** - Using Google Gemini API (v1.3.0+)
+13. **13_multi_backend_comparison.py** - Compare different backends (v1.3.0+)
+14. **14_auto_detect_backend.py** - Auto-detection feature demo (v1.3.0+)
 
 ## 📊 Project Status
 
-- **Version**: 1.2.0
+- **Version**: 1.3.0
 - **Status**: Production Ready
-- **Last Updated**: October 21, 2025
-- **Test Coverage**: 16/16 automated tests (100% success rate)
+- **Last Updated**: October 31, 2025
+- **Test Coverage**: 50+ automated tests (100% success rate)
 - **Performance**: Thread-safe operations, <1ms search latency
+- **Backends**: Ollama, LM Studio, Google Gemini
 - **Databases**: SQLite, PostgreSQL, MongoDB, In-Memory
 
 ## 📈 Roadmap
@@ -421,10 +483,14 @@ The `examples/` directory contains ready-to-run demonstrations:
 - [x] ~~Conversation Summarization~~ (v1.2.0)
 - [x] ~~Multi-Database Export/Import~~ (v1.2.0)
 - [x] ~~In-Memory Database~~ (v1.2.0)
+- [x] ~~Multi-Backend Support (Ollama, LM Studio, Gemini)~~ (v1.3.0)
+- [x] ~~Auto-Detection~~ (v1.3.0)
+- [x] ~~Factory Pattern Architecture~~ (v1.3.0)
+- [ ] OpenAI & Claude backends
+- [ ] Streaming support
 - [ ] Web UI dashboard
 - [ ] REST API server
 - [ ] Vector database integration
-- [ ] Advanced analytics dashboard
 
 ## 📄 License
 
