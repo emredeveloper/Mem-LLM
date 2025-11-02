@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mem-llm"
-version = "1.3.1"
+version = "1.3.2"
 description = "Memory-enabled AI assistant with multi-backend LLM support (Ollama, LM Studio, Gemini) - Local and cloud ready"
 readme = "README.md"
 requires-python = ">=3.8"

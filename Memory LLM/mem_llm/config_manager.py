@@ -62,7 +62,9 @@ class ConfigManager:
                 "default_kb": "ecommerce",
                 "custom_kb_file": None,
                 "search_limit": 5,
-                "min_relevance_score": 0.3
+                "min_relevance_score": 0.3,
+                "enable_vector_search": False,  # v1.3.2+ - Optional semantic search
+                "embedding_model": "all-MiniLM-L6-v2"  # Sentence transformers model
             },
             "response": {
                 "use_knowledge_base": True,

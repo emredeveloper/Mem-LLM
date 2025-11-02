@@ -5,6 +5,68 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.2] - 2025-11-02
+
+### 🎉 Major Features
+
+- 📊 **Response Metrics & Quality Analytics** (v1.3.1+)
+  - `ChatResponse` dataclass: Comprehensive response tracking
+  - `ResponseMetricsAnalyzer`: Aggregate analytics and monitoring
+  - Confidence scoring: Based on KB usage, memory, temperature, and length
+  - Real-time latency tracking: Monitor response performance
+  - Quality labels: High/Medium/Low classification
+  - Export metrics: JSON and summary formats for dashboards
+  - Production monitoring: Health checks and SLA tracking
+
+- 🔍 **Vector Search & Semantic Knowledge Base** (v1.3.2+)
+  - ChromaDB integration: Semantic search with embeddings
+  - Sentence-transformers support: `all-MiniLM-L6-v2` default model
+  - Cross-lingual search: Understands meaning across languages
+  - Hybrid search: Vector + keyword search combination
+  - Better relevancy: Semantic understanding vs keyword matching
+  - Optional feature: Install with `pip install chromadb sentence-transformers`
+
+### 🆕 New Components
+
+- `response_metrics.py`: `ChatResponse`, `ResponseMetricsAnalyzer`, `calculate_confidence`
+- `vector_store.py`: `VectorStore`, `ChromaVectorStore`, `create_vector_store`
+- Enhanced `SQLMemoryManager`: Vector search integration
+- Enhanced `MemAgent`: Response metrics and vector search support
+
+### 🔄 Enhanced Features
+
+- **MemAgent.chat()**: New `return_metrics` parameter for detailed response analysis
+- **Memory Metadata**: Automatic saving of response metrics in conversations
+- **User Profile**: Improved preferences and summary extraction/parsing
+- **Knowledge Base Search**: Optional vector search with `use_vector_search=True`
+- **ChromaDB Sync**: `sync_all_kb_to_vector_store()` method for existing KB entries
+
+### 📚 New Examples
+
+- `15_response_metrics.py`: Response quality metrics and analytics
+- `16_vector_search.py`: Semantic/vector search demonstration
+
+### 🐛 Bug Fixes
+
+- Fixed metadata not being saved in conversation history
+- Fixed preferences parsing from JSON string to dict
+- Fixed summary generation for existing users
+- Fixed `get_user_profile()` SQL/JSON memory detection logic
+- Fixed ChromaDB embedding function compatibility
+
+### 📝 Documentation
+
+- Updated all examples: Simplified and more readable
+- Enhanced README with new features
+- Vector search usage guide
+
+### ⚡ Improved
+
+- Better error handling for ChromaDB initialization
+- Fallback mechanism for embedding function loading
+- Enhanced similarity score calculation for vector search
+- Improved conversation metadata tracking
+
 ## [1.3.1] - 2025-10-31
 
 ### 📝 Documentation

@@ -1,14 +1,19 @@
 """
-Example 08: Conversation Summarization
+Example 8: Conversation Summarization
 =======================================
-Summarize conversations to save tokens.
+
+Summarize long conversations to save tokens.
+
+Quick Usage:
+    summarizer = ConversationSummarizer(agent.llm)
+    summary = summarizer.summarize_conversations(conversations, user_id="alice")
 """
 
 from mem_llm import MemAgent, ConversationSummarizer
 
-print("\n" + "="*50)
-print("CONVERSATION SUMMARIZATION")
-print("="*50 + "\n")
+print("=" * 60)
+print("Conversation Summarization")
+print("=" * 60)
 
 # Create agent and chat
 agent = MemAgent(model="granite4:tiny-h", use_sql=True)
@@ -22,14 +27,17 @@ messages = [
     "I also enjoy hiking and photography."
 ]
 
+print("\n💬 Conversation:")
 for msg in messages:
+    print(f"  User: {msg}")
     agent.chat(msg)
-    print(f"Chat: {msg}")
 
-# Get and summarize conversations
+# Get conversations
 conversations = agent.memory.get_recent_conversations("alice", 10)
-print(f"\nSaved: {len(conversations)} conversations")
+print(f"\n📊 Saved: {len(conversations)} conversations")
 
+# Summarize
+print("\n📝 Summarizing...")
 summarizer = ConversationSummarizer(agent.llm)
 summary = summarizer.summarize_conversations(conversations, user_id="alice")
 
@@ -38,6 +46,6 @@ print(f"\nSummary:\n{summary['summary']}")
 # Show savings
 original = "\n".join([f"{c['user_message']} {c['bot_response']}" for c in conversations])
 stats = summarizer.get_summary_stats(original, summary['summary'])
-print(f"\nToken savings: {stats['tokens_saved']} ({stats['compression_ratio']}% compression)")
+print(f"\n💾 Token savings: {stats['tokens_saved']} ({stats['compression_ratio']}% compression)")
 
-print("\n" + "="*50 + "\n")
+print("\n" + "=" * 60)

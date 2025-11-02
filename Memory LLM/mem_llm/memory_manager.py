@@ -43,7 +43,16 @@ class MemoryManager:
             with open(user_file, 'r', encoding='utf-8') as f:
                 data = json.load(f)
                 self.conversations[user_id] = data.get('conversations', [])
-                self.user_profiles[user_id] = data.get('profile', {})
+                profile = data.get('profile', {})
+                
+                # Parse preferences if it's a JSON string (legacy format)
+                if isinstance(profile.get('preferences'), str):
+                    try:
+                        profile['preferences'] = json.loads(profile['preferences'])
+                    except:
+                        profile['preferences'] = {}
+                
+                self.user_profiles[user_id] = profile
                 return data
         else:
             # Create empty memory for new user

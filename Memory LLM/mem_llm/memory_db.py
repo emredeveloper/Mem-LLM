@@ -9,15 +9,32 @@ import threading
 from datetime import datetime
 from typing import Dict, List, Optional, Tuple
 from pathlib import Path
+import logging
+
+logger = logging.getLogger(__name__)
+
+# Optional vector store support
+try:
+    from .vector_store import create_vector_store, VectorStore
+    VECTOR_STORE_AVAILABLE = True
+except ImportError:
+    VECTOR_STORE_AVAILABLE = False
+    VectorStore = None
 
 
 class SQLMemoryManager:
     """SQLite-based memory management system with thread-safety"""
     
-    def __init__(self, db_path: str = "memories/memories.db"):
+    def __init__(self, db_path: str = "memories/memories.db",
+                 enable_vector_search: bool = False,
+                 vector_store_type: str = "chroma",
+                 embedding_model: str = "all-MiniLM-L6-v2"):
         """
         Args:
             db_path: SQLite database file path
+            enable_vector_search: Enable vector/semantic search (optional)
+            vector_store_type: Type of vector store ('chroma', etc.)
+            embedding_model: Embedding model name (sentence-transformers)
         """
         self.db_path = Path(db_path)
         
@@ -29,6 +46,35 @@ class SQLMemoryManager:
         self.conn = None
         self._lock = threading.RLock()  # Reentrant lock for thread safety
         self._init_database()
+        
+        # Vector store (optional)
+        self.enable_vector_search = enable_vector_search
+        self.vector_store: Optional[VectorStore] = None
+        
+        if enable_vector_search:
+            if not VECTOR_STORE_AVAILABLE:
+                logger.warning(
+                    "Vector search requested but dependencies not available. "
+                    "Install with: pip install chromadb sentence-transformers"
+                )
+                self.enable_vector_search = False
+            else:
+                try:
+                    persist_dir = str(db_dir / "vector_store")
+                    self.vector_store = create_vector_store(
+                        store_type=vector_store_type,
+                        collection_name="knowledge_base",
+                        persist_directory=persist_dir,
+                        embedding_model=embedding_model
+                    )
+                    if self.vector_store:
+                        logger.info(f"Vector search enabled: {vector_store_type}")
+                    else:
+                        logger.warning("Failed to initialize vector store, falling back to keyword search")
+                        self.enable_vector_search = False
+                except Exception as e:
+                    logger.error(f"Error initializing vector store: {e}")
+                    self.enable_vector_search = False
     
     def _init_database(self) -> None:
         """Create database and tables"""
@@ -312,22 +358,44 @@ class SQLMemoryManager:
         """, (category, question, answer, 
               json.dumps(keywords or []), priority))
         
+        kb_id = cursor.lastrowid
         self.conn.commit()
-        return cursor.lastrowid
+        
+        # Sync to vector store if enabled
+        if self.enable_vector_search and self.vector_store:
+            try:
+                self._sync_to_vector_store(kb_id)
+            except Exception as e:
+                logger.warning(f"Failed to sync KB entry to vector store: {e}")
+        
+        return kb_id
     
     def search_knowledge(self, query: str, category: Optional[str] = None,
-                        limit: int = 5) -> List[Dict]:
+                        limit: int = 5, use_vector_search: Optional[bool] = None) -> List[Dict]:
         """
-        Bilgi bankasında arama yapar (gelişmiş keyword matching)
+        Bilgi bankasında arama yapar (keyword matching veya semantic search)
         
         Args:
             query: Arama sorgusu
             category: Kategori filtresi (opsiyonel)
             limit: Maksimum sonuç sayısı
+            use_vector_search: Force vector search (None = auto-detect)
             
         Returns:
             Bulunan kayıtlar
         """
+        # Use vector search if enabled and available
+        if use_vector_search is None:
+            use_vector_search = self.enable_vector_search
+        
+        if use_vector_search and self.vector_store:
+            return self._vector_search(query, category, limit)
+        else:
+            return self._keyword_search(query, category, limit)
+    
+    def _keyword_search(self, query: str, category: Optional[str] = None,
+                       limit: int = 5) -> List[Dict]:
+        """Traditional keyword-based search"""
         cursor = self.conn.cursor()
         
         # Extract important keywords from query (remove question words)
@@ -377,6 +445,120 @@ class SQLMemoryManager:
             cursor.execute(sql, params + [limit])
         
         return [dict(row) for row in cursor.fetchall()]
+    
+    def _vector_search(self, query: str, category: Optional[str] = None,
+                      limit: int = 5) -> List[Dict]:
+        """Vector-based semantic search"""
+        if not self.vector_store:
+            return []
+        
+        # Prepare metadata filter
+        filter_metadata = None
+        if category:
+            filter_metadata = {"category": category}
+        
+        # Search in vector store
+        vector_results = self.vector_store.search(
+            query=query,
+            limit=limit * 2,  # Get more results to filter by category if needed
+            filter_metadata=filter_metadata
+        )
+        
+        # Map vector results back to KB format
+        results = []
+        for result in vector_results[:limit]:
+            # Extract metadata
+            metadata = result.get('metadata', {})
+            
+            results.append({
+                'category': metadata.get('category', ''),
+                'question': metadata.get('question', ''),
+                'answer': result.get('text', ''),
+                'priority': metadata.get('priority', 0),
+                'score': result.get('score', 0.0),  # Similarity score
+                'vector_search': True
+            })
+        
+        return results
+    
+    def _sync_to_vector_store(self, kb_id: int) -> None:
+        """Sync a single KB entry to vector store"""
+        if not self.vector_store:
+            return
+        
+        cursor = self.conn.cursor()
+        cursor.execute("""
+            SELECT id, category, question, answer, keywords, priority
+            FROM knowledge_base
+            WHERE id = ?
+        """, (kb_id,))
+        
+        row = cursor.fetchone()
+        if row:
+            doc = {
+                'id': str(row['id']),
+                'text': f"{row['question']}\n{row['answer']}",  # Combine for better search
+                'metadata': {
+                    'category': row['category'],
+                    'question': row['question'],
+                    'answer': row['answer'],
+                    'keywords': row['keywords'],
+                    'priority': row['priority'],
+                    'kb_id': row['id']
+                }
+            }
+            self.vector_store.add_documents([doc])
+    
+    def sync_all_kb_to_vector_store(self) -> int:
+        """
+        Sync all existing KB entries to vector store
+        
+        Returns:
+            Number of entries synced
+        """
+        if not self.vector_store:
+            return 0
+        
+        cursor = self.conn.cursor()
+        cursor.execute("""
+            SELECT id, category, question, answer, keywords, priority
+            FROM knowledge_base
+            WHERE active = 1
+        """)
+        
+        rows = cursor.fetchall()
+        documents = []
+        
+        for row in rows:
+            doc = {
+                'id': str(row['id']),
+                'text': f"{row['question']}\n{row['answer']}",
+                'metadata': {
+                    'category': row['category'],
+                    'question': row['question'],
+                    'answer': row['answer'],
+                    'keywords': row['keywords'],
+                    'priority': row['priority'],
+                    'kb_id': row['id']
+                }
+            }
+            documents.append(doc)
+        
+        if documents:
+            try:
+                # Add in batches for better performance
+                batch_size = 100
+                for i in range(0, len(documents), batch_size):
+                    batch = documents[i:i + batch_size]
+                    self.vector_store.add_documents(batch)
+                    logger.debug(f"Synced {len(batch)} KB entries to vector store")
+                
+                logger.info(f"Synced {len(documents)} KB entries to vector store")
+            except Exception as e:
+                logger.error(f"Error syncing KB to vector store: {e}")
+                return 0
+        
+        return len(documents)
     
     def get_statistics(self) -> Dict:
         """

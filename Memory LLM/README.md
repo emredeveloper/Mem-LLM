@@ -15,7 +15,14 @@ Mem-LLM is a powerful Python library that brings persistent memory capabilities 
 - **Issues**: https://github.com/emredeveloper/Mem-LLM/issues
 - **Documentation**: See examples/ directory
 
-## 🆕 What's New in v1.3.0
+## 🆕 What's New in v1.3.2
+
+- 📊 **Response Metrics** (v1.3.1+) – Track confidence, latency, KB usage, and quality analytics
+- 🔍 **Vector Search** (v1.3.2+) – Semantic search with ChromaDB, cross-lingual support
+- 🎯 **Quality Monitoring** – Production-ready metrics for response quality
+- 🌐 **Semantic Understanding** – Understands meaning, not just keywords
+
+## What's New in v1.3.0
 
 - 🔌 **Multi-Backend Support**: Choose between Ollama (local), LM Studio (local), or Google Gemini (cloud)
 - 🏗️ **Factory Pattern**: Clean, extensible architecture for easy backend switching
@@ -24,12 +31,14 @@ Mem-LLM is a powerful Python library that brings persistent memory capabilities 
 - 📚 **New Examples**: 4 additional examples showing multi-backend usage
 - 🎯 **Backward Compatible**: All v1.2.0 code still works without changes
 
-[See full changelog](CHANGELOG.md#130---2025-10-31)
+[See full changelog](CHANGELOG.md)
 
 ## ✨ Key Features
 
 - 🔌 **Multi-Backend Support** (v1.3.0+) - Choose Ollama, LM Studio, or Gemini with unified API
 - 🔍 **Auto-Detection** (v1.3.0+) - Automatically find and use available LLM services
+- 📊 **Response Metrics** (v1.3.1+) - Track confidence, latency, KB usage, and quality analytics
+- 🔍 **Vector Search** (v1.3.2+) - Semantic search with ChromaDB, cross-lingual support
 - 🧠 **Persistent Memory** - Remembers conversations across sessions
 - 🤖 **Universal Model Support** - Works with 100+ Ollama models, LM Studio models, and Gemini
 - 💾 **Dual Storage Modes** - JSON (simple) or SQLite (advanced) memory backends

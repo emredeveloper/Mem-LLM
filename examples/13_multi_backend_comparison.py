@@ -1,16 +1,21 @@
 """
 Example 13: Multi-Backend Comparison
-=====================================
+====================================
+
 Compare responses across different backends.
+
+Quick Usage:
+    agent1 = MemAgent(backend='ollama', model='granite4:tiny-h')
+    agent2 = MemAgent(backend='gemini', model='gemini-2.5-flash', api_key='...')
 """
 
 import os
 import time
 from mem_llm import MemAgent, LLMClientFactory
 
-print("\n" + "="*50)
-print("MULTI-BACKEND COMPARISON")
-print("="*50 + "\n")
+print("=" * 60)
+print("Multi-Backend Comparison")
+print("=" * 60)
 
 test_prompt = "What is Python? Answer in 2 sentences."
 
@@ -28,10 +33,10 @@ if gemini_key:
     backends.append(('Gemini', 'gemini', 'gemini-2.5-flash', {'api_key': gemini_key}))
 
 if not backends:
-    print("No backends available!")
+    print("\n❌ No backends available!")
     exit(1)
 
-print(f"Testing {len(backends)} backend(s):\n")
+print(f"\n📊 Testing {len(backends)} backend(s):\n")
 
 # Test each backend
 for name, backend, model, kwargs in backends:
@@ -52,10 +57,10 @@ for name, backend, model, kwargs in backends:
         response = agent.chat(test_prompt)
         elapsed = time.time() - start
         
-        print(f"Time: {elapsed:.2f}s")
-        print(f"Response: {response}\n")
+        print(f"⏱️  Time: {elapsed:.2f}s")
+        print(f"💬 Response: {response}\n")
         
     except Exception as e:
-        print(f"Error: {e}\n")
+        print(f"❌ Error: {e}\n")
 
-print("="*50 + "\n")
+print("=" * 60)

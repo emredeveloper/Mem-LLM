@@ -6,7 +6,14 @@
 
 Mem-LLM is a Python framework for building privacy-first, memory-enabled AI assistants that run entirely on local large language models. The project combines persistent multi-user conversation history with optional knowledge bases, multiple storage backends, and tight integration with [Ollama](https://ollama.ai) so you can experiment locally or deploy production-ready workflows without sending data to third-party services.
 
-## 🆕 What's New in v1.3.0
+## 🆕 What's New in v1.3.2
+
+- 📊 **Response Metrics** (v1.3.1+) – Track confidence, latency, KB usage, and quality analytics
+- 🔍 **Vector Search** (v1.3.2+) – Semantic search with ChromaDB, cross-lingual support
+- 🎯 **Quality Monitoring** – Production-ready metrics for response quality
+- 🌐 **Semantic Understanding** – Understands meaning, not just keywords
+
+## What's New in v1.3.0
 
 - 🔌 **Multi-Backend Support** – Use Ollama, LM Studio, or Google Gemini!
 - 🤖 **LM Studio Integration** – Fast local inference with easy GUI
@@ -15,12 +22,14 @@ Mem-LLM is a Python framework for building privacy-first, memory-enabled AI assi
 - 🏗️ **Factory Pattern** – Clean architecture for extensibility
 - ⚡ **Backward Compatible** – All v1.2.0 code still works!
 
-[See v1.2.0 features](Memory%20LLM/CHANGELOG.md#120---2025-10-21) | [Multi-Backend Guide](Memory%20LLM/MULTI_BACKEND_GUIDE.md)
+[See full changelog](Memory%20LLM/CHANGELOG.md) | [Multi-Backend Guide](Memory%20LLM/MULTI_BACKEND_GUIDE.md)
 
 ## Features
 - **Persistent Memory** – Store and recall conversation history across sessions for each user.
 - **Multi-Backend Support** *(v1.3.0+)* – Choose between Ollama, LM Studio, or Google Gemini.
 - **Auto-Detection** *(v1.3.0+)* – Automatically find and use available LLM service.
+- **Response Metrics** *(v1.3.1+)* – Track confidence, latency, KB usage, and quality analytics.
+- **Vector Search** *(v1.3.2+)* – Semantic search with ChromaDB, cross-lingual support.
 - **Local & Cloud** – Run completely local (Ollama/LM Studio) or use cloud (Gemini) based on your needs.
 - **Flexible Storage** – Choose between lightweight JSON files or a SQLite database for production scenarios.
 - **Knowledge Bases** – Load categorized Q&A content to augment model responses with authoritative answers.
@@ -44,10 +53,13 @@ Mem-LLM is a Python framework for building privacy-first, memory-enabled AI assi
 ```bash
 pip install mem-llm
 
-# Or with optional database support
+# Or with optional features
 pip install mem-llm[databases]  # PostgreSQL + MongoDB
 pip install mem-llm[postgresql]  # PostgreSQL only
 pip install mem-llm[mongodb]     # MongoDB only
+
+# Vector search support (v1.3.2+)
+pip install chromadb sentence-transformers
 ```
 
 ### 2. Choose Your Backend

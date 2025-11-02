@@ -1,14 +1,18 @@
 """
 Example 14: Auto-Detect Backend
 ================================
+
 Automatically detect and use available LLM service.
+
+Quick Usage:
+    agent = MemAgent(auto_detect_backend=True)
 """
 
 from mem_llm import MemAgent
 
-print("\n" + "="*50)
-print("AUTO-DETECT BACKEND")
-print("="*50 + "\n")
+print("=" * 60)
+print("Auto-Detect Backend")
+print("=" * 60)
 
 try:
     # Auto-detect available backend
@@ -18,8 +22,8 @@ try:
     )
     
     info = agent.llm.get_info()
-    print(f"Detected: {info['backend']}")
-    print(f"Model: {info.get('model', 'Unknown')}\n")
+    print(f"\n✅ Detected: {info['backend']}")
+    print(f"   Model: {info.get('model', 'Unknown')}\n")
     
     # Test conversation
     agent.set_user("demo")
@@ -30,14 +34,15 @@ try:
         "Do you remember my name and interests?"
     ]
     
+    print("💬 Conversation:")
     for msg in messages:
-        print(f"User: {msg}")
+        print(f"\nUser: {msg}")
         response = agent.chat(msg)
-        print(f"AI: {response}\n")
+        print(f"AI: {response}")
     
 except RuntimeError as e:
-    print(f"Error: {e}")
-    print("\nNo LLM service found.")
-    print("Start Ollama, LM Studio, or set GEMINI_API_KEY")
+    print(f"\n❌ Error: {e}")
+    print("\n💡 No LLM service found.")
+    print("   Start Ollama, LM Studio, or set GEMINI_API_KEY")
 
-print("="*50 + "\n")
+print("\n" + "=" * 60)

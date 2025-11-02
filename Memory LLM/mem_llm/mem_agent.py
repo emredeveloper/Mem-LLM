@@ -34,12 +34,14 @@ from datetime import datetime
 import logging
 import json
 import os
+import time
 
 # Core dependencies
 from .memory_manager import MemoryManager
 from .llm_client import OllamaClient  # Backward compatibility
 from .llm_client_factory import LLMClientFactory
 from .base_llm_client import BaseLLMClient
+from .response_metrics import ChatResponse, ResponseMetricsAnalyzer, calculate_confidence
 
 # Advanced features (optional)
 try:
@@ -74,8 +76,10 @@ class MemAgent:
                  api_key: Optional[str] = None,
                  auto_detect_backend: bool = False,
                  check_connection: bool = False,
-                 enable_security: bool = False,
-                 **llm_kwargs):
+                enable_security: bool = False,
+                enable_vector_search: bool = False,
+                embedding_model: str = "all-MiniLM-L6-v2",
+                **llm_kwargs):
         """
         Args:
             model: LLM model to use
@@ -91,6 +95,8 @@ class MemAgent:
             auto_detect_backend: Auto-detect available LLM backend - NEW in v1.3.0
             check_connection: Verify LLM connection on startup (default: False)
             enable_security: Enable prompt injection protection (v1.1.0+, default: False for backward compatibility)
+            enable_vector_search: Enable semantic/vector search for KB (v1.3.2+, requires chromadb) - NEW
+            embedding_model: Embedding model for vector search (default: "all-MiniLM-L6-v2") - NEW
             **llm_kwargs: Additional backend-specific parameters
         
         Examples:
@@ -161,6 +167,14 @@ class MemAgent:
             else:
                 final_db_path = "memories/memories.db"
             
+            # Get vector search settings from config or parameters
+            vector_search_enabled = enable_vector_search
+            vector_model = embedding_model
+            
+            if self.config:
+                vector_search_enabled = self.config.get("knowledge_base.enable_vector_search", vector_search_enabled)
+                vector_model = self.config.get("knowledge_base.embedding_model", vector_model)
+            
             # Ensure memories directory exists (skip for :memory:)
             import os
             if final_db_path != ":memory:":
@@ -168,8 +182,14 @@ class MemAgent:
                 if db_dir and not os.path.exists(db_dir):
                     os.makedirs(db_dir, exist_ok=True)
             
-            self.memory = SQLMemoryManager(final_db_path)
+            self.memory = SQLMemoryManager(
+                final_db_path,
+                enable_vector_search=vector_search_enabled,
+                embedding_model=vector_model
+            )
             self.logger.info(f"SQL memory system active: {final_db_path}")
+            if vector_search_enabled:
+                self.logger.info(f"🔍 Vector search enabled (model: {vector_model})")
         else:
             # JSON memory (simple)
             json_dir = memory_dir or self.config.get("memory.json_dir", "memories") if self.config else "memories"
@@ -297,6 +317,10 @@ class MemAgent:
 
         # Tool system (always available)
         self.tool_executor = ToolExecutor(self.memory)
+        
+        # Metrics tracking system (v1.3.1+)
+        self.metrics_analyzer = ResponseMetricsAnalyzer()
+        self.track_metrics = True  # Can be disabled if needed
 
         self.logger.info("MemAgent successfully initialized")
 
@@ -472,7 +496,7 @@ class MemAgent:
         self.logger.debug(f"Active user set: {user_id}")
 
     def chat(self, message: str, user_id: Optional[str] = None,
-             metadata: Optional[Dict] = None) -> str:
+             metadata: Optional[Dict] = None, return_metrics: bool = False) -> Union[str, ChatResponse]:
         """
         Chat with user
 
@@ -480,17 +504,37 @@ class MemAgent:
             message: User's message
             user_id: User ID (optional)
             metadata: Additional information
+            return_metrics: If True, returns ChatResponse with metrics; if False, returns only text (default)
 
         Returns:
-            Bot's response
+            Bot's response (str) or ChatResponse object with metrics
         """
+        # Start timing
+        start_time = time.time()
         # Determine user
         if user_id:
             self.set_user(user_id)
         elif not self.current_user:
-            return "Error: User ID not specified."
+            error_response = "Error: User ID not specified."
+            if return_metrics:
+                return ChatResponse(
+                    text=error_response,
+                    confidence=1.0,
+                    source="tool",
+                    latency=(time.time() - start_time) * 1000,
+                    timestamp=datetime.now(),
+                    kb_results_count=0,
+                    metadata={"error": True}
+                )
+            return error_response
 
         user_id = self.current_user
+        
+        # Initialize tracking variables
+        kb_results_count = 0
+        used_kb = False
+        used_memory = False
+        response_source = "model"  # Default source
         
         # Security check (v1.1.0+) - opt-in
         security_info = {}
@@ -522,6 +566,17 @@ class MemAgent:
         # Check tool commands first
         tool_result = self.tool_executor.execute_user_command(message, user_id)
         if tool_result:
+            latency = (time.time() - start_time) * 1000
+            if return_metrics:
+                return ChatResponse(
+                    text=tool_result,
+                    confidence=0.95,  # Tools are deterministic
+                    source="tool",
+                    latency=latency,
+                    timestamp=datetime.now(),
+                    kb_results_count=0,
+                    metadata={"tool_command": True}
+                )
             return tool_result
 
         # Knowledge base search (if using SQL)
@@ -540,6 +595,8 @@ class MemAgent:
                     kb_results = self.memory.search_knowledge(query=message, limit=kb_limit)
 
                     if kb_results:
+                        kb_results_count = len(kb_results)
+                        used_kb = True
                         kb_context = "\n\n📚 RELEVANT KNOWLEDGE BASE:\n"
                         for i, result in enumerate(kb_results, 1):
                             kb_context += f"{i}. Q: {result['question']}\n   A: {result['answer']}\n"
@@ -558,6 +615,9 @@ class MemAgent:
                 recent_limit = self.config.get("response.recent_conversations_limit", 5) if hasattr(self, 'config') and self.config else 5
                 recent_convs = self.memory.get_recent_conversations(user_id, recent_limit)
 
+                if recent_convs:
+                    used_memory = True
+                    
                 # Add conversations in chronological order (oldest first)
                 for conv in recent_convs:
                     messages.append({"role": "user", "content": conv.get('user_message', '')})
@@ -574,10 +634,11 @@ class MemAgent:
         messages.append({"role": "user", "content": final_message})
 
         # Get response from LLM
+        temperature = self.config.get("llm.temperature", 0.2) if hasattr(self, 'config') and self.config else 0.2
         try:
             response = self.llm.chat(
                 messages=messages,
-                temperature=self.config.get("llm.temperature", 0.2) if hasattr(self, 'config') and self.config else 0.2,  # Very focused
+                temperature=temperature,
                 max_tokens=self.config.get("llm.max_tokens", 2000) if hasattr(self, 'config') and self.config else 2000  # Enough tokens for thinking models
             )
             
@@ -600,7 +661,42 @@ class MemAgent:
         except Exception as e:
             self.logger.error(f"LLM response error: {e}")
             response = "Sorry, I cannot respond right now. Please try again later."
+        
+        # Calculate latency
+        latency = (time.time() - start_time) * 1000
+        
+        # Determine response source
+        if used_kb and used_memory:
+            response_source = "hybrid"
+        elif used_kb:
+            response_source = "knowledge_base"
+        else:
+            response_source = "model"
+        
+        # Calculate confidence score
+        confidence = calculate_confidence(
+            kb_results_count=kb_results_count,
+            temperature=temperature,
+            used_memory=used_memory,
+            response_length=len(response)
+        )
 
+        # Build enriched metadata with response metrics
+        enriched_metadata = {}
+        if metadata:
+            enriched_metadata.update(metadata)
+        enriched_metadata.update({
+            "confidence": round(confidence, 3),
+            "source": response_source,
+            "latency_ms": round(latency, 1),
+            "kb_results_count": kb_results_count,
+            "used_memory": used_memory,
+            "used_kb": used_kb,
+            "response_length": len(response),
+            "model": self.model,
+            "temperature": temperature
+        })
+        
         # Save interaction
         try:
             if hasattr(self.memory, 'add_interaction'):
@@ -608,15 +704,47 @@ class MemAgent:
                     user_id=user_id,
                     user_message=message,
                     bot_response=response,
-                    metadata=metadata
+                    metadata=enriched_metadata
                 )
                 
                 # Extract and save user info to profile
                 self._update_user_profile(user_id, message, response)
+                
+                # Always update summary after each conversation (JSON mode)
+                if not self.use_sql and hasattr(self.memory, 'conversations'):
+                    self._update_conversation_summary(user_id)
+                    # Save summary update
+                    if user_id in self.memory.user_profiles:
+                        self.memory.save_memory(user_id)
         except Exception as e:
             self.logger.error(f"Interaction saving error: {e}")
-
-        return response
+        
+        # Create response metrics object
+        chat_response = ChatResponse(
+            text=response,
+            confidence=confidence,
+            source=response_source,
+            latency=latency,
+            timestamp=datetime.now(),
+            kb_results_count=kb_results_count,
+            metadata={
+                "model": self.model,
+                "temperature": temperature,
+                "used_memory": used_memory,
+                "used_kb": used_kb,
+                "user_id": user_id
+            }
+        )
+        
+        # Track metrics if enabled
+        if self.track_metrics:
+            self.metrics_analyzer.add_metric(chat_response)
+        
+        # Return based on user preference
+        if return_metrics:
+            return chat_response
+        else:
+            return response
     
     def _update_user_profile(self, user_id: str, message: str, response: str):
         """Extract user info from conversation and update profile"""
@@ -686,10 +814,128 @@ class MemAgent:
                 
                 # JSON memory - direct update
                 elif hasattr(self.memory, 'update_profile'):
-                    self.memory.update_profile(user_id, extracted)
+                    # Load memory if not already loaded
+                    if user_id not in self.memory.user_profiles:
+                        self.memory.load_memory(user_id)
+                    
+                    # For JSON memory, merge into preferences
+                    current_profile = self.memory.user_profiles.get(user_id, {})
+                    current_prefs = current_profile.get('preferences', {})
+                    
+                    # Handle case where preferences might be a JSON string
+                    if isinstance(current_prefs, str):
+                        try:
+                            current_prefs = json.loads(current_prefs)
+                        except:
+                            current_prefs = {}
+                    
+                    # Update preferences
+                    if extracted:
+                        current_prefs.update(extracted)
+                        self.memory.user_profiles[user_id]['preferences'] = current_prefs
+                    
+                    # Update name if extracted
+                    if 'name' in extracted:
+                        self.memory.user_profiles[user_id]['name'] = extracted['name']
+                    
+                    # Auto-generate summary from conversation history
+                    self._update_conversation_summary(user_id)
+                    
+                    # Save to disk
+                    self.memory.save_memory(user_id)
                     self.logger.debug(f"Profile updated for {user_id}: {extracted}")
             except Exception as e:
                 self.logger.error(f"Error updating profile: {e}")
+    
+    def _update_conversation_summary(self, user_id: str) -> None:
+        """
+        Auto-generate conversation summary for user profile
+        
+        Args:
+            user_id: User ID
+        """
+        try:
+            if not hasattr(self.memory, 'conversations'):
+                return
+            
+            # Ensure memory is loaded
+            if user_id not in self.memory.conversations:
+                self.memory.load_memory(user_id)
+                
+            conversations = self.memory.conversations.get(user_id, [])
+            if not conversations:
+                return
+            
+            # Get recent conversations for summary
+            recent_convs = conversations[-10:]  # Last 10 conversations
+            
+            # Extract topics/interests
+            all_messages = " ".join([c.get('user_message', '') for c in recent_convs])
+            topics = self._extract_topics(all_messages)
+            
+            # Calculate engagement stats
+            total_interactions = len(conversations)
+            avg_response_length = sum(len(c.get('bot_response', '')) for c in recent_convs) / len(recent_convs) if recent_convs else 0
+            
+            # Build summary
+            summary = {
+                "total_interactions": total_interactions,
+                "topics_of_interest": topics[:5] if topics else [],  # Top 5 topics
+                "avg_response_length": round(avg_response_length, 0),
+                "last_active": recent_convs[-1].get('timestamp') if recent_convs else None,
+                "engagement_level": "high" if total_interactions > 20 else ("medium" if total_interactions > 5 else "low")
+            }
+            
+            # Update profile summary (JSON mode)
+            if user_id in self.memory.user_profiles:
+                self.memory.user_profiles[user_id]['summary'] = summary
+                
+        except Exception as e:
+            self.logger.debug(f"Summary generation skipped: {e}")
+    
+    def _extract_topics(self, text: str) -> List[str]:
+        """
+        Extract key topics/interests from conversation text
+        
+        Args:
+            text: Combined conversation text
+            
+        Returns:
+            List of extracted topics
+        """
+        # Simple keyword extraction (can be enhanced with NLP)
+        keywords_map = {
+            "python": "Python Programming",
+            "javascript": "JavaScript",
+            "coding": "Programming",
+            "weather": "Weather",
+            "food": "Food & Dining",
+            "music": "Music",
+            "sport": "Sports",
+            "travel": "Travel",
+            "work": "Work",
+            "help": "Support",
+            "problem": "Problem Solving",
+            "question": "Questions",
+            "chat": "Chatting"
+        }
+        
+        text_lower = text.lower()
+        found_topics = []
+        
+        for keyword, topic in keywords_map.items():
+            if keyword in text_lower:
+                found_topics.append(topic)
+        
+        # Remove duplicates while preserving order
+        seen = set()
+        unique_topics = []
+        for topic in found_topics:
+            if topic not in seen:
+                seen.add(topic)
+                unique_topics.append(topic)
+        
+        return unique_topics
 
     def get_user_profile(self, user_id: Optional[str] = None) -> Dict:
         """
@@ -706,8 +952,8 @@ class MemAgent:
             return {}
         
         try:
-            # Check if SQL or JSON memory
-            if hasattr(self.memory, 'get_user_profile'):
+            # Check if SQL or JSON memory - SQL has SQLMemoryManager type
+            if ADVANCED_AVAILABLE and isinstance(self.memory, SQLMemoryManager):
                 # SQL memory - merge preferences into main dict
                 profile = self.memory.get_user_profile(uid)
                 if not profile:
@@ -732,9 +978,45 @@ class MemAgent:
                 
                 return result
             else:
-                # JSON memory
+                # JSON memory - reload from disk to get latest data
                 memory_data = self.memory.load_memory(uid)
-                return memory_data.get('profile', {})
+                profile = memory_data.get('profile', {}).copy()  # Make a copy to avoid modifying cached data
+                
+                # Parse preferences if it's a JSON string
+                if isinstance(profile.get('preferences'), str):
+                    try:
+                        profile['preferences'] = json.loads(profile['preferences'])
+                    except:
+                        profile['preferences'] = {}
+                
+                # Return profile as-is (summary should already be there if it was generated)
+                # Only regenerate if truly missing
+                summary_value = profile.get('summary')
+                summary_is_empty = (not summary_value or 
+                                   (isinstance(summary_value, dict) and len(summary_value) == 0))
+                
+                if summary_is_empty:
+                    # Try to regenerate summary if missing (for old users)
+                    # Ensure conversations are loaded
+                    if uid not in self.memory.conversations:
+                        self.memory.load_memory(uid)
+                    
+                    if uid in self.memory.conversations and len(self.memory.conversations[uid]) > 0:
+                        self._update_conversation_summary(uid)
+                        # Save the updated summary
+                        if uid in self.memory.user_profiles:
+                            self.memory.save_memory(uid)
+                        # Reload to get updated summary
+                        memory_data = self.memory.load_memory(uid)
+                        profile = memory_data.get('profile', {}).copy()
+                        # Parse preferences again after reload
+                        if isinstance(profile.get('preferences'), str):
+                            try:
+                                profile['preferences'] = json.loads(profile['preferences'])
+                            except:
+                                profile['preferences'] = {}
+                
+                return profile
         except Exception as e:
             self.logger.error(f"Error getting user profile: {e}")
             return {}
@@ -865,6 +1147,108 @@ class MemAgent:
             return self.tool_executor.memory_tools.list_available_tools()
         else:
             return "Tool system not available."
+    
+    # === METRICS & ANALYTICS METHODS (v1.3.1+) ===
+    
+    def get_response_metrics(self, last_n: Optional[int] = None) -> Dict[str, Any]:
+        """
+        Get response quality metrics summary
+        
+        Args:
+            last_n: Analyze only last N responses (None = all)
+            
+        Returns:
+            Metrics summary dictionary
+            
+        Example:
+            >>> agent.get_response_metrics(last_n=10)
+            {
+                'total_responses': 10,
+                'avg_latency_ms': 245.3,
+                'avg_confidence': 0.82,
+                'kb_usage_rate': 0.6,
+                'source_distribution': {'knowledge_base': 6, 'model': 4},
+                'fast_response_rate': 0.9
+            }
+        """
+        return self.metrics_analyzer.get_summary(last_n)
+    
+    def get_latest_response_metric(self) -> Optional[ChatResponse]:
+        """
+        Get the most recent response metric
+        
+        Returns:
+            Latest ChatResponse object or None if no metrics
+        """
+        if not self.metrics_analyzer.metrics_history:
+            return None
+        return self.metrics_analyzer.metrics_history[-1]
+    
+    def get_average_confidence(self, last_n: Optional[int] = None) -> float:
+        """
+        Get average confidence score
+        
+        Args:
+            last_n: Analyze only last N responses (None = all)
+            
+        Returns:
+            Average confidence (0.0-1.0)
+        """
+        return self.metrics_analyzer.get_average_confidence(last_n)
+    
+    def get_kb_usage_rate(self, last_n: Optional[int] = None) -> float:
+        """
+        Get knowledge base usage rate
+        
+        Args:
+            last_n: Analyze only last N responses (None = all)
+            
+        Returns:
+            KB usage rate (0.0-1.0)
+        """
+        return self.metrics_analyzer.get_kb_usage_rate(last_n)
+    
+    def clear_metrics(self) -> None:
+        """Clear all metrics history"""
+        self.metrics_analyzer.clear_history()
+        self.logger.info("Metrics history cleared")
+    
+    def export_metrics(self, format: str = "json") -> str:
+        """
+        Export metrics data
+        
+        Args:
+            format: Export format ('json' or 'summary')
+            
+        Returns:
+            Formatted metrics data
+        """
+        summary = self.get_response_metrics()
+        
+        if format == "json":
+            return json.dumps(summary, ensure_ascii=False, indent=2)
+        elif format == "summary":
+            lines = [
+                "📊 RESPONSE METRICS SUMMARY",
+                "=" * 60,
+                f"Total Responses:      {summary['total_responses']}",
+                f"Avg Latency:          {summary['avg_latency_ms']:.1f} ms",
+                f"Avg Confidence:       {summary['avg_confidence']:.2%}",
+                f"KB Usage Rate:        {summary['kb_usage_rate']:.2%}",
+                f"Fast Response Rate:   {summary['fast_response_rate']:.2%}",
+                "",
+                "Source Distribution:",
+            ]
+            for source, count in summary['source_distribution'].items():
+                lines.append(f"  - {source:20s}: {count}")
+            
+            lines.extend(["", "Quality Distribution:"])
+            for quality, count in summary.get('quality_distribution', {}).items():
+                lines.append(f"  - {quality:20s}: {count}")
+            
+            return "\n".join(lines)
+        else:
+            return "Unsupported format. Use 'json' or 'summary'."
 
     def close(self) -> None:
         """Clean up resources"""

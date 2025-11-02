@@ -63,7 +63,14 @@ try:
 except ImportError:
     __all_export_import__ = []
 
-__version__ = "1.3.1"
+# Response Metrics (v1.3.1+)
+try:
+    from .response_metrics import ChatResponse, ResponseMetricsAnalyzer, calculate_confidence
+    __all_metrics__ = ["ChatResponse", "ResponseMetricsAnalyzer", "calculate_confidence"]
+except ImportError:
+    __all_metrics__ = []
+
+__version__ = "1.3.2"
 __author__ = "C. Emre Karataş"
 
 # Multi-backend LLM support (v1.3.0+)
@@ -80,4 +87,4 @@ __all__ = [
     "MemAgent",
     "MemoryManager", 
     "OllamaClient",
-] + __all_llm_backends__ + __all_tools__ + __all_pro__ + __all_cli__ + __all_security__ + __all_enhanced__ + __all_summarizer__ + __all_export_import__
+] + __all_llm_backends__ + __all_tools__ + __all_pro__ + __all_cli__ + __all_security__ + __all_enhanced__ + __all_summarizer__ + __all_export_import__ + __all_metrics__

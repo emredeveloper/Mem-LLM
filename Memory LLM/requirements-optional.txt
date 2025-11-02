@@ -25,3 +25,7 @@ prometheus-client>=0.19.0
 
 # Rate Limiting
 flask-limiter>=3.5.0
+
+# Vector Search (ChromaDB + Embeddings)
+chromadb>=0.4.0
+sentence-transformers>=2.2.0
