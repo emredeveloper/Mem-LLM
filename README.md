@@ -4,7 +4,7 @@
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Mem-LLM is a Python framework for building privacy-first, memory-enabled AI assistants that run entirely on local large language models. The project combines persistent multi-user conversation history with optional knowledge bases, multiple storage backends, and tight integration with [Ollama](https://ollama.ai) so you can experiment locally or deploy production-ready workflows without sending data to third-party services.
+Mem-LLM is a Python framework for building privacy-first, memory-enabled AI assistants that run entirely on local large language models (or cloud). The project combines persistent multi-user conversation history with optional knowledge bases, multiple storage backends, vector search capabilities, response quality metrics, and tight integration with [Ollama](https://ollama.ai), [LM Studio](https://lmstudio.ai), and [Google Gemini](https://gemini.google.com) so you can experiment locally or deploy production-ready workflows with quality monitoring and semantic understanding.
 
 ## 🆕 What's New in v1.3.2
 
