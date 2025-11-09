@@ -26,7 +26,8 @@ Quick, ready-to-run scripts that show how to get the most out of Mem-LLM.
 | `13_multi_backend_comparison.py` | Comparing different LLM backends. |
 | `14_auto_detect_backend.py` | Auto-detecting available LLM services. |
 | `15_response_metrics.py` | Response quality metrics and analytics (v1.3.1+). |
-| `16_vector_search.py` | **NEW!** Semantic/vector search with ChromaDB (v1.3.2+). |
+| `16_vector_search.py` | Semantic/vector search with ChromaDB (v1.3.2+). |
+| `17_streaming_example.py` | **NEW!** Real-time streaming responses (v1.3.3+). |
 
 ## 💡 Tips
 - Start with `01_hello_world.py`, then move to the scenario you need.
