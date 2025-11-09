@@ -15,7 +15,15 @@ Mem-LLM is a powerful Python library that brings persistent memory capabilities 
 - **Issues**: https://github.com/emredeveloper/Mem-LLM/issues
 - **Documentation**: See examples/ directory
 
-## 🆕 What's New in v1.3.2
+## 🆕 What's New in v1.3.3
+
+- ⚡ **Streaming Response** – Real-time response generation with ChatGPT-style typing effect
+- 🌐 **REST API Server** – FastAPI-based HTTP endpoints and WebSocket support
+- 💻 **Web UI** – Modern, responsive web interface for easy interaction
+- 🔌 **WebSocket Streaming** – Low-latency, real-time chat with streaming support
+- 📡 **API Documentation** – Auto-generated Swagger UI and ReDoc
+
+## What's New in v1.3.2
 
 - 📊 **Response Metrics** (v1.3.1+) – Track confidence, latency, KB usage, and quality analytics
 - 🔍 **Vector Search** (v1.3.2+) – Semantic search with ChromaDB, cross-lingual support
@@ -35,10 +43,13 @@ Mem-LLM is a powerful Python library that brings persistent memory capabilities 
 
 ## ✨ Key Features
 
-- 🔌 **Multi-Backend Support** (v1.3.0+) - Choose Ollama, LM Studio, or Gemini with unified API
-- 🔍 **Auto-Detection** (v1.3.0+) - Automatically find and use available LLM services
+- ⚡ **Streaming Response** (v1.3.3+) - Real-time response with ChatGPT-style typing effect
+- 🌐 **REST API & Web UI** (v1.3.3+) - FastAPI server + modern web interface
+- 🔌 **WebSocket Support** (v1.3.3+) - Low-latency streaming chat
 - 📊 **Response Metrics** (v1.3.1+) - Track confidence, latency, KB usage, and quality analytics
 - 🔍 **Vector Search** (v1.3.2+) - Semantic search with ChromaDB, cross-lingual support
+- 🔌 **Multi-Backend Support** (v1.3.0+) - Choose Ollama, LM Studio, or Gemini with unified API
+- 🔍 **Auto-Detection** (v1.3.0+) - Automatically find and use available LLM services
 - 🧠 **Persistent Memory** - Remembers conversations across sessions
 - 🤖 **Universal Model Support** - Works with 100+ Ollama models, LM Studio models, and Gemini
 - 💾 **Dual Storage Modes** - JSON (simple) or SQLite (advanced) memory backends
@@ -140,6 +151,53 @@ print(response)  # Agent remembers: "Your name is Alice and you love Python!"
 ```
 
 That's it! Just 5 lines of code to get started with any backend.
+
+### Streaming Response (v1.3.3+) ⚡
+
+Get real-time responses with ChatGPT-style typing effect:
+
+```python
+from mem_llm import MemAgent
+
+agent = MemAgent(model="granite4:tiny-h")
+agent.set_user("alice")
+
+# Stream response in real-time
+for chunk in agent.chat_stream("Python nedir ve neden popülerdir?"):
+    print(chunk, end='', flush=True)
+```
+
+### REST API Server (v1.3.3+) 🌐
+
+Start the API server for HTTP and WebSocket access:
+
+```bash
+# Start API server
+python -m mem_llm.api_server
+
+# Or with uvicorn
+uvicorn mem_llm.api_server:app --reload --host 0.0.0.0 --port 8000
+```
+
+API Documentation available at:
+- Swagger UI: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
+
+### Web UI (v1.3.3+) 💻
+
+Use the modern web interface:
+
+1. Start the API server (see above)
+2. Open `Memory LLM/web_ui/index.html` in your browser
+3. Enter your user ID and start chatting!
+
+Features:
+- ✨ Real-time streaming responses
+- 📊 Live statistics
+- 🧠 Automatic memory management
+- 📱 Responsive design
+
+See [Web UI README](web_ui/README.md) for details.
 
 ## 📖 Usage Examples
 
@@ -397,7 +455,8 @@ mem-llm/
 │   ├── memory_tools.py           # Memory management tools
 │   ├── config_manager.py         # Configuration handler
 │   └── cli.py                    # Command-line interface
-└── examples/                     # Usage examples (14 total)
+└── examples/                     # Usage examples (17 total)
+└── web_ui/                       # Web interface (v1.3.3+)
 ```
 
 ## 🔥 Advanced Features
@@ -472,12 +531,15 @@ The `examples/` directory contains ready-to-run demonstrations:
 12. **12_gemini_example.py** - Using Google Gemini API (v1.3.0+)
 13. **13_multi_backend_comparison.py** - Compare different backends (v1.3.0+)
 14. **14_auto_detect_backend.py** - Auto-detection feature demo (v1.3.0+)
+15. **15_response_metrics.py** - Response quality metrics and analytics (v1.3.1+)
+16. **16_vector_search.py** - Semantic/vector search demonstration (v1.3.2+)
+17. **17_streaming_example.py** - Streaming response demonstration (v1.3.3+) ⚡ NEW
 
 ## 📊 Project Status
 
-- **Version**: 1.3.0
+- **Version**: 1.3.3
 - **Status**: Production Ready
-- **Last Updated**: October 31, 2025
+- **Last Updated**: November 9, 2025
 - **Test Coverage**: 50+ automated tests (100% success rate)
 - **Performance**: Thread-safe operations, <1ms search latency
 - **Backends**: Ollama, LM Studio, Google Gemini
@@ -495,11 +557,16 @@ The `examples/` directory contains ready-to-run demonstrations:
 - [x] ~~Multi-Backend Support (Ollama, LM Studio, Gemini)~~ (v1.3.0)
 - [x] ~~Auto-Detection~~ (v1.3.0)
 - [x] ~~Factory Pattern Architecture~~ (v1.3.0)
+- [x] ~~Response Metrics & Analytics~~ (v1.3.1)
+- [x] ~~Vector Database Integration~~ (v1.3.2)
+- [x] ~~Streaming Support~~ (v1.3.3) ✨
+- [x] ~~REST API Server~~ (v1.3.3) ✨
+- [x] ~~Web UI Dashboard~~ (v1.3.3) ✨
+- [x] ~~WebSocket Streaming~~ (v1.3.3) ✨
 - [ ] OpenAI & Claude backends
-- [ ] Streaming support
-- [ ] Web UI dashboard
-- [ ] REST API server
-- [ ] Vector database integration
+- [ ] Multi-modal support (images, audio)
+- [ ] Plugin system
+- [ ] Mobile SDK
 
 ## 📄 License
 

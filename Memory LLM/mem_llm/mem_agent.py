@@ -29,7 +29,7 @@ agent = MemAgent(
 ```
 """
 
-from typing import Optional, Dict, List, Any, Union
+from typing import Optional, Dict, List, Any, Union, Iterator
 from datetime import datetime
 import logging
 import json
@@ -202,6 +202,7 @@ class MemAgent:
 
         # LLM client
         self.model = model  # Store model name
+        self.backend = backend  # Store backend name
         self.use_sql = use_sql  # Store SQL usage flag
         
         # Initialize LLM client (v1.3.0: Multi-backend support)
@@ -745,6 +746,215 @@ class MemAgent:
             return chat_response
         else:
             return response
+    
+    def chat_stream(self, message: str, user_id: Optional[str] = None, metadata: Optional[Dict] = None) -> Iterator[str]:
+        """
+        Chat with user using streaming response (real-time)
+        
+        This method streams the response as it's generated, providing a better UX
+        for longer responses (like ChatGPT's typing effect).
+        
+        Args:
+            message: User's message
+            user_id: User ID (optional)
+            metadata: Additional information
+            
+        Yields:
+            Response text chunks as they arrive from the LLM
+            
+        Example:
+            >>> agent = MemAgent()
+            >>> agent.set_user("alice")
+            >>> for chunk in agent.chat_stream("Python nedir?"):
+            ...     print(chunk, end='', flush=True)
+            Python bir programlama dilidir...
+        """
+        # Start timing
+        start_time = time.time()
+        
+        # Determine user
+        if user_id:
+            self.set_user(user_id)
+        elif not self.current_user:
+            yield "Error: User ID not specified."
+            return
+        
+        user_id = self.current_user
+        
+        # Initialize tracking variables
+        kb_results_count = 0
+        used_kb = False
+        used_memory = False
+        
+        # Security check (v1.1.0+) - opt-in
+        if self.enable_security and self.security_detector and self.security_sanitizer:
+            risk_level = self.security_detector.get_risk_level(message)
+            is_suspicious, patterns = self.security_detector.detect(message)
+            
+            if risk_level in ["high", "critical"]:
+                self.logger.warning(f"🚨 Blocked {risk_level} risk input from {user_id}")
+                yield f"⚠️ Your message was blocked due to security concerns. Please rephrase your request."
+                return
+            
+            # Sanitize input
+            message = self.security_sanitizer.sanitize(message, aggressive=(risk_level == "medium"))
+        
+        # Check tool commands first
+        tool_result = self.tool_executor.execute_user_command(message, user_id)
+        if tool_result:
+            yield tool_result
+            return
+        
+        # Knowledge base search (if using SQL)
+        kb_context = ""
+        if ADVANCED_AVAILABLE and isinstance(self.memory, SQLMemoryManager):
+            use_kb = True
+            kb_limit = 5
+            
+            if hasattr(self, 'config') and self.config:
+                use_kb = self.config.get("response.use_knowledge_base", True)
+                kb_limit = self.config.get("knowledge_base.search_limit", 5)
+            
+            if use_kb:
+                try:
+                    kb_results = self.memory.search_knowledge(query=message, limit=kb_limit)
+                    
+                    if kb_results:
+                        kb_results_count = len(kb_results)
+                        used_kb = True
+                        kb_context = "\n\n📚 RELEVANT KNOWLEDGE BASE:\n"
+                        for i, result in enumerate(kb_results, 1):
+                            kb_context += f"{i}. Q: {result['question']}\n   A: {result['answer']}\n"
+                        kb_context += "\n⚠️ USE THIS INFORMATION TO ANSWER! Be brief but accurate.\n"
+                except Exception as e:
+                    self.logger.error(f"Knowledge base search error: {e}")
+        
+        # Get conversation history
+        messages = []
+        if self.current_system_prompt:
+            messages.append({"role": "system", "content": self.current_system_prompt})
+        
+        # Add memory history
+        try:
+            if hasattr(self.memory, 'get_recent_conversations'):
+                recent_limit = self.config.get("response.recent_conversations_limit", 5) if hasattr(self, 'config') and self.config else 5
+                recent_convs = self.memory.get_recent_conversations(user_id, recent_limit)
+                
+                if recent_convs:
+                    used_memory = True
+                    
+                # Add conversations in chronological order
+                for conv in recent_convs:
+                    messages.append({"role": "user", "content": conv.get('user_message', '')})
+                    messages.append({"role": "assistant", "content": conv.get('bot_response', '')})
+        except Exception as e:
+            self.logger.error(f"Memory history loading error: {e}")
+        
+        # Add current message WITH knowledge base context (if available)
+        final_message = message
+        if kb_context:
+            final_message = f"{kb_context}\n\nUser Question: {message}"
+        
+        messages.append({"role": "user", "content": final_message})
+        
+        # Get streaming response from LLM
+        temperature = self.config.get("llm.temperature", 0.2) if hasattr(self, 'config') and self.config else 0.2
+        max_tokens = self.config.get("llm.max_tokens", 2000) if hasattr(self, 'config') and self.config else 2000
+        
+        # Collect full response for saving
+        full_response = ""
+        
+        try:
+            # Stream chunks from LLM
+            for chunk in self.llm.chat_stream(
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens
+            ):
+                full_response += chunk
+                yield chunk
+            
+        except Exception as e:
+            error_msg = f"Streaming error: {str(e)}"
+            self.logger.error(error_msg)
+            yield f"\n\n⚠️ {error_msg}"
+            return
+        
+        # Calculate latency
+        latency = (time.time() - start_time) * 1000
+        
+        # Determine response source
+        response_source = "model"
+        if used_memory and used_kb:
+            response_source = "hybrid"
+        elif used_kb:
+            response_source = "knowledge_base"
+        
+        # Calculate confidence
+        confidence = calculate_confidence(
+            kb_results_count=kb_results_count,
+            temperature=temperature,
+            used_memory=used_memory,
+            response_length=len(full_response)
+        )
+        
+        # Build enriched metadata
+        enriched_metadata = {}
+        if metadata:
+            enriched_metadata.update(metadata)
+        enriched_metadata.update({
+            "confidence": round(confidence, 3),
+            "source": response_source,
+            "latency_ms": round(latency, 1),
+            "kb_results_count": kb_results_count,
+            "used_memory": used_memory,
+            "used_kb": used_kb,
+            "response_length": len(full_response),
+            "model": self.model,
+            "temperature": temperature,
+            "streaming": True
+        })
+        
+        # Save interaction
+        try:
+            if hasattr(self.memory, 'add_interaction'):
+                self.memory.add_interaction(
+                    user_id=user_id,
+                    user_message=message,
+                    bot_response=full_response,
+                    metadata=enriched_metadata
+                )
+                
+                # Extract and save user info to profile
+                self._update_user_profile(user_id, message, full_response)
+                
+                # Update summary (JSON mode)
+                if not self.use_sql and hasattr(self.memory, 'conversations'):
+                    self._update_conversation_summary(user_id)
+                    if user_id in self.memory.user_profiles:
+                        self.memory.save_memory(user_id)
+        except Exception as e:
+            self.logger.error(f"Interaction saving error: {e}")
+        
+        # Track metrics if enabled
+        if self.track_metrics:
+            chat_response = ChatResponse(
+                text=full_response,
+                confidence=confidence,
+                source=response_source,
+                latency=latency,
+                timestamp=datetime.now(),
+                kb_results_count=kb_results_count,
+                metadata={
+                    "model": self.model,
+                    "temperature": temperature,
+                    "used_memory": used_memory,
+                    "used_kb": used_kb,
+                    "user_id": user_id,
+                    "streaming": True
+                }
+            )
+            self.metrics_analyzer.add_metric(chat_response)
     
     def _update_user_profile(self, user_id: str, message: str, response: str):
         """Extract user info from conversation and update profile"""
