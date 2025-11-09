@@ -6,25 +6,27 @@
 
 Mem-LLM is a Python framework for building privacy-first, memory-enabled AI assistants that run entirely on local large language models (or cloud). The project combines persistent multi-user conversation history with optional knowledge bases, multiple storage backends, vector search capabilities, response quality metrics, and tight integration with [Ollama](https://ollama.ai), [LM Studio](https://lmstudio.ai), and [Google Gemini](https://gemini.google.com) so you can experiment locally or deploy production-ready workflows with quality monitoring and semantic understanding.
 
-## 🆕 What's New in v1.3.2
+## 🆕 What's New in v1.3.3
 
-- 📊 **Response Metrics** (v1.3.1+) – Track confidence, latency, KB usage, and quality analytics
-- 🔍 **Vector Search** (v1.3.2+) – Semantic search with ChromaDB, cross-lingual support
+- ⚡ **Streaming Response** – Real-time ChatGPT-style streaming for all backends (Ollama, LM Studio, Gemini)
+- 🌐 **REST API Server** – FastAPI-based server with WebSocket and SSE streaming support
+- 💻 **Web UI** – Modern 3-page interface (Chat, Memory Management, Metrics Dashboard)
+- 🚀 **Easy Launch** – One-click startup scripts (`start_web_ui.py`, `start_web_ui.bat`)
+- 🌍 **Full English** – Complete localization for global accessibility
+
+## What's New in v1.3.2
+
+- 📊 **Response Metrics** – Track confidence, latency, KB usage, and quality analytics
+- 🔍 **Vector Search** – Semantic search with ChromaDB, cross-lingual support
 - 🎯 **Quality Monitoring** – Production-ready metrics for response quality
 - 🌐 **Semantic Understanding** – Understands meaning, not just keywords
-
-## What's New in v1.3.0
-
-- 🔌 **Multi-Backend Support** – Use Ollama, LM Studio, or Google Gemini!
-- 🤖 **LM Studio Integration** – Fast local inference with easy GUI
-- ☁️ **Google Gemini Support** – Access powerful cloud models
-- 🔍 **Auto-Detection** – Automatically find available LLM service
-- 🏗️ **Factory Pattern** – Clean architecture for extensibility
-- ⚡ **Backward Compatible** – All v1.2.0 code still works!
 
 [See full changelog](Memory%20LLM/CHANGELOG.md) | [Multi-Backend Guide](Memory%20LLM/MULTI_BACKEND_GUIDE.md)
 
 ## Features
+- **Streaming Response** *(v1.3.3+)* – Real-time ChatGPT-style streaming for all backends (Ollama, LM Studio, Gemini).
+- **REST API Server** *(v1.3.3+)* – FastAPI-based server with WebSocket and SSE streaming support.
+- **Web UI** *(v1.3.3+)* – Modern 3-page interface (Chat, Memory Management, Metrics Dashboard).
 - **Persistent Memory** – Store and recall conversation history across sessions for each user.
 - **Multi-Backend Support** *(v1.3.0+)* – Choose between Ollama, LM Studio, or Google Gemini.
 - **Auto-Detection** *(v1.3.0+)* – Automatically find and use available LLM service.
@@ -104,6 +106,26 @@ agent = MemAgent(auto_detect_backend=True)
 agent.set_user("alice")
 print(agent.chat("My name is Alice and I love Python!"))
 print(agent.chat("What do I love?"))  # Agent remembers!
+
+# NEW in v1.3.3: Streaming response
+for chunk in agent.chat_stream("Tell me a story"):
+    print(chunk, end="", flush=True)
+```
+
+### 4. Web UI & REST API (v1.3.3+)
+
+```bash
+# Start Web UI (API server + browser)
+python start_web_ui.py
+
+# Or on Windows
+start_web_ui.bat
+
+# Access at http://localhost:8000
+# - Chat interface with streaming
+# - Memory management
+# - Metrics dashboard
+# - API docs at http://localhost:8000/docs
 ```
 
 ### Multi-Backend Examples (v1.3.0+)
