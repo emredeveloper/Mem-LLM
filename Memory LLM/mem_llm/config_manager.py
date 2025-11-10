@@ -35,7 +35,7 @@ class ConfigManager:
         """Returns default configuration"""
         return {
             "llm": {
-                "model": "granite4:tiny-h",
+                "model": "granite4:3b",
                 "base_url": "http://localhost:11434",
                 "temperature": 0.7,
                 "max_tokens": 500

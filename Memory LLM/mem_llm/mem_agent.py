@@ -64,7 +64,7 @@ class MemAgent:
     """
 
     def __init__(self,
-                 model: str = "granite4:tiny-h",
+                 model: str = "granite4:3b",
                  backend: str = "ollama",
                  config_file: Optional[str] = None,
                  use_sql: bool = True,
@@ -83,7 +83,7 @@ class MemAgent:
         """
         Args:
             model: LLM model to use
-            backend: LLM backend ('ollama', 'lmstudio', 'gemini') - NEW in v1.3.0
+            backend: LLM backend ('ollama', 'lmstudio') - NEW in v1.3.0
             config_file: Configuration file (optional)
             use_sql: Use SQL database (True) or JSON (False)
             memory_dir: Memory directory (for JSON mode or if db_path not specified)
@@ -91,7 +91,6 @@ class MemAgent:
             load_knowledge_base: Automatically load knowledge base
             ollama_url: Ollama API URL (backward compatibility, use base_url instead)
             base_url: Backend API URL (for local backends) - NEW in v1.3.0
-            api_key: API key (for cloud backends like Gemini) - NEW in v1.3.0
             auto_detect_backend: Auto-detect available LLM backend - NEW in v1.3.0
             check_connection: Verify LLM connection on startup (default: False)
             enable_security: Enable prompt injection protection (v1.1.0+, default: False for backward compatibility)
@@ -105,9 +104,6 @@ class MemAgent:
             
             # LM Studio
             agent = MemAgent(backend='lmstudio', model='llama-3-8b')
-            
-            # Gemini
-            agent = MemAgent(backend='gemini', model='gemini-1.5-flash', api_key='your-key')
             
             # Auto-detect
             agent = MemAgent(auto_detect_backend=True)
@@ -218,9 +214,6 @@ class MemAgent:
             llm_config['base_url'] = base_url
         
         # Add api_key for cloud backends
-        if api_key and backend in ['gemini']:
-            llm_config['api_key'] = api_key
-        
         # Auto-detect backend if requested
         if auto_detect_backend:
             self.logger.info("🔍 Auto-detecting available LLM backend...")
@@ -231,8 +224,7 @@ class MemAgent:
             else:
                 self.logger.error("❌ No LLM backend available.")
                 raise RuntimeError(
-                    "No LLM backend detected. Please start a local LLM service (Ollama/LM Studio) "
-                    "or provide Gemini API key."
+                    "No LLM backend detected. Please start a local LLM service (Ollama or LM Studio)."
                 )
         else:
             # Create client using factory
@@ -270,15 +262,6 @@ class MemAgent:
                         "   2. Load a model in LM Studio\n"
                         "   3. Start local server (default: http://localhost:1234)\n"
                         "   4. Verify base_url parameter is correct\n"
-                    )
-                elif backend == "gemini":
-                    error_msg += (
-                        "   \n"
-                        "   Solutions:\n"
-                        "   1. Check your internet connection\n"
-                        "   2. Verify Gemini API key is correct\n"
-                        "   3. Check API quota/billing status\n"
-                        "   Get key: https://makersuite.google.com/app/apikey\n"
                     )
                 
                 error_msg += "   \n   To skip this check, use: MemAgent(check_connection=False)"

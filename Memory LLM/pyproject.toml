@@ -4,15 +4,15 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mem-llm"
-version = "1.3.5"
-description = "Privacy-first, memory-enabled AI assistant with multi-backend LLM support (Ollama, LM Studio, Gemini), vector search, response metrics, and quality analytics - Production-ready with local & cloud options"
+version = "1.3.6"
+description = "Privacy-first, memory-enabled AI assistant with multi-backend LLM support (Ollama, LM Studio), vector search, response metrics, and quality analytics - 100% local and production-ready"
 readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}
 authors = [
     {name = "C. Emre Karataş", email = "karatasqemre@gmail.com"}
 ]
-keywords = ["llm", "ai", "memory", "agent", "chatbot", "ollama", "lmstudio", "gemini", "multi-backend", "local", "vector-search", "chromadb", "response-metrics", "semantic-search", "quality-analytics", "embedding"]
+keywords = ["llm", "ai", "memory", "agent", "chatbot", "ollama", "lmstudio", "multi-backend", "local", "privacy", "vector-search", "chromadb", "response-metrics", "semantic-search", "quality-analytics", "embedding", "streaming"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -45,7 +45,8 @@ web = [
 ]
 api = [
     "fastapi>=0.104.0",
-    "uvicorn>=0.24.0",
+    "uvicorn[standard]>=0.24.0",  # Includes WebSocket support
+    "websockets>=12.0",  # WebSocket library
 ]
 postgresql = [
     "psycopg2-binary>=2.9.9",
@@ -65,7 +66,8 @@ all = [
     "flask>=3.0.0",
     "flask-cors>=4.0.0",
     "fastapi>=0.104.0",
-    "uvicorn>=0.24.0",
+    "uvicorn[standard]>=0.24.0",
+    "websockets>=12.0",
     "psycopg2-binary>=2.9.9",
     "pymongo>=4.6.0",
 ]

@@ -24,7 +24,7 @@ def cli():
 
 @cli.command()
 @click.option('--user', '-u', default='default', help='User ID for the chat session')
-@click.option('--model', '-m', default='granite4:tiny-h', help='LLM model to use')
+@click.option('--model', '-m', default='granite4:3b', help='LLM model to use')
 @click.option('--sql/--json', default=False, help='Use SQL (default: JSON)')
 @click.option('--config', '-c', type=click.Path(exists=True), help='Config file path')
 def chat(user: str, model: str, sql: bool, config: Optional[str]):
@@ -186,7 +186,7 @@ def export(user: str, format: str, output: Optional[str], sql: bool):
 
 
 @cli.command()
-@click.option('--model', '-m', default='granite4:tiny-h', help='Model to check')
+@click.option('--model', '-m', default='granite4:3b', help='Model to check')
 def check(model: str):
     """
     Check if Ollama and model are ready

@@ -4,9 +4,9 @@
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Memory-enabled AI assistant with multi-backend LLM support (Ollama, LM Studio, Gemini)**
+**Memory-enabled AI assistant with multi-backend LLM support (Ollama, LM Studio)**
 
-Mem-LLM is a powerful Python library that brings persistent memory capabilities to Large Language Models. Build AI assistants that remember user interactions, manage knowledge bases, and choose between local (Ollama, LM Studio) or cloud (Gemini) backends.
+Mem-LLM is a powerful Python library that brings persistent memory capabilities to Large Language Models. Build AI assistants that remember user interactions, manage knowledge bases, and run 100% locally with Ollama or LM Studio.
 
 ## 🔗 Links
 
@@ -30,14 +30,14 @@ Mem-LLM is a powerful Python library that brings persistent memory capabilities 
 - 🎯 **Quality Monitoring** – Production-ready metrics for response quality
 - 🌐 **Semantic Understanding** – Understands meaning, not just keywords
 
-## What's New in v1.3.0
+## What's New in v1.3.6
 
-- 🔌 **Multi-Backend Support**: Choose between Ollama (local), LM Studio (local), or Google Gemini (cloud)
-- 🏗️ **Factory Pattern**: Clean, extensible architecture for easy backend switching
-- 🔍 **Auto-Detection**: Automatically finds and uses available local LLM services
-- ⚡ **Unified API**: Same code works across all backends - just change one parameter
-- 📚 **New Examples**: 4 additional examples showing multi-backend usage
-- 🎯 **Backward Compatible**: All v1.2.0 code still works without changes
+- 🚫 **Removed Cloud Dependency**: Now 100% local-first with Ollama and LM Studio only
+- 🔒 **Enhanced Privacy**: No external API calls or cloud services required
+- ⚡ **Streaming Responses**: Real-time ChatGPT-style typing effect (v1.3.3+)
+- 🌐 **Web UI & REST API**: Modern web interface with FastAPI backend (v1.3.3+)
+- 📊 **Response Metrics**: Track quality, confidence, and performance (v1.3.1+)
+- 🔍 **Vector Search**: Semantic search with ChromaDB (v1.3.2+)
 
 [See full changelog](CHANGELOG.md)
 
@@ -48,10 +48,10 @@ Mem-LLM is a powerful Python library that brings persistent memory capabilities 
 - 🔌 **WebSocket Support** (v1.3.3+) - Low-latency streaming chat
 - 📊 **Response Metrics** (v1.3.1+) - Track confidence, latency, KB usage, and quality analytics
 - 🔍 **Vector Search** (v1.3.2+) - Semantic search with ChromaDB, cross-lingual support
-- 🔌 **Multi-Backend Support** (v1.3.0+) - Choose Ollama, LM Studio, or Gemini with unified API
+- 🔌 **Multi-Backend Support** (v1.3.0+) - Ollama and LM Studio with unified API
 - 🔍 **Auto-Detection** (v1.3.0+) - Automatically find and use available LLM services
 - 🧠 **Persistent Memory** - Remembers conversations across sessions
-- 🤖 **Universal Model Support** - Works with 100+ Ollama models, LM Studio models, and Gemini
+- 🤖 **Universal Model Support** - Works with 100+ Ollama models and LM Studio
 - 💾 **Dual Storage Modes** - JSON (simple) or SQLite (advanced) memory backends
 - 📚 **Knowledge Base** - Built-in FAQ/support system with categorized entries
 - 🎯 **Dynamic Prompts** - Context-aware system prompts that adapt to active features
@@ -59,7 +59,7 @@ Mem-LLM is a powerful Python library that brings persistent memory capabilities 
 - 🔧 **Memory Tools** - Search, export, and manage stored memories
 - 🎨 **Flexible Configuration** - Personal or business usage modes
 - 📊 **Production Ready** - Comprehensive test suite with 50+ automated tests
-- 🔒 **Privacy Options** - 100% local (Ollama/LM Studio) or cloud (Gemini)
+- 🔒 **100% Local & Private** - No cloud dependencies or external API calls
 - 🛡️ **Prompt Injection Protection** (v1.1.0+) - Advanced security against prompt attacks (opt-in)
 - ⚡ **High Performance** (v1.1.0+) - Thread-safe operations, 15K+ msg/s throughput
 - 🔄 **Retry Logic** (v1.1.0+) - Automatic exponential backoff for network errors
@@ -116,28 +116,18 @@ ollama serve
 # 3. Start the local server (default port: 1234)
 ```
 
-#### Option 3: Google Gemini (Cloud, Powerful)
-```bash
-# Get API key from: https://makersuite.google.com/app/apikey
-# Set environment variable
-export GEMINI_API_KEY="your-api-key-here"
-```
-
 ### Basic Usage
 
 ```python
 from mem_llm import MemAgent
 
 # Option 1: Use Ollama (default)
-agent = MemAgent(model="granite4:tiny-h")
+agent = MemAgent(model="granite4:3b")
 
 # Option 2: Use LM Studio
 agent = MemAgent(backend='lmstudio', model='local-model')
 
-# Option 3: Use Gemini
-agent = MemAgent(backend='gemini', model='gemini-2.5-flash', api_key='your-key')
-
-# Option 4: Auto-detect available backend
+# Option 3: Auto-detect available backend
 agent = MemAgent(auto_detect_backend=True)
 
 # Set user and chat (same for all backends!)
@@ -211,13 +201,6 @@ agent = MemAgent(
     backend='lmstudio',
     model='local-model',
     base_url='http://localhost:1234'
-)
-
-# Google Gemini - Cloud power
-agent = MemAgent(
-    backend='gemini',
-    model='gemini-2.5-flash',
-    api_key='your-api-key'
 )
 
 # Auto-detect - Universal compatibility
@@ -446,8 +429,7 @@ mem-llm/
 │   ├── llm_client_factory.py     # Backend factory pattern
 │   ├── clients/                  # LLM backend implementations
 │   │   ├── ollama_client.py      # Ollama integration
-│   │   ├── lmstudio_client.py    # LM Studio integration
-│   │   └── gemini_client.py      # Google Gemini integration
+│   │   └── lmstudio_client.py    # LM Studio integration
 │   ├── memory_manager.py         # JSON memory backend
 │   ├── memory_db.py              # SQL memory backend
 │   ├── knowledge_loader.py       # Knowledge base system
@@ -501,7 +483,7 @@ stats = agent.get_memory_stats()
 - **MemAgent**: Main interface for building AI assistants (multi-backend support)
 - **LLMClientFactory**: Factory pattern for backend creation
 - **BaseLLMClient**: Abstract interface for all LLM backends
-- **OllamaClient / LMStudioClient / GeminiClient**: Backend implementations
+- **OllamaClient / LMStudioClient**: Backend implementations
 - **MemoryManager**: JSON-based memory storage (simple)
 - **SQLMemoryManager**: SQLite-based storage (advanced)
 - **KnowledgeLoader**: Knowledge base management
@@ -528,21 +510,20 @@ The `examples/` directory contains ready-to-run demonstrations:
 9. **09_data_export_import.py** - Multi-format export/import demo (v1.2.0+)
 10. **10_database_connection_test.py** - Enterprise PostgreSQL/MongoDB migration (v1.2.0+)
 11. **11_lmstudio_example.py** - Using LM Studio backend (v1.3.0+)
-12. **12_gemini_example.py** - Using Google Gemini API (v1.3.0+)
-13. **13_multi_backend_comparison.py** - Compare different backends (v1.3.0+)
-14. **14_auto_detect_backend.py** - Auto-detection feature demo (v1.3.0+)
+12. **13_multi_backend_comparison.py** - Compare different backends (v1.3.0+)
+13. **14_auto_detect_backend.py** - Auto-detection feature demo (v1.3.0+)
 15. **15_response_metrics.py** - Response quality metrics and analytics (v1.3.1+)
 16. **16_vector_search.py** - Semantic/vector search demonstration (v1.3.2+)
 17. **17_streaming_example.py** - Streaming response demonstration (v1.3.3+) ⚡ NEW
 
 ## 📊 Project Status
 
-- **Version**: 1.3.3
+- **Version**: 1.3.6
 - **Status**: Production Ready
-- **Last Updated**: November 9, 2025
+- **Last Updated**: November 10, 2025
 - **Test Coverage**: 50+ automated tests (100% success rate)
 - **Performance**: Thread-safe operations, <1ms search latency
-- **Backends**: Ollama, LM Studio, Google Gemini
+- **Backends**: Ollama, LM Studio (100% Local)
 - **Databases**: SQLite, PostgreSQL, MongoDB, In-Memory
 
 ## 📈 Roadmap
@@ -554,7 +535,7 @@ The `examples/` directory contains ready-to-run demonstrations:
 - [x] ~~Conversation Summarization~~ (v1.2.0)
 - [x] ~~Multi-Database Export/Import~~ (v1.2.0)
 - [x] ~~In-Memory Database~~ (v1.2.0)
-- [x] ~~Multi-Backend Support (Ollama, LM Studio, Gemini)~~ (v1.3.0)
+- [x] ~~Multi-Backend Support (Ollama, LM Studio)~~ (v1.3.0)
 - [x] ~~Auto-Detection~~ (v1.3.0)
 - [x] ~~Factory Pattern Architecture~~ (v1.3.0)
 - [x] ~~Response Metrics & Analytics~~ (v1.3.1)

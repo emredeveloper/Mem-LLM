@@ -67,7 +67,7 @@ def generate_config_from_text(text: str, company_name: Optional[str] = None) -> 
         "usage_mode": "business",  # or "personal"
         
         "llm": {
-            "model": "granite4:tiny-h",
+            "model": "granite4:3b",
             "temperature": 0.3,
             "max_tokens": 300,
             "ollama_url": "http://localhost:11434"

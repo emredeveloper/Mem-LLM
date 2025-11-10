@@ -4,15 +4,16 @@
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Mem-LLM is a Python framework for building privacy-first, memory-enabled AI assistants that run entirely on local large language models (or cloud). The project combines persistent multi-user conversation history with optional knowledge bases, multiple storage backends, vector search capabilities, response quality metrics, and tight integration with [Ollama](https://ollama.ai), [LM Studio](https://lmstudio.ai), and [Google Gemini](https://gemini.google.com) so you can experiment locally or deploy production-ready workflows with quality monitoring and semantic understanding.
+Mem-LLM is a Python framework for building privacy-first, memory-enabled AI assistants that run 100% locally. The project combines persistent multi-user conversation history with optional knowledge bases, multiple storage backends, vector search capabilities, response quality metrics, and tight integration with [Ollama](https://ollama.ai) and [LM Studio](https://lmstudio.ai) so you can experiment locally and deploy production-ready workflows with quality monitoring and semantic understanding - completely private and offline.
 
-## 🆕 What's New in v1.3.3
+## 🆕 What's New in v1.3.6
 
-- ⚡ **Streaming Response** – Real-time ChatGPT-style streaming for all backends (Ollama, LM Studio, Gemini)
-- 🌐 **REST API Server** – FastAPI-based server with WebSocket and SSE streaming support
-- 💻 **Web UI** – Modern 3-page interface (Chat, Memory Management, Metrics Dashboard)
-- 🚀 **Easy Launch** – One-click startup scripts (`start_web_ui.py`, `start_web_ui.bat`)
-- 🌍 **Full English** – Complete localization for global accessibility
+- 🚫 **100% Local & Private** – Removed cloud dependency, Ollama and LM Studio only
+- 🔒 **Zero External Calls** – Complete data sovereignty, no API calls to external services
+- ⚡ **Streaming Response** – Real-time ChatGPT-style streaming (v1.3.3+)
+- 🌐 **REST API & Web UI** – FastAPI server with modern interface (v1.3.3+)
+- 🐛 **Bug Fixes** – Fixed API memory search and stats endpoints
+- 📊 **Response Metrics** – Track quality, confidence, and performance (v1.3.1+)
 
 ## What's New in v1.3.2
 
@@ -24,15 +25,15 @@ Mem-LLM is a Python framework for building privacy-first, memory-enabled AI assi
 [See full changelog](Memory%20LLM/CHANGELOG.md) | [Multi-Backend Guide](Memory%20LLM/MULTI_BACKEND_GUIDE.md)
 
 ## Features
-- **Streaming Response** *(v1.3.3+)* – Real-time ChatGPT-style streaming for all backends (Ollama, LM Studio, Gemini).
+- **100% Local & Private** *(v1.3.6)* – No cloud dependencies, all processing on your machine.
+- **Streaming Response** *(v1.3.3+)* – Real-time ChatGPT-style streaming for Ollama and LM Studio.
 - **REST API Server** *(v1.3.3+)* – FastAPI-based server with WebSocket and SSE streaming support.
 - **Web UI** *(v1.3.3+)* – Modern 3-page interface (Chat, Memory Management, Metrics Dashboard).
 - **Persistent Memory** – Store and recall conversation history across sessions for each user.
-- **Multi-Backend Support** *(v1.3.0+)* – Choose between Ollama, LM Studio, or Google Gemini.
-- **Auto-Detection** *(v1.3.0+)* – Automatically find and use available LLM service.
+- **Multi-Backend Support** *(v1.3.0+)* – Choose between Ollama and LM Studio with unified API.
+- **Auto-Detection** *(v1.3.0+)* – Automatically find and use available local LLM service.
 - **Response Metrics** *(v1.3.1+)* – Track confidence, latency, KB usage, and quality analytics.
 - **Vector Search** *(v1.3.2+)* – Semantic search with ChromaDB, cross-lingual support.
-- **Local & Cloud** – Run completely local (Ollama/LM Studio) or use cloud (Gemini) based on your needs.
 - **Flexible Storage** – Choose between lightweight JSON files or a SQLite database for production scenarios.
 - **Knowledge Bases** – Load categorized Q&A content to augment model responses with authoritative answers.
 - **Dynamic Prompting** – Automatically adapts prompts based on the features you enable, reducing hallucinations.
@@ -69,7 +70,7 @@ pip install chromadb sentence-transformers
 **Option A: Ollama (Local, Free)**
 ```bash
 # Install Ollama from https://ollama.ai
-ollama pull granite4:tiny-h
+ollama pull granite4:3b
 ollama serve
 ```
 
@@ -79,27 +80,18 @@ ollama serve
 # Load a model and start server
 ```
 
-**Option C: Google Gemini (Cloud)**
-```bash
-# Get API key from https://makersuite.google.com/app/apikey
-export GEMINI_API_KEY="your-key"
-```
-
 ### 3. Create and Chat
 
 ```python
 from mem_llm import MemAgent
 
 # Option A: Ollama
-agent = MemAgent(backend='ollama', model="granite4:tiny-h")
+agent = MemAgent(backend='ollama', model="granite4:3b")
 
 # Option B: LM Studio
 agent = MemAgent(backend='lmstudio', model="local-model")
 
-# Option C: Gemini
-agent = MemAgent(backend='gemini', model="gemini-2.5-flash", api_key="your-key")
-
-# Option D: Auto-detect
+# Option C: Auto-detect
 agent = MemAgent(auto_detect_backend=True)
 
 # Use it!
@@ -142,20 +134,13 @@ agent = MemAgent(
     base_url='http://localhost:1234'
 )
 
-# Google Gemini - Powerful cloud model
-agent = MemAgent(
-    backend='gemini',
-    model='gemini-2.5-flash',
-    api_key='your-api-key'
-)
-
-# Auto-detect - Use any available backend
+# Auto-detect - Use any available local backend
 agent = MemAgent(auto_detect_backend=True)
 
 # Advanced features still work!
 agent = MemAgent(
     backend='ollama',           # NEW in v1.3.0
-    model="granite4:tiny-h",
+    model="granite4:3b",
     use_sql=True,              # Thread-safe SQLite storage
     enable_security=True       # Prompt injection protection
 )
@@ -163,9 +148,9 @@ agent = MemAgent(
 
 For advanced configuration (SQL storage, knowledge base support, business mode, etc.), copy `config.yaml.example` from the package directory and adjust it for your environment.
 
-## Test Coverage (v1.3.0)
-- ✅ **16+ tests for multi-backend support**
-- ✅ Ollama, LM Studio, Gemini backends (16 tests)
+## Test Coverage (v1.3.6)
+- ✅ **14+ tests for multi-backend support**
+- ✅ Ollama and LM Studio backends (14 tests)
 - ✅ Conversation Summarization (5 tests)
 - ✅ Data Export/Import (11 tests - JSON, CSV, SQLite, PostgreSQL, MongoDB)
 - ✅ Core MemAgent functionality (5 tests)

@@ -22,7 +22,6 @@ Quick, ready-to-run scripts that show how to get the most out of Mem-LLM.
 | `09_data_export_import.py` | Exporting and importing stored memories. |
 | `10_database_connection_test.py` | Verifying SQL connectivity. |
 | `11_lmstudio_example.py` | Using LM Studio backend. |
-| `12_gemini_example.py` | Using Google Gemini backend. |
 | `13_multi_backend_comparison.py` | Comparing different LLM backends. |
 | `14_auto_detect_backend.py` | Auto-detecting available LLM services. |
 | `15_response_metrics.py` | Response quality metrics and analytics (v1.3.1+). |

@@ -12,7 +12,7 @@ from typing import List, Dict, Optional
 class OllamaClient:
     """Uses local LLM model with Ollama API"""
     
-    def __init__(self, model: str = "granite4:tiny-h", 
+    def __init__(self, model: str = "granite4:3b", 
                  base_url: str = "http://localhost:11434"):
         """
         Args:

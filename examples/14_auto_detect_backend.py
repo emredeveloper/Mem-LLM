@@ -43,6 +43,6 @@ try:
 except RuntimeError as e:
     print(f"\n❌ Error: {e}")
     print("\n💡 No LLM service found.")
-    print("   Start Ollama, LM Studio, or set GEMINI_API_KEY")
+    print("   Start Ollama or LM Studio")
 
 print("\n" + "=" * 60)

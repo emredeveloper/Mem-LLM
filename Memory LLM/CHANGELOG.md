@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.6] - 2025-11-10
+
+### 🚫 Breaking Changes
+
+- **Removed Google Gemini Support**
+  - Eliminated cloud backend dependency for 100% local operation
+  - Removed `gemini_client.py` and all Gemini-related code
+  - Updated all examples and documentation to reflect local-only backends
+  - Strengthened privacy-first approach with Ollama and LM Studio only
+
+### 🔒 Privacy Enhancements
+
+- **100% Local Operation**
+  - No external API calls or cloud services required
+  - Complete data sovereignty and privacy control
+  - All processing happens on local machine
+  - Perfect for sensitive/confidential data use cases
+
+### 🔧 Updates
+
+- **Default Model Changed**: `granite4:3b` (was `granite4:tiny-h`)
+- **Documentation**: Removed all Gemini references from README, examples, and guides
+- **Examples**: Deleted `12_gemini_example.py`, updated multi-backend examples
+- **Cleaner Codebase**: Removed unused cloud integration code
+
+### 📦 What's Included
+
+- ✅ Ollama backend (local)
+- ✅ LM Studio backend (local)
+- ✅ Auto-detection between local backends
+- ✅ Streaming responses
+- ✅ Web UI & REST API
+- ✅ Vector search with ChromaDB
+- ✅ Response metrics & analytics
+
+---
+
 ## [1.3.2] - 2025-11-02
 
 ### 🎉 Major Features

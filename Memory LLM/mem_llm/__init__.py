@@ -11,7 +11,7 @@ from .llm_client_factory import LLMClientFactory
 
 # New multi-backend support (v1.3.0+)
 from .clients import OllamaClient as OllamaClientNew
-from .clients import LMStudioClient, GeminiClient
+from .clients import LMStudioClient
 
 # Tools (optional)
 try:
@@ -70,11 +70,11 @@ try:
 except ImportError:
     __all_metrics__ = []
 
-__version__ = "1.3.5"
+__version__ = "1.3.6"
 __author__ = "Cihat Emre Karataş"
 
 # Multi-backend LLM support (v1.3.0+)
-__all_llm_backends__ = ["BaseLLMClient", "LLMClientFactory", "OllamaClientNew", "LMStudioClient", "GeminiClient"]
+__all_llm_backends__ = ["BaseLLMClient", "LLMClientFactory", "OllamaClientNew", "LMStudioClient"]
 
 # CLI
 try:

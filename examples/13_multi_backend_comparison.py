@@ -2,14 +2,13 @@
 Example 13: Multi-Backend Comparison
 ====================================
 
-Compare responses across different backends.
+Compare responses across different backends (Ollama vs LM Studio).
 
 Quick Usage:
-    agent1 = MemAgent(backend='ollama', model='granite4:tiny-h')
-    agent2 = MemAgent(backend='gemini', model='gemini-2.5-flash', api_key='...')
+    agent1 = MemAgent(backend='ollama', model='granite4:3b')
+    agent2 = MemAgent(backend='lmstudio', model='local-model')
 """
 
-import os
 import time
 from mem_llm import MemAgent, LLMClientFactory
 
@@ -23,14 +22,10 @@ test_prompt = "What is Python? Answer in 2 sentences."
 backends = []
 
 if LLMClientFactory.check_backend_availability('ollama'):
-    backends.append(('Ollama', 'ollama', 'granite4:tiny-h', {}))
+    backends.append(('Ollama', 'ollama', 'granite4:3b', {}))
 
 if LLMClientFactory.check_backend_availability('lmstudio'):
     backends.append(('LM Studio', 'lmstudio', 'local-model', {}))
-
-gemini_key = os.getenv('GEMINI_API_KEY')
-if gemini_key:
-    backends.append(('Gemini', 'gemini', 'gemini-2.5-flash', {'api_key': gemini_key}))
 
 if not backends:
     print("\n❌ No backends available!")
