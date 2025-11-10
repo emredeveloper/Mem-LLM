@@ -84,14 +84,14 @@ def get_weather(city: str) -> str:
     return weather_data.get(city, f"Weather data not available for {city}")
 
 
-@tool(name="translate", description="Translate text to Turkish", category="text")
-def translate_to_turkish(text: str) -> str:
+@tool(name="translate", description="Translate text to Spanish", category="text")
+def translate_to_spanish(text: str) -> str:
     """Simple translation (demo only)"""
     translations = {
-        "hello": "merhaba",
-        "goodbye": "güle güle",
-        "thank you": "teşekkür ederim",
-        "good morning": "günaydın"
+        "hello": "hola",
+        "goodbye": "adiós",
+        "thank you": "gracias",
+        "good morning": "buenos días"
     }
     return translations.get(text.lower(), f"Translation not available for '{text}'")
 

@@ -1,9 +1,8 @@
-# Mem-LLM Core Requirements
-# These are the minimal dependencies needed for basic functionality
+# Mem-LLM Core Requirements (v2.1.3+)
+# 100% Local & Privacy-First - No cloud dependencies!
 
-# LLM Communication
+# LLM Communication (Local Only)
 requests>=2.31.0
-google-generativeai>=0.3.0
 
 # Configuration Management
 pyyaml>=6.0.1
@@ -11,5 +10,8 @@ pyyaml>=6.0.1
 # CLI Interface
 click>=8.1.0
 
+# Async Support (v2.1.0+)
+aiohttp>=3.9.0
+
 # For development and testing, see requirements-dev.txt
-# For optional features (web UI, etc.), see requirements-optional.txt
+# For optional features (web UI, vector search), see requirements-optional.txt

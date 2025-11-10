@@ -80,7 +80,8 @@ __all_llm_backends__ = ["BaseLLMClient", "LLMClientFactory", "OllamaClientNew", 
 try:
     from .tool_system import tool, Tool, ToolRegistry
     from .builtin_tools import BUILTIN_TOOLS
-    __all_tools__ = ["tool", "Tool", "ToolRegistry", "BUILTIN_TOOLS"]
+    from .tool_workspace import ToolWorkspace, get_workspace, set_workspace
+    __all_tools__ = ["tool", "Tool", "ToolRegistry", "BUILTIN_TOOLS", "ToolWorkspace", "get_workspace", "set_workspace"]
 except ImportError:
     __all_tools__ = []
 

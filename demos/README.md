@@ -26,7 +26,10 @@ Quick, ready-to-run scripts that show how to get the most out of Mem-LLM.
 | `14_auto_detect_backend.py` | Auto-detecting available LLM services. |
 | `15_response_metrics.py` | Response quality metrics and analytics (v1.3.1+). |
 | `16_vector_search.py` | Semantic/vector search with ChromaDB (v1.3.2+). |
-| `17_streaming_example.py` | **NEW!** Real-time streaming responses (v1.3.3+). |
+| `17_streaming_example.py` | Real-time streaming responses (v1.3.3+). |
+| `18_function_calling.py` | **NEW!** Function calling / Tools (v2.0.0+). |
+| `19_memory_tools_demo.py` | **NEW!** Memory-aware tools (v2.0.0+). |
+| `20_async_and_validation.py` | **NEW!** Async tools & validation (v2.1.0+). |
 
 ## 💡 Tips
 - Start with `01_hello_world.py`, then move to the scenario you need.

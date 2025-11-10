@@ -239,14 +239,14 @@ class SQLMemoryManager:
     
     def get_recent_conversations(self, user_id: str, limit: int = 10) -> List[Dict]:
         """
-        Kullanıcının son konuşmalarını getirir (thread-safe)
+        Get user's recent conversations (thread-safe)
         
         Args:
-            user_id: Kullanıcı kimliği
-            limit: Getirilecek konuşma sayısı
+            user_id: User identifier
+            limit: Number of conversations to retrieve
             
         Returns:
-            Konuşmalar listesi
+            List of conversations
         """
         with self._lock:
             cursor = self.conn.cursor()
@@ -263,14 +263,14 @@ class SQLMemoryManager:
     
     def search_conversations(self, user_id: str, keyword: str) -> List[Dict]:
         """
-        Konuşmalarda anahtar kelime arar (thread-safe)
+        Search for keywords in conversations (thread-safe)
         
         Args:
-            user_id: Kullanıcı kimliği
-            keyword: Aranacak kelime
+            user_id: User identifier
+            keyword: Keyword to search for
             
         Returns:
-            Eşleşen konuşmalar
+            Matching conversations
         """
         cursor = self.conn.cursor()
         cursor.execute("""
@@ -286,13 +286,13 @@ class SQLMemoryManager:
     
     def get_user_profile(self, user_id: str) -> Optional[Dict]:
         """
-        Kullanıcı profilini getirir
+        Get user profile
         
         Args:
-            user_id: Kullanıcı kimliği
+            user_id: User identifier
             
         Returns:
-            Kullanıcı profili veya None
+            User profile or None
         """
         cursor = self.conn.cursor()
         cursor.execute("""
@@ -306,11 +306,11 @@ class SQLMemoryManager:
     
     def update_user_profile(self, user_id: str, updates: Dict) -> None:
         """
-        Kullanıcı profilini günceller
+        Update user profile
         
         Args:
-            user_id: Kullanıcı kimliği
-            updates: Güncellenecek alanlar
+            user_id: User identifier
+            updates: Fields to update
         """
         allowed_fields = ['name', 'preferences', 'summary', 'metadata']
         set_clause = []
@@ -338,17 +338,17 @@ class SQLMemoryManager:
                      keywords: Optional[List[str]] = None,
                      priority: int = 0) -> int:
         """
-        Bilgi bankasına yeni kayıt ekler
+        Add new entry to knowledge base
         
         Args:
-            category: Kategori (örn: "kargo", "iade", "ödeme")
-            question: Soru
-            answer: Cevap
-            keywords: Anahtar kelimeler
-            priority: Öncelik (yüksek = önce gösterilir)
+            category: Category (e.g., "shipping", "returns", "payment")
+            question: Question
+            answer: Answer
+            keywords: Keywords
+            priority: Priority (higher = shown first)
             
         Returns:
-            Kayıt ID'si
+            Entry ID
         """
         cursor = self.conn.cursor()
         cursor.execute("""
@@ -373,16 +373,16 @@ class SQLMemoryManager:
     def search_knowledge(self, query: str, category: Optional[str] = None,
                         limit: int = 5, use_vector_search: Optional[bool] = None) -> List[Dict]:
         """
-        Bilgi bankasında arama yapar (keyword matching veya semantic search)
+        Search in knowledge base (keyword matching or semantic search)
         
         Args:
-            query: Arama sorgusu
-            category: Kategori filtresi (opsiyonel)
-            limit: Maksimum sonuç sayısı
+            query: Search query
+            category: Category filter (optional)
+            limit: Maximum number of results
             use_vector_search: Force vector search (None = auto-detect)
             
         Returns:
-            Bulunan kayıtlar
+            Found entries
         """
         # Use vector search if enabled and available
         if use_vector_search is None:
@@ -562,26 +562,26 @@ class SQLMemoryManager:
     
     def get_statistics(self) -> Dict:
         """
-        Genel istatistikleri döndürür
+        Return general statistics
         
         Returns:
-            İstatistik bilgileri
+            Statistics information
         """
         cursor = self.conn.cursor()
         
-        # Toplam kullanıcı
+        # Total users
         cursor.execute("SELECT COUNT(*) as count FROM users")
         total_users = cursor.fetchone()['count']
         
-        # Toplam etkileşim
+        # Total interactions
         cursor.execute("SELECT COUNT(*) as count FROM conversations")
         total_interactions = cursor.fetchone()['count']
         
-        # Çözülmemiş sorunlar
+        # Unresolved issues
         cursor.execute("SELECT COUNT(*) as count FROM conversations WHERE resolved = 0")
         unresolved = cursor.fetchone()['count']
         
-        # Bilgi bankası kayıt sayısı
+        # Knowledge base entry count
         cursor.execute("SELECT COUNT(*) as count FROM knowledge_base WHERE active = 1")
         kb_count = cursor.fetchone()['count']
         

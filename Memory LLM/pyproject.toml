@@ -12,7 +12,7 @@ license = {text = "MIT"}
 authors = [
     {name = "C. Emre Karataş", email = "karatasqemre@gmail.com"}
 ]
-keywords = ["llm", "ai", "memory", "agent", "chatbot", "ollama", "lmstudio", "multi-backend", "local", "privacy", "vector-search", "chromadb", "response-metrics", "semantic-search", "quality-analytics", "embedding", "streaming"]
+keywords = ["llm", "ai", "memory", "agent", "chatbot", "ollama", "lmstudio", "multi-backend", "local", "privacy", "vector-search", "chromadb", "response-metrics", "semantic-search", "quality-analytics", "embedding", "streaming", "function-calling", "tools", "async", "validation", "workspace"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -29,6 +29,7 @@ dependencies = [
     "requests>=2.31.0",
     "pyyaml>=6.0.1",
     "click>=8.1.0",
+    "aiohttp>=3.9.0",  # Async tools support (v2.1.0+)
 ]
 
 [project.optional-dependencies]

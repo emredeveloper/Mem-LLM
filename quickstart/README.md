@@ -2,360 +2,246 @@
 
 Quick examples to get started with `mem-llm` v2.1.3 from PyPI.
 
-## 🆕 What's New in v2.1.3
-- 🚀 **Smart Parser** - Tools execute even with natural language format
-- ✅ **Better Reliability** - More forgiving tool call detection
-- 🎯 **Clearer Instructions** - Improved system prompts with examples
-
-## What's New in v2.1.0
-- 🚀 **Async Tool Support** - Non-blocking I/O operations
-- ✅ **Input Validation** - Pattern, range, and custom validators
-- 🌐 **Built-in Async Tools** - HTTP requests, file operations
-- 🛡️ **Safer Execution** - Pre-validation prevents errors
-
-## 🚀 Installation
+## 📦 Installation
 
 ```bash
-# Basic installation
 pip install mem-llm
-
-# With API/Web UI support
-pip install mem-llm[api]
-
-# With all optional features
-pip install mem-llm[all]
 ```
 
-## 📋 Prerequisites
+## 🚀 Quick Structure
 
-Before running these examples, you need a local LLM backend:
-
-### Option 1: Ollama (Recommended)
-```bash
-# Install Ollama from https://ollama.ai
-ollama pull granite4:3b
-ollama serve
 ```
-
-### Option 2: LM Studio
-```bash
-# Download from https://lmstudio.ai
-# Load a model and start the local server
+quickstart/
+├── simple/         # 🟢 Simple Examples (5 files)
+│   ├── 01_hello.py              # Basic chat
+│   ├── 02_streaming.py          # Live streaming
+│   ├── 03_memory.py             # Multi-user memory
+│   ├── 04_backends.py           # Ollama/LM Studio
+│   └── 05_config.py             # YAML config
+│
+└── advanced/       # 🔴 Advanced Examples (4 files)
+    ├── 01_tools.py              # All tool examples (ONE FILE!)
+    ├── 02_async.py              # Async tools
+    ├── 03_validation.py         # Input validation
+    └── 04_knowledge_base.py     # Vector search & RAG
 ```
-
-## 📚 Examples
-
-### 1. Basic Chat (`01_basic_chat.py`)
-Simple chat with memory - remembers conversation context.
-
-```bash
-python quickstart/01_basic_chat.py
-```
-
-**Features:**
-- ✅ Memory across conversations
-- ✅ User context awareness
-- ✅ Simple JSON storage
 
 ---
 
-### 2. Streaming Response (`02_streaming_response.py`)
-Real-time ChatGPT-style typing effect.
+## 🟢 SIMPLE EXAMPLES
 
-```bash
-python quickstart/02_streaming_response.py
-```
+### 1️⃣ Hello World - `simple/01_hello.py`
+Most basic usage - chat and memory
 
-**Features:**
-- ✅ Real-time streaming
-- ✅ Character-by-character output
-- ✅ Better UX for long responses
-
----
-
-### 3. Multi-Backend Support (`03_multi_backend.py`)
-Test different LLM backends (Ollama, LM Studio).
-
-```bash
-python quickstart/03_multi_backend.py
-```
-
-**Features:**
-- ✅ Multiple backend support
-- ✅ Auto-detection
-- ✅ Fallback mechanisms
-
----
-
-### 4. Web UI & REST API (`04_web_ui.py`)
-Launch the full-featured web interface.
-
-```bash
-python quickstart/04_web_ui.py
-
-# Or use the CLI command
-mem-llm-web
-```
-
-**Access:**
-- 🌐 Web UI: http://localhost:8000
-- 🧠 Memory: http://localhost:8000/memory
-- 📊 Metrics: http://localhost:8000/metrics
-- 📝 API Docs: http://localhost:8000/docs
-
-**Features:**
-- ✅ Real-time chat interface
-- ✅ Memory management UI
-- ✅ Metrics dashboard
-- ✅ REST API endpoints
-- ✅ WebSocket streaming
-
----
-
-### 5. Complete Demo (`05_complete_demo.py`)
-Comprehensive showcase of all features.
-
-```bash
-python quickstart/05_complete_demo.py
-```
-
-**Includes:**
-1. Basic chat with memory
-2. SQL storage (production-ready)
-3. Knowledge base integration
-4. Streaming responses
-5. Multi-user support
-
----
-
-### 6. ⭐ Async Tools (`06_async_tools_demo.py`) - NEW in v2.1.0
-Non-blocking I/O operations with async tools.
-
-```bash
-python quickstart/06_async_tools_demo.py
-```
-
-**Features:**
-- ✅ Built-in async HTTP tools (`fetch_url`, `post_json`)
-- ✅ Async file operations
-- ✅ Custom async tools
-- ✅ Parallel async operations
-- ✅ Automatic async/sync detection
-
----
-
-### 7. ⭐ Input Validation (`07_validation_demo.py`) - NEW in v2.1.0
-Comprehensive input validation for safer tool execution.
-
-```bash
-python quickstart/07_validation_demo.py
-```
-
-**Features:**
-- ✅ Pattern validation (regex for emails, URLs)
-- ✅ Range validation (min/max for numbers)
-- ✅ Length validation (min/max for strings)
-- ✅ Choice validation (enum-like)
-- ✅ Custom validators
-- ✅ Combined multi-parameter validation
-
----
-
-### 8. ⭐ Tool Chaining (`08_tool_chaining_demo.py`) - NEW in v2.1.0
-Multi-step tool workflows automated by the LLM.
-
-```bash
-python quickstart/08_tool_chaining_demo.py
-```
-
-**Features:**
-- ✅ Sequential tool chains (A → B → C)
-- ✅ File operation pipelines
-- ✅ Data processing workflows
-- ✅ Memory + tools integration
-- ✅ Conditional chains (if-then logic)
-- ✅ Mixed async/sync chains
-
----
-
-### 9. ⭐ Memory-Aware Tools (`09_memory_tools_demo.py`) - NEW in v2.1.0
-Self-aware agents that search their own conversation history.
-
-```bash
-python quickstart/09_memory_tools_demo.py
-```
-
-**Features:**
-- ✅ `search_memory` - Find past conversations
-- ✅ `get_user_info` - Get complete user profile
-- ✅ `list_conversations` - List all chat history
-- ✅ Memory + calculation chains
-- ✅ Custom memory analysis tools
-- ✅ Multi-user memory isolation
-
----
-
-## 🎯 Quick Usage
-
-### Basic Chat
 ```python
 from mem_llm import MemAgent
 
-# Create agent
-agent = MemAgent(
-    backend='ollama',
-    model='granite4:3b'
-)
+agent = MemAgent(backend='ollama', model='llama3.2:3b', use_sql=False)
+agent.set_user("john")
 
-# Set user
-agent.set_user("alice")
-
-# Chat
 response = agent.chat("Hello!")
 print(response)
-
-# Streaming
-for chunk in agent.chat_stream("Tell me a story"):
-    print(chunk, end="", flush=True)
 ```
 
-### Function Calling (v2.0.0+)
-```python
-from mem_llm import MemAgent, tool
-
-# Enable tools
-agent = MemAgent(enable_tools=True)
-agent.set_user("alice")
-
-# Use built-in tools
-agent.chat("Calculate (25 * 4) + 10")
-agent.chat("Search my memory for 'Python'")
-
-# Create custom tool
-@tool(name="greet", description="Greet user")
-def greet(name: str) -> str:
-    return f"Hello, {name}!"
-
-agent = MemAgent(enable_tools=True, tools=[greet])
-agent.chat("Greet Alice")
-```
-
-### Tool Validation (v2.1.0+)
-```python
-from mem_llm import tool
-
-# Email validation
-@tool(
-    name="send_email",
-    pattern={"email": r'^[\w\.-]+@[\w\.-]+\.\w+$'},
-    min_length={"email": 5},
-    max_length={"email": 254}
-)
-def send_email(email: str) -> str:
-    return f"Email sent to {email}"
-
-# Range validation
-@tool(
-    name="set_volume",
-    min_value={"volume": 0},
-    max_value={"volume": 100}
-)
-def set_volume(volume: int) -> str:
-    return f"Volume: {volume}"
-
-# Choice validation
-@tool(
-    name="set_lang",
-    choices={"lang": ["python", "javascript", "rust"]}
-)
-def set_lang(lang: str) -> str:
-    return f"Language: {lang}"
-```
-
-### Async Tools (v2.1.0+)
-```python
-from mem_llm import tool
-import asyncio
-
-# Async tool
-@tool(name="wait", description="Wait N seconds")
-async def wait(seconds: float) -> str:
-    await asyncio.sleep(seconds)
-    return f"Waited {seconds}s"
-
-# Agent handles async automatically
-agent = MemAgent(enable_tools=True, tools=[wait])
-```
-
-## 🔧 Configuration
-
-### Using Ollama
-```python
-agent = MemAgent(
-    backend='ollama',
-    model='granite4:3b',
-    base_url='http://localhost:11434'
-)
-```
-
-### Using LM Studio
-```python
-agent = MemAgent(
-    backend='lmstudio',
-    model='local-model',
-    base_url='http://localhost:1234'
-)
-```
-
-### Auto-Detect Backend
-```python
-agent = MemAgent(auto_detect_backend=True)
-```
-
-## 📖 Documentation
-
-- **Main Docs**: [README.md](https://github.com/emredeveloper/Mem-LLM)
-- **API Reference**: Start server and visit `/docs`
-- **More Examples**: [GitHub examples/](https://github.com/emredeveloper/Mem-LLM/tree/main/examples)
-
-## 🐛 Troubleshooting
-
-### Backend not found
+**Run:**
 ```bash
-# Check Ollama
-curl http://localhost:11434/api/tags
-
-# Check LM Studio
-curl http://localhost:1234/v1/models
+cd simple
+python 01_hello.py
 ```
-
-### Import errors
-```bash
-# Make sure mem-llm is installed
-pip install mem-llm --upgrade
-
-# For Web UI features
-pip install mem-llm[api]
-```
-
-### Connection issues
-- Ensure backend is running
-- Check firewall settings
-- Verify port numbers (11434 for Ollama, 1234 for LM Studio)
-
-## 🚀 Next Steps
-
-1. **Explore Web UI**: `mem-llm-web`
-2. **Check GitHub**: More advanced examples
-3. **Read Docs**: Full API documentation
-4. **Join Community**: Report issues, suggest features
-
-## 📄 License
-
-MIT License - See [LICENSE](https://github.com/emredeveloper/Mem-LLM/blob/main/LICENSE)
 
 ---
 
-**PyPI Package**: https://pypi.org/project/mem-llm/  
-**GitHub**: https://github.com/emredeveloper/Mem-LLM
+### 2️⃣ Streaming - `simple/02_streaming.py`
+Real-time streaming responses
+
+```python
+for chunk in agent.chat_stream("What is Python?"):
+    print(chunk, end="", flush=True)
+```
+
+---
+
+### 3️⃣ Memory - `simple/03_memory.py`
+Multi-user memory management
+
+```python
+agent.set_user("alice")
+agent.chat("My name is Alice, I'm a software engineer")
+
+agent.set_user("bob")
+agent.chat("I'm Bob, I'm a doctor")
+
+agent.set_user("alice")
+agent.chat("What's my profession?")  # Remembers "software engineer"
+```
+
+---
+
+### 4️⃣ Backends - `simple/04_backends.py`
+Different LLM backends
+
+```python
+# Ollama
+agent = MemAgent(backend='ollama', model='llama3.2:3b')
+
+# LM Studio
+agent = MemAgent(backend='lmstudio', model='any-model')
+
+# Auto-detect
+agent = MemAgent(backend='auto', model='llama3.2:3b')
+```
+
+---
+
+### 5️⃣ YAML Config - `simple/05_config.py`
+Load configuration from YAML file
+
+```yaml
+# config.yaml
+backend: ollama
+model: llama3.2:3b
+use_sql: false
+memory_dir: memories
+```
+
+```python
+import yaml
+with open("config.yaml") as f:
+    config = yaml.safe_load(f)
+    
+agent = MemAgent(**config)
+```
+
+---
+
+## 🔴 ADVANCED EXAMPLES
+
+### 1️⃣ Tools (Function Calling) - `advanced/01_tools.py` ⭐
+**ALL TOOL EXAMPLES IN ONE FILE!**
+
+This single file includes:
+- ✅ Built-in tools (18 ready-to-use tools)
+- ✅ Custom tools (your own tools)
+- ✅ Tool chaining (sequential execution)
+- ✅ Memory tools (memory-aware)
+- ✅ Workspace management
+
+```python
+from mem_llm import MemAgent, tool
+
+# Tools enabled agent
+agent = MemAgent(backend='ollama', model='llama3.2:3b', enable_tools=True)
+
+# Use built-in tools
+agent.chat("Calculate: (25 * 4) + 100")
+agent.chat("Create file 'test.txt' with content 'Hello!'")
+
+# Custom tool
+@tool(name="greet", description="Greet someone")
+def greet(name: str) -> str:
+    return f"Hello, {name}!"
+
+agent.tool_registry.register_tool(greet)
+agent.chat("Use greet tool with name 'Alice'")
+```
+
+**Run:**
+```bash
+cd advanced
+python 01_tools.py
+```
+
+---
+
+### 2️⃣ Async Tools - `advanced/02_async.py`
+Asynchronous tools (non-blocking)
+
+```python
+@tool(name="async_task", description="Async operation")
+async def async_task(duration: float) -> str:
+    await asyncio.sleep(duration)
+    return f"Completed after {duration}s"
+```
+
+---
+
+### 3️⃣ Validation - `advanced/03_validation.py`
+Input validation (min/max, pattern, choices)
+
+```python
+@tool(
+    name="validate_age",
+    description="Validate age",
+    min_value={"age": 18},
+    max_value={"age": 120}
+)
+def validate_age(age: int) -> str:
+    return f"Age {age} is valid!"
+```
+
+---
+
+### 4️⃣ Knowledge Base - `advanced/04_knowledge_base.py`
+Vector search & RAG
+
+```python
+agent = MemAgent(enable_kb=True)
+
+# Add documents
+agent.add_document("Python is a programming language...")
+
+# Semantic search
+results = agent.search_documents("programming", limit=3)
+
+# RAG (automatic)
+agent.chat("What do you know about Python?")
+```
+
+---
+
+## 🎯 Recommended Learning Path
+
+### Beginner:
+1. `simple/01_hello.py` - Basic usage
+2. `simple/02_streaming.py` - Streaming
+3. `simple/03_memory.py` - Memory
+
+### Intermediate:
+4. `simple/04_backends.py` - Different LLMs
+5. `simple/05_config.py` - Config files
+6. `advanced/01_tools.py` - Function calling
+
+### Advanced:
+7. `advanced/02_async.py` - Async operations
+8. `advanced/03_validation.py` - Input validation
+9. `advanced/04_knowledge_base.py` - Vector search
+
+---
+
+## 🆕 What's New in v2.1.3
+
+- ✅ **Smart tool call parser** - Natural language support
+- ✅ **Tool workspace** - Organized file management (21 tools)
+- ✅ **3 new workspace tools** - list, stats, cleanup
+- 🐛 **Bug fixes** - create_json, search_memory, get_tool()
+
+---
+
+## 📚 Resources
+
+- **PyPI**: https://pypi.org/project/mem-llm/
+- **GitHub**: https://github.com/emredeveloper/Mem-LLM
+- **Full Docs**: See `examples/` directory
+
+---
+
+## 💡 Tips
+
+1. **Start simple** - Begin with `simple/01_hello.py`
+2. **One file = one concept** - Each example focuses on ONE feature
+3. **Tools = ONE file** - All tool examples in `advanced/01_tools.py`
+4. **Copy & modify** - Use examples as templates
+5. **Check logs** - Enable logging for debugging
+
+**Need help?** Open an issue on GitHub! 🚀
 

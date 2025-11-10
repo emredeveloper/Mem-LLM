@@ -161,6 +161,9 @@ def write_file(filepath: str, content: str) -> str:
         workspace = get_workspace()
         full_path = workspace.get_file_path(filepath)
         
+        # Ensure parent directory exists
+        full_path.parent.mkdir(parents=True, exist_ok=True)
+        
         with open(full_path, 'w', encoding='utf-8') as f:
             f.write(content)
         return f"Successfully wrote {len(content)} characters to {full_path}"
