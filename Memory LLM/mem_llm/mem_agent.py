@@ -77,12 +77,12 @@ class MemAgent:
                  api_key: Optional[str] = None,
                  auto_detect_backend: bool = False,
                  check_connection: bool = False,
-               enable_security: bool = False,
-               enable_vector_search: bool = False,
-               embedding_model: str = "all-MiniLM-L6-v2",
+                enable_security: bool = False,
+                enable_vector_search: bool = False,
+                embedding_model: str = "all-MiniLM-L6-v2",
                enable_tools: bool = False,
                tools: Optional[List] = None,
-               **llm_kwargs):
+                **llm_kwargs):
         """
         Args:
             model: LLM model to use

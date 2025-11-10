@@ -4,9 +4,9 @@
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Memory-enabled AI assistant with multi-backend LLM support (Ollama, LM Studio)**
+**Memory-enabled AI assistant with function calling and multi-backend LLM support (Ollama, LM Studio)**
 
-Mem-LLM is a powerful Python library that brings persistent memory capabilities to Large Language Models. Build AI assistants that remember user interactions, manage knowledge bases, and run 100% locally with Ollama or LM Studio.
+Mem-LLM is a powerful Python library that brings persistent memory and function calling capabilities to Large Language Models. Build self-aware AI agents that remember conversations, perform actions with tools, and run 100% locally with Ollama or LM Studio.
 
 ## 🔗 Links
 
@@ -15,39 +15,50 @@ Mem-LLM is a powerful Python library that brings persistent memory capabilities 
 - **Issues**: https://github.com/emredeveloper/Mem-LLM/issues
 - **Documentation**: See examples/ directory
 
-## 🆕 What's New in v1.3.3
+## 🆕 What's New in v2.1.0
 
-- ⚡ **Streaming Response** – Real-time response generation with ChatGPT-style typing effect
-- 🌐 **REST API Server** – FastAPI-based HTTP endpoints and WebSocket support
-- 💻 **Web UI** – Modern, responsive web interface for easy interaction
-- 🔌 **WebSocket Streaming** – Low-latency, real-time chat with streaming support
-- 📡 **API Documentation** – Auto-generated Swagger UI and ReDoc
+### 🚀 Async Tool Support *(NEW)*
+- ⚡ **Full `async def` support** for non-blocking I/O operations
+- 🌐 **Built-in async tools**: `fetch_url`, `post_json`, file operations
+- 🔄 **Automatic async detection** and proper event loop handling
+- 📈 **Better performance** for I/O-bound operations
 
-## What's New in v1.3.2
+### ✅ Comprehensive Input Validation *(NEW)*
+- 🔒 **Pattern validation**: Regex for emails, URLs, custom formats
+- 📊 **Range validation**: Min/max for numbers
+- 📏 **Length validation**: Min/max for strings and lists
+- 🎯 **Choice validation**: Enum-like predefined values
+- 🛠️ **Custom validators**: Your own validation logic
+- 💬 **Detailed error messages** for validation failures
 
-- 📊 **Response Metrics** (v1.3.1+) – Track confidence, latency, KB usage, and quality analytics
-- 🔍 **Vector Search** (v1.3.2+) – Semantic search with ChromaDB, cross-lingual support
-- 🎯 **Quality Monitoring** – Production-ready metrics for response quality
-- 🌐 **Semantic Understanding** – Understands meaning, not just keywords
-
-## What's New in v1.3.6
-
-- 🚫 **Removed Cloud Dependency**: Now 100% local-first with Ollama and LM Studio only
-- 🔒 **Enhanced Privacy**: No external API calls or cloud services required
-- ⚡ **Streaming Responses**: Real-time ChatGPT-style typing effect (v1.3.3+)
-- 🌐 **Web UI & REST API**: Modern web interface with FastAPI backend (v1.3.3+)
-- 📊 **Response Metrics**: Track quality, confidence, and performance (v1.3.1+)
-- 🔍 **Vector Search**: Semantic search with ChromaDB (v1.3.2+)
+### v2.0.0 Features
+- 🛠️ **Function Calling**: LLMs perform actions via external Python functions
+- 🧠 **Memory-Aware Tools**: Agents search their own conversation history
+- 🔧 **13+ Built-in Tools**: Math, text, file ops, utility, memory, and async tools
+- 🎨 **Easy Custom Tools**: Simple `@tool` decorator
+- ⛓️ **Tool Chaining**: Combine multiple tools automatically
 
 [See full changelog](CHANGELOG.md)
 
 ## ✨ Key Features
 
+### 🆕 v2.1.0 Features *(Latest)*
+- 🚀 **Async Tool Support** - `async def` functions for non-blocking I/O
+- ✅ **Input Validation** - Pattern, range, length, choice, and custom validators
+- 🌐 **Built-in Async Tools** - `fetch_url`, `post_json`, async file operations
+- 🛡️ **Safer Execution** - Pre-execution validation prevents errors
+
+### v2.0.0 Features
+- 🛠️ **Function Calling** - LLMs can perform actions via external Python functions
+- 🧠 **Memory-Aware Tools** - Agents can search their own conversation history (unique!)
+- 🔧 **18+ Built-in Tools** - Math, text, file ops, utility, memory, and async tools
+- 🎨 **Custom Tools** - Easy `@tool` decorator for your functions
+- ⛓️ **Tool Chaining** - Automatic multi-tool workflows
+
+### Core Features
 - ⚡ **Streaming Response** (v1.3.3+) - Real-time response with ChatGPT-style typing effect
 - 🌐 **REST API & Web UI** (v1.3.3+) - FastAPI server + modern web interface
 - 🔌 **WebSocket Support** (v1.3.3+) - Low-latency streaming chat
-- 📊 **Response Metrics** (v1.3.1+) - Track confidence, latency, KB usage, and quality analytics
-- 🔍 **Vector Search** (v1.3.2+) - Semantic search with ChromaDB, cross-lingual support
 - 🔌 **Multi-Backend Support** (v1.3.0+) - Ollama and LM Studio with unified API
 - 🔍 **Auto-Detection** (v1.3.0+) - Automatically find and use available LLM services
 - 🧠 **Persistent Memory** - Remembers conversations across sessions
@@ -58,13 +69,17 @@ Mem-LLM is a powerful Python library that brings persistent memory capabilities 
 - 👥 **Multi-User Support** - Separate memory spaces for different users
 - 🔧 **Memory Tools** - Search, export, and manage stored memories
 - 🎨 **Flexible Configuration** - Personal or business usage modes
-- 📊 **Production Ready** - Comprehensive test suite with 50+ automated tests
 - 🔒 **100% Local & Private** - No cloud dependencies or external API calls
+
+### Advanced Features
+- 📊 **Response Metrics** (v1.3.1+) - Track confidence, latency, KB usage, and quality analytics
+- 🔍 **Vector Search** (v1.3.2+) - Semantic search with ChromaDB, cross-lingual support
 - 🛡️ **Prompt Injection Protection** (v1.1.0+) - Advanced security against prompt attacks (opt-in)
 - ⚡ **High Performance** (v1.1.0+) - Thread-safe operations, 15K+ msg/s throughput
 - 🔄 **Retry Logic** (v1.1.0+) - Automatic exponential backoff for network errors
 - 📊 **Conversation Summarization** (v1.2.0+) - Automatic token compression (~40-60% reduction)
 - 📤 **Data Export/Import** (v1.2.0+) - Multi-format support (JSON, CSV, SQLite, PostgreSQL, MongoDB)
+- 📊 **Production Ready** - Comprehensive test suite with 50+ automated tests
 
 ## 🚀 Quick Start
 
@@ -168,18 +183,89 @@ agent = MemAgent(enable_tools=True, tools=[greet_user])
 agent.chat("Greet John")  # Agent will call your custom tool
 ```
 
-**Built-in Tools (13 total):**
+**Built-in Tools (18+ total):**
 - **Math**: `calculate` - Evaluate math expressions
 - **Text**: `count_words`, `reverse_text`, `to_uppercase`, `to_lowercase`
 - **File**: `read_file`, `write_file`, `list_files`
 - **Utility**: `get_current_time`, `create_json`
-- **Memory** *(NEW)*: `search_memory`, `get_user_info`, `list_conversations`
+- **Memory** *(v2.0)*: `search_memory`, `get_user_info`, `list_conversations`
+- **Async** *(v2.1)*: `fetch_url`, `post_json`, `read_file_async`, `write_file_async`, `async_sleep`
 
 **Memory Tools** allow agents to access their own conversation history:
 ```python
 agent.chat("Search my memory for 'Python'")  # Finds past conversations
 agent.chat("What's my user info?")  # Gets user profile
 agent.chat("Show my last 5 conversations")  # Lists recent chats
+```
+
+### Tool Validation (v2.1.0+) ✅
+
+Add input validation to your custom tools:
+
+```python
+from mem_llm import tool
+
+# Email validation with regex pattern
+@tool(
+    name="send_email",
+    pattern={"email": r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'},
+    min_length={"email": 5, "subject": 1},
+    max_length={"email": 254, "subject": 100}
+)
+def send_email(email: str, subject: str) -> str:
+    return f"Email sent to {email}"
+
+# Range validation for numbers
+@tool(
+    name="set_volume",
+    min_value={"volume": 0},
+    max_value={"volume": 100}
+)
+def set_volume(volume: int) -> str:
+    return f"Volume set to {volume}"
+
+# Choice validation (enum-like)
+@tool(
+    name="set_language",
+    choices={"lang": ["python", "javascript", "rust", "go"]}
+)
+def set_language(lang: str) -> str:
+    return f"Language: {lang}"
+
+# Custom validator function
+def is_even(x: int) -> bool:
+    return x % 2 == 0
+
+@tool(name="process_even", validators={"number": is_even})
+def process_even(number: int) -> str:
+    return f"Processed: {number}"
+```
+
+### Async Tools (v2.1.0+) 🚀
+
+Create async tools for non-blocking I/O:
+
+```python
+import asyncio
+from mem_llm import tool
+
+# Async tool for HTTP requests
+@tool(name="fetch_data", description="Fetch data from API")
+async def fetch_data(url: str) -> str:
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            return await response.text()
+
+# Async file operations
+@tool(name="process_file", description="Process large file")
+async def process_large_file(filepath: str) -> str:
+    async with aiofiles.open(filepath, 'r') as f:
+        content = await f.read()
+    return f"Processed {len(content)} bytes"
+
+# Agent automatically handles async tools
+agent = MemAgent(enable_tools=True, tools=[fetch_data, process_large_file])
+agent.chat("Fetch data from https://api.example.com/data")
 ```
 
 ### Streaming Response (v1.3.3+) ⚡

@@ -5,6 +5,53 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2025-11-10
+
+### ✨ New Features
+
+- **Async Tool Support** 🚀
+  - Full support for `async def` functions as tools
+  - Automatic detection of async/sync functions
+  - Proper event loop handling for async execution
+  - Non-blocking I/O operations for better performance
+
+- **Comprehensive Input Validation** ✅
+  - **Pattern Validation**: Regex patterns for string parameters (e.g., email, URL validation)
+  - **Range Validation**: Min/max values for numbers
+  - **Length Validation**: Min/max length for strings and lists
+  - **Choice Validation**: Enum-like behavior with predefined allowed values
+  - **Custom Validators**: User-defined validation functions
+  - Detailed validation error messages
+
+- **Built-in Async Tools** 🌐
+  - `fetch_url`: Async HTTP GET requests
+  - `post_json`: Async HTTP POST with JSON
+  - `read_file_async`: Non-blocking file reads
+  - `write_file_async`: Non-blocking file writes
+  - `async_sleep`: Async wait utility
+
+### 🔧 Enhanced Tool System
+
+- `ToolParameter` dataclass extended with validation fields
+- `Tool.validate_arguments()` method for pre-execution validation
+- `Tool.is_async` flag to identify async functions
+- Enhanced `@tool` decorator with validation parameters
+
+### 📚 Documentation
+
+- Added `examples/20_async_and_validation.py` - Complete async and validation demo
+- Updated tool system documentation
+- Added validation examples and best practices
+
+### 🎯 Benefits
+
+- **Better Performance**: Async tools don't block the event loop
+- **Safer Execution**: Input validation prevents errors before execution
+- **Professional APIs**: Proper error handling and validation
+- **Flexible Validation**: Multiple validation strategies (regex, range, choice, custom)
+
+---
+
 ## [2.0.0] - 2025-11-10
 
 ### ✨ Major Features
