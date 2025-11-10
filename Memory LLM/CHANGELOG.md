@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.1] - 2025-11-10
+
+### 🐛 Bug Fixes
+
+- **Fixed `register_tool()` method missing** - Added `register_tool()` as an alias to `register()` in `ToolRegistry` for backward compatibility
+- **Fixed async tools not loading** - Updated `_load_builtin_tools()` to automatically load async tools from `builtin_tools_async.py`
+- **Fixed export name** - Added `ASYNC_BUILTIN_TOOLS` export to async tools module
+
+### 🔧 Improvements
+
+- `register_tool()` now accepts both `Tool` objects and decorated functions
+- Better error handling for tool registration
+- Improved documentation for registration methods
+
 ## [2.1.0] - 2025-11-10
 
 ### ✨ New Features

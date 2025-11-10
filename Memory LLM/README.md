@@ -15,7 +15,14 @@ Mem-LLM is a powerful Python library that brings persistent memory and function 
 - **Issues**: https://github.com/emredeveloper/Mem-LLM/issues
 - **Documentation**: See examples/ directory
 
-## 🆕 What's New in v2.1.0
+## 🆕 What's New in v2.1.1
+
+### 🐛 Quick Fixes
+- ✅ **Fixed tool registration** - Added missing `register_tool()` method
+- ✅ **Async tools now auto-load** - All 18+ built-in tools work out of the box
+- ✅ **Better backward compatibility** - Improved API consistency
+
+## What's New in v2.1.0
 
 ### 🚀 Async Tool Support *(NEW)*
 - ⚡ **Full `async def` support** for non-blocking I/O operations

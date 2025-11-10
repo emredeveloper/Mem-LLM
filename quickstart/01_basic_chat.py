@@ -18,12 +18,26 @@ def main():
     print("Mem-LLM Quickstart 1: Basic Chat")
     print("="*60)
     
-    # Create agent with Ollama backend
+    # Create agent with your preferred backend
+    # Option 1: Ollama
     agent = MemAgent(
         backend='ollama',
         model='granite4:3b',
         use_sql=False  # Use simple JSON storage
     )
+    
+    # Option 2: LM Studio
+    # agent = MemAgent(
+    #     backend='lmstudio',
+    #     model='local-model',
+    #     use_sql=False
+    # )
+    
+    # Option 3: Auto-detect
+    # agent = MemAgent(
+    #     auto_detect_backend=True,
+    #     use_sql=False
+    # )
     
     # Set user
     agent.set_user("quickstart_user")

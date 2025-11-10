@@ -1,8 +1,13 @@
 # Mem-LLM Quickstart Examples
 
-Quick examples to get started with `mem-llm` v2.1.0 from PyPI.
+Quick examples to get started with `mem-llm` v2.1.1 from PyPI.
 
-## 🆕 What's New in v2.1.0
+## 🆕 What's New in v2.1.1
+- 🐛 **Bug Fixes** - Fixed `register_tool()` and async tools auto-loading
+- ✅ **All 18+ Tools Work** - Sync and async tools ready to use
+- 🔧 **Better API** - Improved backward compatibility
+
+## What's New in v2.1.0
 - 🚀 **Async Tool Support** - Non-blocking I/O operations
 - ✅ **Input Validation** - Pattern, range, and custom validators
 - 🌐 **Built-in Async Tools** - HTTP requests, file operations
@@ -120,6 +125,73 @@ python quickstart/05_complete_demo.py
 3. Knowledge base integration
 4. Streaming responses
 5. Multi-user support
+
+---
+
+### 6. ⭐ Async Tools (`06_async_tools_demo.py`) - NEW in v2.1.0
+Non-blocking I/O operations with async tools.
+
+```bash
+python quickstart/06_async_tools_demo.py
+```
+
+**Features:**
+- ✅ Built-in async HTTP tools (`fetch_url`, `post_json`)
+- ✅ Async file operations
+- ✅ Custom async tools
+- ✅ Parallel async operations
+- ✅ Automatic async/sync detection
+
+---
+
+### 7. ⭐ Input Validation (`07_validation_demo.py`) - NEW in v2.1.0
+Comprehensive input validation for safer tool execution.
+
+```bash
+python quickstart/07_validation_demo.py
+```
+
+**Features:**
+- ✅ Pattern validation (regex for emails, URLs)
+- ✅ Range validation (min/max for numbers)
+- ✅ Length validation (min/max for strings)
+- ✅ Choice validation (enum-like)
+- ✅ Custom validators
+- ✅ Combined multi-parameter validation
+
+---
+
+### 8. ⭐ Tool Chaining (`08_tool_chaining_demo.py`) - NEW in v2.1.0
+Multi-step tool workflows automated by the LLM.
+
+```bash
+python quickstart/08_tool_chaining_demo.py
+```
+
+**Features:**
+- ✅ Sequential tool chains (A → B → C)
+- ✅ File operation pipelines
+- ✅ Data processing workflows
+- ✅ Memory + tools integration
+- ✅ Conditional chains (if-then logic)
+- ✅ Mixed async/sync chains
+
+---
+
+### 9. ⭐ Memory-Aware Tools (`09_memory_tools_demo.py`) - NEW in v2.1.0
+Self-aware agents that search their own conversation history.
+
+```bash
+python quickstart/09_memory_tools_demo.py
+```
+
+**Features:**
+- ✅ `search_memory` - Find past conversations
+- ✅ `get_user_info` - Get complete user profile
+- ✅ `list_conversations` - List all chat history
+- ✅ Memory + calculation chains
+- ✅ Custom memory analysis tools
+- ✅ Multi-user memory isolation
 
 ---
 

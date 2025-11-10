@@ -18,11 +18,21 @@ def main():
     print("Mem-LLM Quickstart 2: Streaming Response")
     print("="*60)
     
-    # Create agent
+    # Create agent with your preferred backend
+    # Option 1: Ollama
     agent = MemAgent(
         backend='ollama',
         model='granite4:3b'
     )
+    
+    # Option 2: LM Studio
+    # agent = MemAgent(
+    #     backend='lmstudio',
+    #     model='local-model'
+    # )
+    
+    # Option 3: Auto-detect
+    # agent = MemAgent(auto_detect_backend=True)
     
     agent.set_user("streaming_user")
     

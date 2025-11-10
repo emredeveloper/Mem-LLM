@@ -6,7 +6,14 @@
 
 Mem-LLM is a Python framework for building privacy-first, memory-enabled AI assistants that run 100% locally. The project combines persistent multi-user conversation history with optional knowledge bases, multiple storage backends, vector search capabilities, response quality metrics, and tight integration with [Ollama](https://ollama.ai) and [LM Studio](https://lmstudio.ai) so you can experiment locally and deploy production-ready workflows with quality monitoring and semantic understanding - completely private and offline.
 
-## 🆕 What's New in v2.1.0
+## 🆕 What's New in v2.1.1
+
+### 🐛 Quick Fixes
+- ✅ **Fixed tool registration** - Added missing `register_tool()` method
+- ✅ **Async tools now auto-load** - All 18+ built-in tools work out of the box
+- ✅ **Better backward compatibility** - Improved API consistency
+
+## What's New in v2.1.0
 
 ### 🚀 Async Tool Support *(NEW)*
 - ⚡ **Full `async def` support** for non-blocking I/O operations
@@ -186,7 +193,7 @@ agent = MemAgent(
 
 For advanced configuration (SQL storage, knowledge base support, business mode, etc.), copy `config.yaml.example` from the package directory and adjust it for your environment.
 
-## Test Coverage (v2.1.0)
+## Test Coverage (v2.1.1)
 - ✅ **20+ examples demonstrating all features**
 - ✅ Function Calling (3 examples - basic, memory tools, async+validation)
 - ✅ Ollama and LM Studio backends (14 tests)

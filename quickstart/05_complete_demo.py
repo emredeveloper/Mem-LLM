@@ -25,11 +25,25 @@ def demo_basic_chat():
     print("DEMO 1: Basic Chat with Memory")
     print("="*60)
     
+    # Option 1: Ollama
     agent = MemAgent(
         backend='ollama',
         model='granite4:3b',
         use_sql=False
     )
+    
+    # Option 2: LM Studio
+    # agent = MemAgent(
+    #     backend='lmstudio',
+    #     model='local-model',
+    #     use_sql=False
+    # )
+    
+    # Option 3: Auto-detect
+    # agent = MemAgent(
+    #     auto_detect_backend=True,
+    #     use_sql=False
+    # )
     
     agent.set_user("alice")
     
@@ -49,11 +63,19 @@ def demo_sql_storage():
     print("DEMO 2: SQL Storage (Production-Ready)")
     print("="*60)
     
+    # Option 1: Ollama
     agent = MemAgent(
         backend='ollama',
         model='granite4:3b',
         use_sql=True  # Use SQLite for thread-safe storage
     )
+    
+    # Option 2: LM Studio (commented out)
+    # agent = MemAgent(
+    #     backend='lmstudio',
+    #     model='local-model',
+    #     use_sql=True
+    # )
     
     agent.set_user("bob")
     
@@ -94,11 +116,19 @@ def demo_knowledge_base():
     with open(kb_file, 'w') as f:
         json.dump(kb_data, f)
     
+    # Option 1: Ollama
     agent = MemAgent(
         backend='ollama',
         model='granite4:3b',
         knowledge_base=kb_file
     )
+    
+    # Option 2: LM Studio (commented out)
+    # agent = MemAgent(
+    #     backend='lmstudio',
+    #     model='local-model',
+    #     knowledge_base=kb_file
+    # )
     
     agent.set_user("customer")
     
@@ -120,10 +150,17 @@ def demo_streaming():
     print("DEMO 4: Streaming Response")
     print("="*60)
     
+    # Option 1: Ollama
     agent = MemAgent(
         backend='ollama',
         model='granite4:3b'
     )
+    
+    # Option 2: LM Studio (commented out)
+    # agent = MemAgent(
+    #     backend='lmstudio',
+    #     model='local-model'
+    # )
     
     agent.set_user("streamer")
     
@@ -141,11 +178,19 @@ def demo_multi_user():
     print("DEMO 5: Multi-User Support")
     print("="*60)
     
+    # Option 1: Ollama
     agent = MemAgent(
         backend='ollama',
         model='granite4:3b',
         use_sql=True
     )
+    
+    # Option 2: LM Studio (commented out)
+    # agent = MemAgent(
+    #     backend='lmstudio',
+    #     model='local-model',
+    #     use_sql=True
+    # )
     
     # User 1: Alice
     agent.set_user("alice")
