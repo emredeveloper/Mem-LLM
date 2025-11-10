@@ -6,25 +6,47 @@
 
 Mem-LLM is a Python framework for building privacy-first, memory-enabled AI assistants that run 100% locally. The project combines persistent multi-user conversation history with optional knowledge bases, multiple storage backends, vector search capabilities, response quality metrics, and tight integration with [Ollama](https://ollama.ai) and [LM Studio](https://lmstudio.ai) so you can experiment locally and deploy production-ready workflows with quality monitoring and semantic understanding - completely private and offline.
 
-## 🆕 What's New in v1.3.6
+## 🆕 What's New in v2.1.0
 
-- 🚫 **100% Local & Private** – Removed cloud dependency, Ollama and LM Studio only
-- 🔒 **Zero External Calls** – Complete data sovereignty, no API calls to external services
-- ⚡ **Streaming Response** – Real-time ChatGPT-style streaming (v1.3.3+)
-- 🌐 **REST API & Web UI** – FastAPI server with modern interface (v1.3.3+)
-- 🐛 **Bug Fixes** – Fixed API memory search and stats endpoints
-- 📊 **Response Metrics** – Track quality, confidence, and performance (v1.3.1+)
+### 🚀 Async Tool Support *(NEW)*
+- ⚡ **Full `async def` support** for non-blocking I/O operations
+- 🌐 **Built-in async tools**: `fetch_url`, `post_json`, async file operations
+- 🔄 **Automatic async detection** and proper event loop handling
+- 📈 **Better performance** for I/O-bound tasks
 
-## What's New in v1.3.2
+### ✅ Comprehensive Input Validation *(NEW)*
+- 🔒 **Pattern validation**: Regex for emails, URLs, custom formats
+- 📊 **Range validation**: Min/max for numbers
+- 📏 **Length validation**: Min/max for strings and lists
+- 🎯 **Choice validation**: Enum-like predefined values
+- 🛠️ **Custom validators**: Define your own validation logic
+- 💬 **Detailed error messages** for validation failures
 
-- 📊 **Response Metrics** – Track confidence, latency, KB usage, and quality analytics
-- 🔍 **Vector Search** – Semantic search with ChromaDB, cross-lingual support
-- 🎯 **Quality Monitoring** – Production-ready metrics for response quality
-- 🌐 **Semantic Understanding** – Understands meaning, not just keywords
+### v2.0.0 Features
+- 🛠️ **Function Calling** – LLMs can perform actions by calling external Python functions
+- 🧠 **Memory-Aware Tools** – Agents can search their own conversation history (unique!)
+- 🔧 **18+ Built-in Tools** – Math, text, file ops, utility, memory, and async tools
+- 🎨 **Easy Custom Tools** – Simple `@tool` decorator
+- ⛓️ **Tool Chaining** – Automatic multi-tool workflows
 
 [See full changelog](Memory%20LLM/CHANGELOG.md) | [Multi-Backend Guide](Memory%20LLM/MULTI_BACKEND_GUIDE.md)
 
 ## Features
+
+### 🆕 v2.1.0 Features
+- **Async Tool Support** *(v2.1.0)* – Non-blocking I/O with `async def` functions
+- **Input Validation** *(v2.1.0)* – Pattern, range, length, choice, and custom validators
+- **Built-in Async Tools** *(v2.1.0)* – HTTP requests, file operations, utilities
+- **Safer Execution** *(v2.1.0)* – Pre-validation prevents runtime errors
+
+### v2.0.0 Features
+- **Function Calling** *(v2.0.0)* – LLMs can call external Python functions
+- **Memory-Aware Tools** *(v2.0.0)* – Agents search their own conversation history
+- **18+ Built-in Tools** *(v2.0.0)* – Math, text, file, utility, memory, and async tools
+- **Custom Tools** *(v2.0.0)* – Easy `@tool` decorator for your functions
+- **Tool Chaining** *(v2.0.0)* – Automatic multi-tool workflows
+
+### Core Features
 - **100% Local & Private** *(v1.3.6)* – No cloud dependencies, all processing on your machine.
 - **Streaming Response** *(v1.3.3+)* – Real-time ChatGPT-style streaming for Ollama and LM Studio.
 - **REST API Server** *(v1.3.3+)* – FastAPI-based server with WebSocket and SSE streaming support.
@@ -99,9 +121,25 @@ agent.set_user("alice")
 print(agent.chat("My name is Alice and I love Python!"))
 print(agent.chat("What do I love?"))  # Agent remembers!
 
-# NEW in v1.3.3: Streaming response
+# Streaming response (v1.3.3+)
 for chunk in agent.chat_stream("Tell me a story"):
     print(chunk, end="", flush=True)
+
+# NEW in v2.0.0: Function calling with tools
+agent = MemAgent(enable_tools=True)
+agent.set_user("alice")
+agent.chat("Calculate (25 * 4) + 10")  # Uses built-in calculator
+agent.chat("Search my memory for 'Python'")  # Uses memory tool
+
+# NEW in v2.1.0: Async tools & validation
+from mem_llm import tool
+
+@tool(
+    name="send_email",
+    pattern={"email": r'^[\w\.-]+@[\w\.-]+\.\w+$'}  # Email validation
+)
+def send_email(email: str) -> str:
+    return f"Email sent to {email}"
 ```
 
 ### 4. Web UI & REST API (v1.3.3+)
@@ -148,8 +186,9 @@ agent = MemAgent(
 
 For advanced configuration (SQL storage, knowledge base support, business mode, etc.), copy `config.yaml.example` from the package directory and adjust it for your environment.
 
-## Test Coverage (v1.3.6)
-- ✅ **14+ tests for multi-backend support**
+## Test Coverage (v2.1.0)
+- ✅ **20+ examples demonstrating all features**
+- ✅ Function Calling (3 examples - basic, memory tools, async+validation)
 - ✅ Ollama and LM Studio backends (14 tests)
 - ✅ Conversation Summarization (5 tests)
 - ✅ Data Export/Import (11 tests - JSON, CSV, SQLite, PostgreSQL, MongoDB)

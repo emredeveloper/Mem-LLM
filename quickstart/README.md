@@ -1,6 +1,12 @@
 # Mem-LLM Quickstart Examples
 
-Quick examples to get started with `mem-llm` from PyPI.
+Quick examples to get started with `mem-llm` v2.1.0 from PyPI.
+
+## 🆕 What's New in v2.1.0
+- 🚀 **Async Tool Support** - Non-blocking I/O operations
+- ✅ **Input Validation** - Pattern, range, and custom validators
+- 🌐 **Built-in Async Tools** - HTTP requests, file operations
+- 🛡️ **Safer Execution** - Pre-validation prevents errors
 
 ## 🚀 Installation
 
@@ -119,6 +125,7 @@ python quickstart/05_complete_demo.py
 
 ## 🎯 Quick Usage
 
+### Basic Chat
 ```python
 from mem_llm import MemAgent
 
@@ -138,6 +145,74 @@ print(response)
 # Streaming
 for chunk in agent.chat_stream("Tell me a story"):
     print(chunk, end="", flush=True)
+```
+
+### Function Calling (v2.0.0+)
+```python
+from mem_llm import MemAgent, tool
+
+# Enable tools
+agent = MemAgent(enable_tools=True)
+agent.set_user("alice")
+
+# Use built-in tools
+agent.chat("Calculate (25 * 4) + 10")
+agent.chat("Search my memory for 'Python'")
+
+# Create custom tool
+@tool(name="greet", description="Greet user")
+def greet(name: str) -> str:
+    return f"Hello, {name}!"
+
+agent = MemAgent(enable_tools=True, tools=[greet])
+agent.chat("Greet Alice")
+```
+
+### Tool Validation (v2.1.0+)
+```python
+from mem_llm import tool
+
+# Email validation
+@tool(
+    name="send_email",
+    pattern={"email": r'^[\w\.-]+@[\w\.-]+\.\w+$'},
+    min_length={"email": 5},
+    max_length={"email": 254}
+)
+def send_email(email: str) -> str:
+    return f"Email sent to {email}"
+
+# Range validation
+@tool(
+    name="set_volume",
+    min_value={"volume": 0},
+    max_value={"volume": 100}
+)
+def set_volume(volume: int) -> str:
+    return f"Volume: {volume}"
+
+# Choice validation
+@tool(
+    name="set_lang",
+    choices={"lang": ["python", "javascript", "rust"]}
+)
+def set_lang(lang: str) -> str:
+    return f"Language: {lang}"
+```
+
+### Async Tools (v2.1.0+)
+```python
+from mem_llm import tool
+import asyncio
+
+# Async tool
+@tool(name="wait", description="Wait N seconds")
+async def wait(seconds: float) -> str:
+    await asyncio.sleep(seconds)
+    return f"Waited {seconds}s"
+
+# Agent handles async automatically
+agent = MemAgent(enable_tools=True, tools=[wait])
 ```
 
 ## 🔧 Configuration
