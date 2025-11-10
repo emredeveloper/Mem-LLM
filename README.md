@@ -115,17 +115,20 @@ for chunk in agent.chat_stream("Tell me a story"):
 ### 4. Web UI & REST API (v1.3.3+)
 
 ```bash
-# Start Web UI (API server + browser)
-python start_web_ui.py
+# Install with API support
+pip install mem-llm[api]
 
-# Or on Windows
-start_web_ui.bat
+# Start API server (serves Web UI automatically)
+python -m mem_llm.api_server
 
-# Access at http://localhost:8000
-# - Chat interface with streaming
-# - Memory management
-# - Metrics dashboard
-# - API docs at http://localhost:8000/docs
+# Or use dedicated launcher
+mem-llm-web
+
+# Access Web UI at:
+# http://localhost:8000          - Chat interface
+# http://localhost:8000/memory   - Memory management
+# http://localhost:8000/metrics  - Metrics dashboard
+# http://localhost:8000/docs     - API documentation
 ```
 
 ### Multi-Backend Examples (v1.3.0+)

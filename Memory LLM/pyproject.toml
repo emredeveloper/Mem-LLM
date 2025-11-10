@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mem-llm"
-version = "1.3.3"
+version = "1.3.5"
 description = "Privacy-first, memory-enabled AI assistant with multi-backend LLM support (Ollama, LM Studio, Gemini), vector search, response metrics, and quality analytics - Production-ready with local & cloud options"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -77,9 +77,16 @@ Source = "https://github.com/emredeveloper/Mem-LLM"
 
 [project.scripts]
 mem-llm = "mem_llm.cli:main"
+mem-llm-web = "mem_llm.web_launcher:main"
 
 [tool.setuptools]
-packages = ["mem_llm", "mem_llm.clients"]
+packages = ["mem_llm", "mem_llm.clients", "mem_llm.web_ui"]
 
 [tool.setuptools.package-data]
-mem_llm = ["config.yaml.example"]
+mem_llm = [
+    "config.yaml.example",
+    "web_ui/*.html",
+    "web_ui/*.css",
+    "web_ui/*.js",
+    "web_ui/README.md"
+]
