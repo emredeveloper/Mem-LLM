@@ -70,11 +70,19 @@ try:
 except ImportError:
     __all_metrics__ = []
 
-__version__ = "1.3.6"
+__version__ = "2.0.0"
 __author__ = "Cihat Emre Karataş"
 
 # Multi-backend LLM support (v1.3.0+)
 __all_llm_backends__ = ["BaseLLMClient", "LLMClientFactory", "OllamaClientNew", "LMStudioClient"]
+
+# Tool system (v2.0.0+)
+try:
+    from .tool_system import tool, Tool, ToolRegistry
+    from .builtin_tools import BUILTIN_TOOLS
+    __all_tools__ = ["tool", "Tool", "ToolRegistry", "BUILTIN_TOOLS"]
+except ImportError:
+    __all_tools__ = []
 
 # CLI
 try:

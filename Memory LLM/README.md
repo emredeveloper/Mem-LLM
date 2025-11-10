@@ -142,6 +142,46 @@ print(response)  # Agent remembers: "Your name is Alice and you love Python!"
 
 That's it! Just 5 lines of code to get started with any backend.
 
+### Function Calling / Tools (v2.0.0+) 🛠️
+
+Enable agents to perform actions using external tools:
+
+```python
+from mem_llm import MemAgent, tool
+
+# Enable built-in tools
+agent = MemAgent(model="granite4:3b", enable_tools=True)
+agent.set_user("alice")
+
+# Agent can now use tools automatically!
+agent.chat("Calculate (25 * 4) + 10")  # Uses calculator tool
+agent.chat("What is the current time?")  # Uses time tool
+agent.chat("Count words in 'Hello world from AI'")  # Uses text tool
+
+# Create custom tools
+@tool(name="greet", description="Greet a user by name")
+def greet_user(name: str) -> str:
+    return f"Hello, {name}! 👋"
+
+# Register custom tools
+agent = MemAgent(enable_tools=True, tools=[greet_user])
+agent.chat("Greet John")  # Agent will call your custom tool
+```
+
+**Built-in Tools (13 total):**
+- **Math**: `calculate` - Evaluate math expressions
+- **Text**: `count_words`, `reverse_text`, `to_uppercase`, `to_lowercase`
+- **File**: `read_file`, `write_file`, `list_files`
+- **Utility**: `get_current_time`, `create_json`
+- **Memory** *(NEW)*: `search_memory`, `get_user_info`, `list_conversations`
+
+**Memory Tools** allow agents to access their own conversation history:
+```python
+agent.chat("Search my memory for 'Python'")  # Finds past conversations
+agent.chat("What's my user info?")  # Gets user profile
+agent.chat("Show my last 5 conversations")  # Lists recent chats
+```
+
 ### Streaming Response (v1.3.3+) ⚡
 
 Get real-time responses with ChatGPT-style typing effect:

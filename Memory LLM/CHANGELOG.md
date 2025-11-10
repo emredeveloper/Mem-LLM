@@ -5,6 +5,75 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2025-11-10
+
+### ✨ Major Features
+
+- **Function Calling / Tools System** 🛠️
+  - Enabled LLMs to perform actions by calling external Python functions
+  - `@tool` decorator for easy function registration with automatic schema generation
+  - `ToolRegistry` to manage and execute tools with error handling
+  - `ToolCallParser` to detect and parse tool calls from LLM responses
+  - Dynamic system prompt integration to inform LLM about available tools
+  - Support for custom tool categories and organization
+
+- **Built-in Tools (13 total)** 📦
+  - **Math** (1): `calculate` - Safe expression evaluation with parentheses support
+  - **Text** (4): `count_words`, `reverse_text`, `to_uppercase`, `to_lowercase`
+  - **File System** (3): `read_file`, `write_file`, `list_files`
+  - **Utility** (2): `get_current_time`, `create_json`
+  - **Memory** *(NEW)* (3): `search_memory`, `get_user_info`, `list_conversations`
+
+- **Memory-Aware Tools** 🧠 *(Game Changer)*
+  - Agents can now access their own conversation history!
+  - `search_memory`: Search through past conversations by keyword
+  - `get_user_info`: Get current user profile and conversation stats
+  - `list_conversations`: List recent conversation history with filtering
+  - Enables truly self-aware AI agents with context access
+  - Tool chaining: Combine memory search with other tools (e.g., search + count_words)
+
+### 🐛 Bug Fixes
+
+- **Tool System**
+  - Fixed ToolResult status enum comparison (`result.status.value == "success"`)
+  - Improved argument parser to handle parentheses in expressions `(25 * 4) + 10`
+  - Enhanced quote and comma handling in tool call parsing
+  - Added expression cleaning for natural language math queries
+
+- **API & Web UI**
+  - Fixed memory search and stats endpoints in `api_server.py`
+  - Resolved "Duplicate Operation ID" warning by properly organizing endpoints
+  - Fixed HTML rendering issue (added `media_type="text/html"` to FileResponse)
+
+### 📚 Documentation
+
+- **README Updates**
+  - Added comprehensive Function Calling section with examples
+  - Documented all 13 built-in tools with usage examples
+  - Added Memory Tools section demonstrating self-aware agents
+  - Updated version numbers and feature list
+
+- **New Examples**
+  - `examples/18_function_calling.py` - Complete tool system demo
+  - `examples/19_memory_tools_demo.py` - Memory-aware agent demo
+
+### 🔧 Technical Improvements
+
+- Enhanced tool call pattern matching and parsing
+- Better error handling for tool execution failures
+- Improved system prompt formatting for tool instructions
+- Added tool execution logging and debugging support
+
+### 📊 Test Results
+
+- ✅ All 13 built-in tools working correctly
+- ✅ Custom tool registration and execution verified
+- ✅ Memory tools successfully accessing conversation history
+- ✅ Tool chaining (memory + calculation, memory + text processing)
+- ✅ Parenthetical expressions in calculator: `(25 * 4) + 10 = 110`
+
+---
+
 ## [1.3.6] - 2025-11-10
 
 ### 🚫 Breaking Changes

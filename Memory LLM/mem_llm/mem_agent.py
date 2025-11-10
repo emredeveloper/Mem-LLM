@@ -42,6 +42,7 @@ from .llm_client import OllamaClient  # Backward compatibility
 from .llm_client_factory import LLMClientFactory
 from .base_llm_client import BaseLLMClient
 from .response_metrics import ChatResponse, ResponseMetricsAnalyzer, calculate_confidence
+from .tool_system import ToolRegistry, ToolCallParser, format_tools_for_prompt
 
 # Advanced features (optional)
 try:
@@ -76,10 +77,12 @@ class MemAgent:
                  api_key: Optional[str] = None,
                  auto_detect_backend: bool = False,
                  check_connection: bool = False,
-                enable_security: bool = False,
-                enable_vector_search: bool = False,
-                embedding_model: str = "all-MiniLM-L6-v2",
-                **llm_kwargs):
+               enable_security: bool = False,
+               enable_vector_search: bool = False,
+               embedding_model: str = "all-MiniLM-L6-v2",
+               enable_tools: bool = False,
+               tools: Optional[List] = None,
+               **llm_kwargs):
         """
         Args:
             model: LLM model to use
@@ -147,7 +150,23 @@ class MemAgent:
 
         # Initialize flags first
         self.has_knowledge_base: bool = False  # Track KB status
-        self.has_tools: bool = False  # Track tools status
+        self.has_tools: bool = False  # Track tools status (v1.3.x)
+        
+        # Tool system (v2.0.0+)
+        self.enable_tools = enable_tools
+        self.tool_registry = None
+        if enable_tools:
+            self.tool_registry = ToolRegistry()
+            self.has_tools = True
+            
+            # Register custom tools if provided
+            if tools:
+                for tool in tools:
+                    self.tool_registry.register_function(tool)
+                self.logger.info(f"🔧 Registered {len(tools)} custom tools")
+            
+            builtin_count = len(self.tool_registry.tools)
+            self.logger.info(f"🛠️  Tool system enabled ({builtin_count} tools available)")
 
         # Memory system
         if use_sql and ADVANCED_AVAILABLE:
@@ -401,17 +420,23 @@ class MemAgent:
             self.current_system_prompt = dynamic_prompt_builder.build_prompt(
                 usage_mode=self.usage_mode,
                 has_knowledge_base=self.has_knowledge_base,
-                has_tools=False,  # Not advertised yet
+                has_tools=self.enable_tools,  # Now advertised when enabled (v2.0+)
                 is_multi_user=False,  # Always False for now, per-session state
                 business_config=business_config,
                 personal_config=personal_config,
                 memory_type="sql" if self.use_sql else "json"
             )
             
+            # Add tool information to prompt if tools are enabled (v2.0+)
+            if self.enable_tools and self.tool_registry:
+                tools_list = self.tool_registry.list_tools()
+                tools_prompt = format_tools_for_prompt(tools_list)
+                self.current_system_prompt += f"\n\n{tools_prompt}"
+            
             # Log feature summary
             feature_summary = dynamic_prompt_builder.get_feature_summary(
                 has_knowledge_base=self.has_knowledge_base,
-                has_tools=False,
+                has_tools=self.enable_tools,
                 is_multi_user=False,
                 memory_type="sql" if self.use_sql else "json"
             )
@@ -478,6 +503,127 @@ class MemAgent:
                 self.memory.update_user_profile(user_id, {"name": name})
 
         self.logger.debug(f"Active user set: {user_id}")
+    
+    def _execute_tool_calls(self, response_text: str, max_iterations: int = 3) -> str:
+        """
+        Execute tool calls found in LLM response and get results.
+        
+        Args:
+            response_text: LLM response that may contain tool calls
+            max_iterations: Maximum number of tool execution iterations
+        
+        Returns:
+            Final response after all tool executions
+        """
+        iteration = 0
+        current_text = response_text
+        
+        while iteration < max_iterations:
+            # Check if response contains tool calls
+            if not ToolCallParser.has_tool_call(current_text):
+                break
+            
+            # Parse tool calls
+            tool_calls = ToolCallParser.parse(current_text)
+            if not tool_calls:
+                break
+            
+            self.logger.info(f"🔧 Detected {len(tool_calls)} tool call(s)")
+            
+            # Execute each tool
+            tool_results = []
+            for call in tool_calls:
+                tool_name = call["tool"]
+                arguments = call["arguments"]
+                
+                self.logger.info(f"  Executing: {tool_name}({arguments})")
+                
+                # Execute tool
+                result = self.tool_registry.execute(tool_name, **arguments)
+                
+                # Handle memory-specific tools
+                if result.status.value == "success" and isinstance(result.result, str):
+                    if result.result.startswith("MEMORY_SEARCH:"):
+                        keyword = result.result.split(":", 1)[1]
+                        try:
+                            search_results = self.memory_manager.search_conversations(keyword)
+                            if search_results:
+                                formatted = f"Found {len(search_results)} results for '{keyword}':\n"
+                                for idx, conv in enumerate(search_results[:5], 1):
+                                    formatted += f"{idx}. {conv.get('user', 'N/A')}: {conv.get('message', 'N/A')[:100]}...\n"
+                                result.result = formatted
+                            else:
+                                result.result = f"No conversations found containing '{keyword}'"
+                        except Exception as e:
+                            result.result = f"Memory search error: {e}"
+                    
+                    elif result.result == "MEMORY_USER_INFO":
+                        try:
+                            user_info = f"Current user: {self.current_user or 'Not set'}"
+                            if self.current_user:
+                                conv_count = len(self.memory_manager.get_conversation_history(self.current_user))
+                                user_info += f"\nTotal conversations: {conv_count}"
+                            result.result = user_info
+                        except Exception as e:
+                            result.result = f"User info error: {e}"
+                    
+                    elif result.result.startswith("MEMORY_LIST_CONVERSATIONS:"):
+                        try:
+                            limit = int(result.result.split(":", 1)[1])
+                            history = self.memory_manager.get_conversation_history(self.current_user or "default", limit=limit)
+                            if history:
+                                formatted = f"Last {len(history)} conversations:\n"
+                                for idx, conv in enumerate(history, 1):
+                                    role = conv.get('role', 'unknown')
+                                    msg = conv.get('content', '')[:80]
+                                    formatted += f"{idx}. [{role}] {msg}...\n"
+                                result.result = formatted
+                            else:
+                                result.result = "No conversation history found"
+                        except Exception as e:
+                            result.result = f"Conversation list error: {e}"
+                
+                if result.status.value == "success":  # Compare with enum value
+                    self.logger.info(f"  ✅ Success: {result.result}")
+                    tool_results.append(f"Tool '{tool_name}' returned: {result.result}")
+                else:
+                    self.logger.warning(f"  ❌ Error: {result.error}")
+                    tool_results.append(f"Tool '{tool_name}' failed with error: {result.error}")
+            
+            # Remove tool call syntax from response
+            clean_text = ToolCallParser.remove_tool_calls(current_text)
+            
+            # If we have tool results, ask LLM to continue with the results
+            if tool_results:
+                results_text = "\n".join(tool_results)
+                
+                # Build follow-up message for LLM
+                follow_up = f"{clean_text}\n\nTool Results:\n{results_text}\n\nPlease provide the final answer to the user based on these results."
+                
+                # Get LLM response with tool results
+                try:
+                    messages = [
+                        {"role": "system", "content": "You are a helpful assistant. Use the tool results to answer the user's question."},
+                        {"role": "user", "content": follow_up}
+                    ]
+                    
+                    llm_response = self.llm.chat(
+                        messages=messages,
+                        temperature=0.7,
+                        max_tokens=500
+                    )
+                    
+                    current_text = llm_response
+                    iteration += 1
+                except Exception as e:
+                    self.logger.error(f"Error getting follow-up response: {e}")
+                    # Return what we have
+                    return f"{clean_text}\n\n{results_text}"
+            else:
+                # No tool results, return clean text
+                return clean_text
+        
+        return current_text
 
     def chat(self, message: str, user_id: Optional[str] = None,
              metadata: Optional[Dict] = None, return_metrics: bool = False) -> Union[str, ChatResponse]:
@@ -645,6 +791,14 @@ class MemAgent:
         except Exception as e:
             self.logger.error(f"LLM response error: {e}")
             response = "Sorry, I cannot respond right now. Please try again later."
+        
+        # Execute tool calls if tools are enabled (v2.0+)
+        if self.enable_tools and self.tool_registry and response:
+            try:
+                response = self._execute_tool_calls(response)
+            except Exception as e:
+                self.logger.error(f"Tool execution error: {e}")
+                # Continue with original response
         
         # Calculate latency
         latency = (time.time() - start_time) * 1000
