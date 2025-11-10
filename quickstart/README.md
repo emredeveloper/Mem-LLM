@@ -1,11 +1,11 @@
 # Mem-LLM Quickstart Examples
 
-Quick examples to get started with `mem-llm` v2.1.1 from PyPI.
+Quick examples to get started with `mem-llm` v2.1.3 from PyPI.
 
-## 🆕 What's New in v2.1.1
-- 🐛 **Bug Fixes** - Fixed `register_tool()` and async tools auto-loading
-- ✅ **All 18+ Tools Work** - Sync and async tools ready to use
-- 🔧 **Better API** - Improved backward compatibility
+## 🆕 What's New in v2.1.3
+- 🚀 **Smart Parser** - Tools execute even with natural language format
+- ✅ **Better Reliability** - More forgiving tool call detection
+- 🎯 **Clearer Instructions** - Improved system prompts with examples
 
 ## What's New in v2.1.0
 - 🚀 **Async Tool Support** - Non-blocking I/O operations

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metrics - Mem-LLM</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); overflow: hidden; }
+        .header { padding: 30px; background: #2c3e50; color: white; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 28px; }
+        .btn { padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; font-size: 14px; }
+        .btn:hover { background: #2980b9; }
+        .content { padding: 30px; }
+        .section { margin-bottom: 40px; }
+        .section-title { font-size: 20px; color: #2c3e50; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #3498db; }
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .metric-card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); border-left: 4px solid #3498db; }
+        .metric-icon { font-size: 32px; margin-bottom: 10px; }
+        .metric-value { font-size: 32px; font-weight: bold; color: #2c3e50; }
+        .loading { text-align: center; padding: 40px; color: #7f8c8d; }
+        .input-group { margin-bottom: 20px; }
+        .input-group input { width: 100%; padding: 12px 15px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 System Metrics</h1>
+            <div style="display: flex; gap: 10px;">
+                <a href="index.html" class="btn">💬 Chat</a>
+                <a href="memory.html" class="btn">🧠 Memory</a>
+                <button class="btn" onclick="loadMetrics()">🔄 Refresh</button>
+            </div>
+        </div>
+        <div class="content">
+            <div class="section">
+                <div class="input-group"><input type="text" id="apiUrl" value="http://localhost:8000" placeholder="API URL"></div>
+            </div>
+            <div class="section">
+                <div class="section-title">⚡ Quick Statistics</div>
+                <div class="metrics-grid" id="quickStats"><div class="loading">Loading...</div></div>
+            </div>
+        </div>
+        <div style="text-align: center; padding: 20px; color: #7f8c8d; font-size: 12px;">
+            Auto-refresh: Every 30 seconds • Last update: <span id="lastUpdate">-</span>
+        </div>
+    </div>
+    <script>
+        const apiUrlInput = document.getElementById('apiUrl');
+        window.onload = () => { loadMetrics(); setInterval(loadMetrics, 30000); };
+        function loadMetrics() {
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+            loadQuickStats();
+        }
+        async function loadQuickStats() {
+            const apiUrl = apiUrlInput.value;
+            const quickStatsDiv = document.getElementById('quickStats');
+            try {
+                const response = await fetch(`${apiUrl}/api/v1/memory/stats`);
+                const data = await response.json();
+                quickStatsDiv.innerHTML = `
+                    <div class="metric-card"><div class="metric-icon">👥</div><div class="metric-value">${data.total_users || 0}</div><div>Total Users</div></div>
+                    <div class="metric-card"><div class="metric-icon">💾</div><div class="metric-value">${data.total_memories || 0}</div><div>Total Memories</div></div>
+                    <div class="metric-card"><div class="metric-icon">🤖</div><div class="metric-value">${data.active_agents || 0}</div><div>Active Agents</div></div>
+                `;
+            } catch (error) {
+                quickStatsDiv.innerHTML = '<div class="loading">⚠️ Could not load</div>';
+            }
+        }
+    </script>
+</body>
+</html>
+

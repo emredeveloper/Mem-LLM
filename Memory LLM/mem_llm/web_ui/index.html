@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mem-LLM - Memory-Enabled AI Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            display: flex;
+            height: 90vh;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: #2c3e50;
+            color: white;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .sidebar h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #3498db;
+        }
+
+        .sidebar p {
+            font-size: 12px;
+            opacity: 0.7;
+            margin-bottom: 30px;
+        }
+
+        .section {
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            opacity: 0.6;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 12px;
+            margin-bottom: 5px;
+            opacity: 0.8;
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background: #34495e;
+            color: white;
+            font-size: 14px;
+        }
+
+        .input-group select option {
+            background: #34495e;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: 2px solid #3498db;
+        }
+
+        .stats {
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid #34495e;
+        }
+
+        .stat-item {
+            margin-bottom: 15px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            opacity: 0.6;
+            margin-bottom: 3px;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header h2 {
+            font-size: 20px;
+            color: #2c3e50;
+        }
+
+        .status {
+            font-size: 12px;
+            color: #27ae60;
+            margin-top: 5px;
+        }
+
+        .status.disconnected {
+            color: #e74c3c;
+        }
+
+        .config-info {
+            font-size: 11px;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+
+        .message {
+            display: flex;
+            margin-bottom: 20px;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 15px 20px;
+            border-radius: 15px;
+            position: relative;
+        }
+
+        .message.user .message-content {
+            background: #667eea;
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.bot .message-content {
+            background: white;
+            color: #2c3e50;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .message-time {
+            font-size: 10px;
+            opacity: 0.6;
+            margin-top: 5px;
+        }
+
+        .chat-input {
+            padding: 20px 30px;
+            background: white;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .chat-input input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .chat-input button {
+            padding: 15px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .chat-input button:hover {
+            background: #5568d3;
+        }
+
+        .chat-input button:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .welcome-message {
+            text-align: center;
+            padding: 50px 20px;
+            color: #7f8c8d;
+        }
+
+        .welcome-message h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .welcome-message p {
+            font-size: 14px;
+        }
+
+        .btn-reconnect {
+            margin-top: 10px;
+            padding: 8px 16px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-reconnect:hover {
+            background: #2980b9;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+            
+            .message-content {
+                max-width: 85%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div>
+                <h1>🧠 Mem-LLM</h1>
+                <p>Memory-Enabled AI Assistant v1.3.3</p>
+            </div>
+
+            <!-- User Settings -->
+            <div class="section">
+                <div class="section-title">👤 User</div>
+                <div class="input-group">
+                    <label>User ID</label>
+                    <input type="text" id="userId" value="user123" placeholder="Enter your user ID">
+                </div>
+            </div>
+
+            <!-- Backend Settings -->
+            <div class="section">
+                <div class="section-title">🔌 Backend Settings</div>
+                
+                <div class="input-group">
+                    <label>Backend</label>
+                    <select id="backend">
+                        <option value="ollama">Ollama (Local)</option>
+                        <option value="lmstudio">LM Studio (Local)</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Model</label>
+                    <input type="text" id="model" value="granite4:3b" placeholder="Model name">
+                </div>
+
+                <div class="input-group">
+                    <label>API URL</label>
+                    <input type="text" id="apiUrl" value="http://localhost:8000" placeholder="API Server URL">
+                </div>
+            </div>
+
+            <!-- Memory Settings -->
+            <div class="section">
+                <div class="section-title">💾 Memory Settings</div>
+                
+                <div class="input-group">
+                    <label>
+                        <input type="checkbox" id="useSQL" checked style="width: auto; margin-right: 5px;">
+                        Use SQL Memory
+                    </label>
+                </div>
+
+                <div class="input-group">
+                    <label>
+                        <input type="checkbox" id="loadKB" checked style="width: auto; margin-right: 5px;">
+                        Load Knowledge Base
+                    </label>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-label">Messages</div>
+                    <div class="stat-value" id="messageCount">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Session Time</div>
+                    <div class="stat-value" id="sessionTime">0m</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Backend</div>
+                    <div class="stat-value" id="currentBackend">-</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="main-content">
+            <div class="chat-header">
+                <div>
+                    <h2>💬 Chat</h2>
+                    <div class="status" id="status">● Connecting...</div>
+                    <div class="config-info" id="configInfo">Configure settings and connect</div>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <a href="memory.html" class="btn">🧠 Memory</a>
+                    <a href="metrics.html" class="btn">📊 Metrics</a>
+                </div>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <div class="welcome-message">
+                    <h3>👋 Welcome!</h3>
+                    <p>How can Mem-LLM help you today?</p>
+                    <p style="margin-top: 10px; font-size: 12px;">
+                        I'm an AI assistant with memory. I can remember our conversations! 🧠
+                    </p>
+                    <p style="margin-top: 15px; font-size: 11px; color: #95a5a6;">
+                        Configure backend and model settings on the left
+                    </p>
+                    <button class="btn-reconnect" onclick="connect()">Connect</button>
+                </div>
+            </div>
+
+            <div class="chat-input">
+                <input type="text" id="messageInput" placeholder="Type your message..." autocomplete="off">
+                <button id="sendButton">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // WebSocket connection
+        let ws = null;
+        let messageCount = 0;
+        let sessionStart = Date.now();
+
+        // DOM elements
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const userIdInput = document.getElementById('userId');
+        const backendSelect = document.getElementById('backend');
+        const modelInput = document.getElementById('model');
+        const apiUrlInput = document.getElementById('apiUrl');
+        const useSQLCheckbox = document.getElementById('useSQL');
+        const loadKBCheckbox = document.getElementById('loadKB');
+        const statusElement = document.getElementById('status');
+        const configInfoElement = document.getElementById('configInfo');
+        const messageCountElement = document.getElementById('messageCount');
+        const sessionTimeElement = document.getElementById('sessionTime');
+        const currentBackendElement = document.getElementById('currentBackend');
+
+        // Update model when backend changes
+        backendSelect.addEventListener('change', () => {
+            const backend = backendSelect.value;
+            if (backend === 'ollama') {
+                modelInput.value = 'granite4:3b';
+            } else if (backend === 'lmstudio') {
+                modelInput.value = 'qwen/qwen3-vl-4b';
+            }
+        });
+
+        // Connect to WebSocket
+        function connect() {
+            const userId = userIdInput.value || 'user123';
+            const apiUrl = apiUrlInput.value || 'http://localhost:8000';
+            
+            // Extract host from API URL
+            const url = new URL(apiUrl);
+            const wsUrl = `ws://${url.host}/ws/chat/${userId}`;
+            
+            statusElement.textContent = '● Connecting...';
+            statusElement.className = 'status';
+            
+            try {
+                ws = new WebSocket(wsUrl);
+
+                ws.onopen = () => {
+                    console.log('Connected to Mem-LLM');
+                    statusElement.textContent = '● Connected';
+                    statusElement.className = 'status';
+                    
+                    const backend = backendSelect.value;
+                    const model = modelInput.value;
+                    const useSQL = useSQLCheckbox.checked;
+                    const loadKB = loadKBCheckbox.checked;
+                    
+                    currentBackendElement.textContent = backend.toUpperCase();
+                    configInfoElement.textContent = `Model: ${model} | SQL: ${useSQL ? 'On' : 'Off'} | KB: ${loadKB ? 'On' : 'Off'}`;
+                    
+                    // Send initial configuration
+                    sendConfigToAPI();
+                };
+
+                ws.onclose = () => {
+                    console.log('Disconnected from Mem-LLM');
+                    statusElement.textContent = '● Disconnected';
+                    statusElement.className = 'status disconnected';
+                    configInfoElement.textContent = 'Click "Connect" button to reconnect';
+                };
+
+                ws.onerror = (error) => {
+                    console.error('WebSocket error:', error);
+                    statusElement.textContent = '● Error';
+                    statusElement.className = 'status disconnected';
+                    configInfoElement.textContent = `Connection error. Is API Server running? (${apiUrl})`;
+                };
+
+                ws.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    handleServerMessage(data);
+                };
+            } catch (error) {
+                console.error('Connection error:', error);
+                statusElement.textContent = '● Error';
+                statusElement.className = 'status disconnected';
+                configInfoElement.textContent = `Connection error: ${error.message}`;
+            }
+        }
+
+        // Send configuration to API
+        async function sendConfigToAPI() {
+            const userId = userIdInput.value || 'user123';
+            const apiUrl = apiUrlInput.value || 'http://localhost:8000';
+            const backend = backendSelect.value;
+            const model = modelInput.value;
+            
+            try {
+                const response = await fetch(`${apiUrl}/api/v1/agent/configure/${userId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        model: model,
+                        backend: backend,
+                        base_url: backend === 'ollama' ? 'http://localhost:11434' : 'http://localhost:1234'
+                    })
+                });
+                
+                if (response.ok) {
+                    console.log('Configuration sent successfully');
+                } else {
+                    console.error('Configuration failed:', response.status);
+                }
+            } catch (error) {
+                console.error('Configuration error:', error);
+            }
+        }
+
+        // Handle messages from server
+        let currentBotMessage = null;
+
+        function handleServerMessage(data) {
+            if (data.type === 'start') {
+                // Start of streaming response
+                currentBotMessage = addMessage('', 'bot');
+            } else if (data.type === 'chunk') {
+                // Streaming chunk
+                if (currentBotMessage) {
+                    currentBotMessage.textContent += data.content;
+                    scrollToBottom();
+                }
+            } else if (data.type === 'done') {
+                // End of streaming
+                currentBotMessage = null;
+            } else if (data.type === 'error') {
+                addMessage(`⚠️ Error: ${data.content}`, 'bot');
+            }
+        }
+
+        // Add message to chat
+        function addMessage(text, type) {
+            // Remove welcome message if exists
+            const welcomeMsg = chatMessages.querySelector('.welcome-message');
+            if (welcomeMsg) {
+                welcomeMsg.remove();
+            }
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            
+            const textDiv = document.createElement('div');
+            textDiv.textContent = text;
+            contentDiv.appendChild(textDiv);
+
+            const timeDiv = document.createElement('div');
+            timeDiv.className = 'message-time';
+            timeDiv.textContent = new Date().toLocaleTimeString();
+            contentDiv.appendChild(timeDiv);
+
+            messageDiv.appendChild(contentDiv);
+            chatMessages.appendChild(messageDiv);
+
+            scrollToBottom();
+
+            return textDiv; // Return text element for streaming
+        }
+
+        // Scroll to bottom
+        function scrollToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Send message
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message || !ws || ws.readyState !== WebSocket.OPEN) {
+                if (!ws || ws.readyState !== WebSocket.OPEN) {
+                    alert('Please connect first! (Click Connect button)');
+                }
+                return;
+            }
+
+            // Add user message to UI
+            addMessage(message, 'user');
+            messageInput.value = '';
+
+            // Send to server
+            ws.send(JSON.stringify({
+                message: message,
+                metadata: {
+                    timestamp: new Date().toISOString(),
+                    backend: backendSelect.value,
+                    model: modelInput.value
+                }
+            }));
+
+            // Update stats
+            messageCount++;
+            messageCountElement.textContent = messageCount;
+        }
+
+        // Event listeners
+        sendButton.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Update session time every minute
+        setInterval(() => {
+            const minutes = Math.floor((Date.now() - sessionStart) / 60000);
+            sessionTimeElement.textContent = `${minutes}m`;
+        }, 60000);
+    </script>
+</body>
+</html>
+

@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.3] - 2025-11-10
+
+### 🚀 Enhanced Tool Execution
+
+- **Smart Tool Call Parser** - Now understands natural language tool calls (not just `TOOL_CALL:` format)
+- **Improved System Prompt** - Clearer instructions with examples (✅/❌)
+- **Better Error Messages** - More helpful validation feedback
+
+### 📝 Details
+
+LLMs often don't follow the exact `TOOL_CALL:` format. Now the parser also understands:
+- `use tool_name(...)` 
+- `calling tool_name(...)`
+- `` `tool_name(...)` `` (markdown format)
+
+System prompt now includes clear DO/DON'T examples to guide the LLM.
+
+## [2.1.2] - 2025-11-10
+
+### 🐛 Critical Fix
+
+- **Fixed dynamic tool registration** - System prompt now rebuilds on every chat call to include newly registered tools
+- **Fixed custom tools not visible to LLM** - Tools registered after agent initialization now properly appear in LLM's system prompt
+- **Removed google-generativeai dependency** - No more Gemini dependencies (100% local)
+- Affects both `chat()` and `chat_stream()` methods
+
+### 📝 Details
+
+When users called `agent.tool_registry.register_tool()` after creating the agent, those tools were registered in the registry but not included in the LLM's system prompt. Now the system prompt dynamically rebuilds before each chat to include all registered tools.
+
+### 🧹 Cleanup
+
+- Removed `google-generativeai` from core dependencies - now truly 100% local and private
+
 ## [2.1.1] - 2025-11-10
 
 ### 🐛 Bug Fixes

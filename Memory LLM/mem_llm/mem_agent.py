@@ -734,6 +734,10 @@ class MemAgent:
                 except Exception as e:
                     self.logger.error(f"Knowledge base search error: {e}")
 
+        # Rebuild system prompt to include any newly registered tools (v2.1.1+)
+        if self.enable_tools and self.tool_registry:
+            self._build_dynamic_system_prompt()
+        
         # Get conversation history
         messages = []
         if self.current_system_prompt:
@@ -965,6 +969,10 @@ class MemAgent:
                         kb_context += "\n⚠️ USE THIS INFORMATION TO ANSWER! Be brief but accurate.\n"
                 except Exception as e:
                     self.logger.error(f"Knowledge base search error: {e}")
+        
+        # Rebuild system prompt to include any newly registered tools (v2.1.1+)
+        if self.enable_tools and self.tool_registry:
+            self._build_dynamic_system_prompt()
         
         # Get conversation history
         messages = []

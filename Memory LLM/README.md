@@ -15,12 +15,12 @@ Mem-LLM is a powerful Python library that brings persistent memory and function 
 - **Issues**: https://github.com/emredeveloper/Mem-LLM/issues
 - **Documentation**: See examples/ directory
 
-## 🆕 What's New in v2.1.1
+## 🆕 What's New in v2.1.3
 
-### 🐛 Quick Fixes
-- ✅ **Fixed tool registration** - Added missing `register_tool()` method
-- ✅ **Async tools now auto-load** - All 18+ built-in tools work out of the box
-- ✅ **Better backward compatibility** - Improved API consistency
+### 🚀 Enhanced Tool Execution
+- ✅ **Smart parser** - Understands natural language tool calls
+- ✅ **Better prompts** - Clear DO/DON'T examples for LLM
+- ✅ **More reliable** - Tools execute even when LLM doesn't follow exact format
 
 ## What's New in v2.1.0
 
