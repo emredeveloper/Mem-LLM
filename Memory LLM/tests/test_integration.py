@@ -3,20 +3,20 @@ Integration Tests
 Tests all system components working together
 """
 
-import unittest
-import tempfile
-import shutil
 import os
+import shutil
+import tempfile
+import unittest
 
 # Import all modules
 from mem_llm import (
     MemAgent,
     MemoryManager,
-    SQLMemoryManager,
     MemoryTools,
+    SQLMemoryManager,
     ToolExecutor,
+    get_config,
     prompt_manager,
-    get_config
 )
 
 
@@ -31,7 +31,7 @@ class TestIntegration(unittest.TestCase):
         self.simple_agent = MemAgent(
             model="granite4:tiny-h",
             use_sql=False,
-            memory_dir=os.path.join(self.temp_dir, "simple_memories")
+            memory_dir=os.path.join(self.temp_dir, "simple_memories"),
         )
 
         # For advanced agent (SQL memory and config)
@@ -39,10 +39,7 @@ class TestIntegration(unittest.TestCase):
         self._create_integration_config(config_file)
 
         try:
-            self.advanced_agent = MemAgent(
-                config_file=config_file,
-                use_sql=True
-            )
+            self.advanced_agent = MemAgent(config_file=config_file, use_sql=True)
             self.advanced_available = True
         except Exception as e:
             print(f"⚠️  Advanced agent could not be created: {e}")
@@ -76,7 +73,7 @@ knowledge_base:
 logging:
   enabled: false
 """
-        with open(config_file, 'w', encoding='utf-8') as f:
+        with open(config_file, "w", encoding="utf-8") as f:
             f.write(config_content)
 
     def test_cross_compatibility(self):
@@ -135,9 +132,9 @@ logging:
         if self.advanced_available:
             # Gelişmiş agent config kullanıyor
             self.assertIsNotNone(self.advanced_agent.config)
-            
+
             # Config değerlerini kontrol et
-            if hasattr(self.advanced_agent, 'config') and self.advanced_agent.config:
+            if hasattr(self.advanced_agent, "config") and self.advanced_agent.config:
                 model = self.advanced_agent.config.get("llm.model")
                 self.assertIsNotNone(model)
 
@@ -150,7 +147,7 @@ logging:
                 question="Entegrasyon testi sorusu?",
                 answer="Entegrasyon testi cevabı",
                 keywords=["test", "integration"],
-                priority=5
+                priority=5,
             )
 
             self.assertGreater(kb_id, 0)
@@ -193,6 +190,7 @@ logging:
     def test_memory_consistency(self):
         """Bellek tutarlılık testi"""
         import uuid
+
         user_id = f"consistency_test_{uuid.uuid4().hex[:8]}"  # Benzersiz user_id
 
         # Basit agent ile konuşmalar
@@ -203,7 +201,7 @@ logging:
             self.simple_agent.chat(f"Konuşma {i}")
 
         # Konuşmaların kaydedildiğini kontrol et
-        if hasattr(self.simple_agent.memory, 'get_recent_conversations'):
+        if hasattr(self.simple_agent.memory, "get_recent_conversations"):
             simple_conversations = self.simple_agent.memory.get_recent_conversations(user_id)
             self.assertIsInstance(simple_conversations, list)
             self.assertGreaterEqual(len(simple_conversations), 3)  # En az 3 olmalı
@@ -234,4 +232,3 @@ if __name__ == "__main__":
         print("\n❌ Bazı entegrasyon testleri başarısız oldu!")
 
     print("=" * 50)
-

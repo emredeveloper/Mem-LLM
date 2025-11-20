@@ -2,10 +2,10 @@
 Memory Tools Specific Tests
 """
 
-import unittest
-import tempfile
-import shutil
 import os
+import shutil
+import tempfile
+import unittest
 
 from mem_llm import MemoryManager, MemoryTools
 
@@ -26,10 +26,9 @@ class TestMemoryTools(unittest.TestCase):
         """Tools creation test"""
         tools = MemoryTools(self.memory)
         self.assertIsNotNone(tools)
-        self.assertIn('list_memories', tools.tools)
+        self.assertIn("list_memories", tools.tools)
 
 
 if __name__ == "__main__":
     print("Memory Tools tests are running...")
     unittest.main()
-

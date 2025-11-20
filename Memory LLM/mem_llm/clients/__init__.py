@@ -12,11 +12,10 @@ Author: C. Emre Karataş
 Version: 1.3.6
 """
 
-from .ollama_client import OllamaClient
 from .lmstudio_client import LMStudioClient
+from .ollama_client import OllamaClient
 
 __all__ = [
-    'OllamaClient',
-    'LMStudioClient',
+    "OllamaClient",
+    "LMStudioClient",
 ]
-

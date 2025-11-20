@@ -3,10 +3,10 @@ User Tools System
 Tools for users to manage their memory data
 """
 
-from typing import Dict, List, Optional, Any
-from datetime import datetime
 import json
 import re
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
 
 class MemoryTools:
@@ -23,34 +23,29 @@ class MemoryTools:
                 "description": "Lists all user conversations",
                 "parameters": {
                     "user_id": "User ID",
-                    "limit": "Number of conversations to show (default: 10)"
+                    "limit": "Number of conversations to show (default: 10)",
                 },
-                "function": self._list_memories
+                "function": self._list_memories,
             },
             "search_memories": {
                 "description": "Search for keywords in conversations",
                 "parameters": {
                     "user_id": "User ID",
                     "keyword": "Keyword to search",
-                    "limit": "Number of results to show (default: 5)"
+                    "limit": "Number of results to show (default: 5)",
                 },
-                "function": self._search_memories
+                "function": self._search_memories,
             },
             "show_user_info": {
                 "description": "Show information about user",
-                "parameters": {
-                    "user_id": "User ID"
-                },
-                "function": self._show_user_info
+                "parameters": {"user_id": "User ID"},
+                "function": self._show_user_info,
             },
             "export_memories": {
                 "description": "Export user data",
-                "parameters": {
-                    "user_id": "User ID",
-                    "format": "Format (json or txt)"
-                },
-                "function": self._export_memories
-            }
+                "parameters": {"user_id": "User ID", "format": "Format (json or txt)"},
+                "function": self._export_memories,
+            },
         }
 
     def _list_memories(self, user_id: str, limit: int = 10) -> str:
@@ -64,9 +59,9 @@ class MemoryTools:
             result = f"📝 Last {len(conversations)} conversations for user {user_id}:\n\n"
 
             for i, conv in enumerate(conversations, 1):
-                timestamp = conv.get('timestamp', 'Unknown')
-                user_msg = conv.get('user_message', '')[:100]
-                bot_response = conv.get('bot_response', '')[:100]
+                timestamp = conv.get("timestamp", "Unknown")
+                user_msg = conv.get("user_message", "")[:100]
+                bot_response = conv.get("bot_response", "")[:100]
 
                 result += f"{i}. [{timestamp}]\n"
                 result += f"   👤 User: {user_msg}...\n"
@@ -88,9 +83,9 @@ class MemoryTools:
             result = f"🔍 {len(results)} results found for keyword '{keyword}':\n\n"
 
             for i, conv in enumerate(results[:limit], 1):
-                timestamp = conv.get('timestamp', 'Unknown')
-                user_msg = conv.get('user_message', '')
-                bot_response = conv.get('bot_response', '')
+                timestamp = conv.get("timestamp", "Unknown")
+                user_msg = conv.get("user_message", "")
+                bot_response = conv.get("bot_response", "")
 
                 result += f"{i}. [{timestamp}]\n"
                 result += f"   👤 User: {user_msg}\n"
@@ -114,10 +109,10 @@ class MemoryTools:
 
             result = f"👤 User information for {user_id}:\n\n"
 
-            if profile.get('name'):
+            if profile.get("name"):
                 result += f"Name: {profile['name']}\n"
 
-            if profile.get('first_seen'):
+            if profile.get("first_seen"):
                 result += f"First conversation: {profile['first_seen']}\n"
 
             return result
@@ -136,7 +131,7 @@ class MemoryTools:
                     "user_id": user_id,
                     "export_date": datetime.now().isoformat(),
                     "profile": profile,
-                    "conversations": conversations
+                    "conversations": conversations,
                 }
 
                 return json.dumps(export_data, ensure_ascii=False, indent=2)
@@ -190,7 +185,7 @@ class MemoryTools:
             result += f"   Description: {tool['description']}\n"
             result += "   Parameters:\n"
 
-            for param, desc in tool['parameters'].items():
+            for param, desc in tool["parameters"].items():
                 result += f"     • {param}: {desc}\n"
 
             result += "\n"
@@ -204,10 +199,7 @@ class MemoryTools:
                 r"show.*my.*past.*conversations",
                 r"list.*my.*conversations",
             ],
-            "show_user_info": [
-                r"what.*do.*you.*know.*about.*me",
-                r"show.*my.*profile"
-            ],
+            "show_user_info": [r"what.*do.*you.*know.*about.*me", r"show.*my.*profile"],
         }
 
         message_lower = user_message.lower()
@@ -250,4 +242,3 @@ class ToolExecutor:
         """Check if message is a tool command"""
         tool_name, _ = self.memory_tools.parse_user_command(user_message)
         return tool_name is not None
-

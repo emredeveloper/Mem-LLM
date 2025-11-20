@@ -1,0 +1,4 @@
+[bandit]
+exclude_dirs = ["/tests", "/build", "/dist"]
+tests = ["B201", "B301"]
+skips = ["B101", "B601"]

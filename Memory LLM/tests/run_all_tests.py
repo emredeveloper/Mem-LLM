@@ -14,8 +14,8 @@ Usage:
 # Test runner - no sys.path manipulation needed after package install
 
 import sys
-import unittest
 import time
+import unittest
 from pathlib import Path
 
 
@@ -25,7 +25,7 @@ def run_basic_tests():
     print("=" * 60)
 
     # Test modüllerini import et
-    from tests import test_mem_agent, test_memory_manager, test_llm_client, test_memory_tools
+    from tests import test_llm_client, test_mem_agent, test_memory_manager, test_memory_tools
 
     # Test suite oluştur
     loader = unittest.TestLoader()
@@ -48,6 +48,7 @@ def run_integration_tests():
     print("=" * 60)
 
     from tests import test_integration
+
     return test_integration.run_integration_tests()
 
 
@@ -101,4 +102,3 @@ def main():
 if __name__ == "__main__":
     success = main()
     sys.exit(0 if success else 1)
-

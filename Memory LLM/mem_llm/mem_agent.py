@@ -29,28 +29,30 @@ agent = MemAgent(
 ```
 """
 
-from typing import Optional, Dict, List, Any, Union, Iterator
-from datetime import datetime
-import logging
 import json
+import logging
 import os
 import time
+from datetime import datetime
+from typing import Any, Dict, Iterator, List, Optional, Union
+
+from .base_llm_client import BaseLLMClient
+from .llm_client import OllamaClient  # Backward compatibility
+from .llm_client_factory import LLMClientFactory
 
 # Core dependencies
 from .memory_manager import MemoryManager
-from .llm_client import OllamaClient  # Backward compatibility
-from .llm_client_factory import LLMClientFactory
-from .base_llm_client import BaseLLMClient
 from .response_metrics import ChatResponse, ResponseMetricsAnalyzer, calculate_confidence
-from .tool_system import ToolRegistry, ToolCallParser, format_tools_for_prompt
+from .tool_system import ToolCallParser, ToolRegistry, format_tools_for_prompt
 
 # Advanced features (optional)
 try:
-    from .memory_db import SQLMemoryManager
-    from .knowledge_loader import KnowledgeLoader
     from .config_manager import get_config
-    from .memory_tools import ToolExecutor, MemoryTools
     from .dynamic_prompt import dynamic_prompt_builder
+    from .knowledge_loader import KnowledgeLoader
+    from .memory_db import SQLMemoryManager
+    from .memory_tools import MemoryTools, ToolExecutor
+
     ADVANCED_AVAILABLE = True
 except ImportError:
     ADVANCED_AVAILABLE = False
@@ -64,25 +66,27 @@ class MemAgent:
     Production-ready assistant that combines all features in one place.
     """
 
-    def __init__(self,
-                 model: str = "granite4:3b",
-                 backend: str = "ollama",
-                 config_file: Optional[str] = None,
-                 use_sql: bool = True,
-                 memory_dir: Optional[str] = None,
-                 db_path: Optional[str] = None,
-                 load_knowledge_base: bool = True,
-                 ollama_url: str = "http://localhost:11434",
-                 base_url: Optional[str] = None,
-                 api_key: Optional[str] = None,
-                 auto_detect_backend: bool = False,
-                 check_connection: bool = False,
-                enable_security: bool = False,
-                enable_vector_search: bool = False,
-                embedding_model: str = "all-MiniLM-L6-v2",
-               enable_tools: bool = False,
-               tools: Optional[List] = None,
-                **llm_kwargs):
+    def __init__(
+        self,
+        model: str = "granite4:3b",
+        backend: str = "ollama",
+        config_file: Optional[str] = None,
+        use_sql: bool = True,
+        memory_dir: Optional[str] = None,
+        db_path: Optional[str] = None,
+        load_knowledge_base: bool = True,
+        ollama_url: str = "http://localhost:11434",
+        base_url: Optional[str] = None,
+        api_key: Optional[str] = None,
+        auto_detect_backend: bool = False,
+        check_connection: bool = False,
+        enable_security: bool = False,
+        enable_vector_search: bool = False,
+        embedding_model: str = "all-MiniLM-L6-v2",
+        enable_tools: bool = False,
+        tools: Optional[List] = None,
+        **llm_kwargs,
+    ):
         """
         Args:
             model: LLM model to use
@@ -100,29 +104,30 @@ class MemAgent:
             enable_vector_search: Enable semantic/vector search for KB (v1.3.2+, requires chromadb) - NEW
             embedding_model: Embedding model for vector search (default: "all-MiniLM-L6-v2") - NEW
             **llm_kwargs: Additional backend-specific parameters
-        
+
         Examples:
             # Default Ollama
             agent = MemAgent()
-            
+
             # LM Studio
             agent = MemAgent(backend='lmstudio', model='llama-3-8b')
-            
+
             # Auto-detect
             agent = MemAgent(auto_detect_backend=True)
         """
-        
+
         # Setup logging first
         self._setup_logging()
-        
+
         # Security features (v1.1.0+)
         self.enable_security = enable_security
         self.security_detector = None
         self.security_sanitizer = None
-        
+
         if enable_security:
             try:
-                from .prompt_security import PromptInjectionDetector, InputSanitizer
+                from .prompt_security import InputSanitizer, PromptInjectionDetector
+
                 self.security_detector = PromptInjectionDetector()
                 self.security_sanitizer = InputSanitizer()
                 self.logger.info("🔒 Security features enabled (prompt injection protection)")
@@ -151,20 +156,20 @@ class MemAgent:
         # Initialize flags first
         self.has_knowledge_base: bool = False  # Track KB status
         self.has_tools: bool = False  # Track tools status (v1.3.x)
-        
+
         # Tool system (v2.0.0+)
         self.enable_tools = enable_tools
         self.tool_registry = None
         if enable_tools:
             self.tool_registry = ToolRegistry()
             self.has_tools = True
-            
+
             # Register custom tools if provided
             if tools:
                 for tool in tools:
                     self.tool_registry.register_function(tool)
                 self.logger.info(f"🔧 Registered {len(tools)} custom tools")
-            
+
             builtin_count = len(self.tool_registry.tools)
             self.logger.info(f"🛠️  Tool system enabled ({builtin_count} tools available)")
 
@@ -181,33 +186,40 @@ class MemAgent:
                 final_db_path = self.config.get("memory.db_path", "memories/memories.db")
             else:
                 final_db_path = "memories/memories.db"
-            
+
             # Get vector search settings from config or parameters
             vector_search_enabled = enable_vector_search
             vector_model = embedding_model
-            
+
             if self.config:
-                vector_search_enabled = self.config.get("knowledge_base.enable_vector_search", vector_search_enabled)
+                vector_search_enabled = self.config.get(
+                    "knowledge_base.enable_vector_search", vector_search_enabled
+                )
                 vector_model = self.config.get("knowledge_base.embedding_model", vector_model)
-            
+
             # Ensure memories directory exists (skip for :memory:)
             import os
+
             if final_db_path != ":memory:":
                 db_dir = os.path.dirname(final_db_path)
                 if db_dir and not os.path.exists(db_dir):
                     os.makedirs(db_dir, exist_ok=True)
-            
+
             self.memory = SQLMemoryManager(
                 final_db_path,
                 enable_vector_search=vector_search_enabled,
-                embedding_model=vector_model
+                embedding_model=vector_model,
             )
             self.logger.info(f"SQL memory system active: {final_db_path}")
             if vector_search_enabled:
                 self.logger.info(f"🔍 Vector search enabled (model: {vector_model})")
         else:
             # JSON memory (simple)
-            json_dir = memory_dir or self.config.get("memory.json_dir", "memories") if self.config else "memories"
+            json_dir = (
+                memory_dir or self.config.get("memory.json_dir", "memories")
+                if self.config
+                else "memories"
+            )
             self.memory = MemoryManager(json_dir)
             self.logger.info(f"JSON memory system active: {json_dir}")
 
@@ -219,19 +231,19 @@ class MemAgent:
         self.model = model  # Store model name
         self.backend = backend  # Store backend name
         self.use_sql = use_sql  # Store SQL usage flag
-        
+
         # Initialize LLM client (v1.3.0: Multi-backend support)
         # Prepare backend configuration
         llm_config = llm_kwargs.copy()
-        
+
         # Handle backward compatibility: ollama_url -> base_url
         if base_url is None and backend == "ollama":
             base_url = ollama_url
-        
+
         # Add base_url for local backends
-        if base_url and backend in ['ollama', 'lmstudio']:
-            llm_config['base_url'] = base_url
-        
+        if base_url and backend in ["ollama", "lmstudio"]:
+            llm_config["base_url"] = base_url
+
         # Add api_key for cloud backends
         # Auto-detect backend if requested
         if auto_detect_backend:
@@ -248,23 +260,19 @@ class MemAgent:
         else:
             # Create client using factory
             try:
-                self.llm = LLMClientFactory.create(
-                    backend=backend,
-                    model=model,
-                    **llm_config
-                )
+                self.llm = LLMClientFactory.create(backend=backend, model=model, **llm_config)
                 self.logger.info(f"✅ Initialized {backend} backend with model: {model}")
             except Exception as e:
                 self.logger.error(f"❌ Failed to initialize {backend} backend: {e}")
                 raise
-        
+
         # Optional connection check on startup
         if check_connection:
             backend_name = backend if not auto_detect_backend else "LLM service"
             self.logger.info(f"Checking {backend_name} connection...")
             if not self.llm.check_connection():
                 error_msg = f"❌ ERROR: Cannot connect to {backend_name}!\n"
-                
+
                 if backend == "ollama":
                     error_msg += (
                         "   \n"
@@ -282,11 +290,11 @@ class MemAgent:
                         "   3. Start local server (default: http://localhost:1234)\n"
                         "   4. Verify base_url parameter is correct\n"
                     )
-                
+
                 error_msg += "   \n   To skip this check, use: MemAgent(check_connection=False)"
                 self.logger.error(error_msg)
                 raise ConnectionError(f"{backend_name} not available")
-            
+
             # Check if model exists (for backends that support listing)
             try:
                 available_models = self.llm.list_models()
@@ -304,11 +312,10 @@ class MemAgent:
             except:
                 # Some backends may not support list_models, skip check
                 pass
-            
-            self.logger.info(f"✅ {backend_name} connection verified, model '{model}' ready")
-        
-        self.logger.info(f"LLM client ready: {model} on {backend}")
 
+            self.logger.info(f"✅ {backend_name} connection verified, model '{model}' ready")
+
+        self.logger.info(f"LLM client ready: {model} on {backend}")
 
         # Advanced features (if available)
         if ADVANCED_AVAILABLE:
@@ -320,7 +327,7 @@ class MemAgent:
 
         # Tool system (always available)
         self.tool_executor = ToolExecutor(self.memory)
-        
+
         # Metrics tracking system (v1.3.1+)
         self.metrics_analyzer = ResponseMetricsAnalyzer()
         self.track_metrics = True  # Can be disabled if needed
@@ -332,26 +339,26 @@ class MemAgent:
     def _setup_logging(self) -> None:
         """Setup logging system"""
         log_config = {}
-        if ADVANCED_AVAILABLE and hasattr(self, 'config') and self.config:
+        if ADVANCED_AVAILABLE and hasattr(self, "config") and self.config:
             log_config = self.config.get("logging", {})
 
         # Default to WARNING level to keep console clean (users can override in config)
         default_level = "WARNING"
-        
+
         if log_config.get("enabled", True):
             # Only console logging (no file) - keep workspace clean
             logging.basicConfig(
                 level=getattr(logging, log_config.get("level", default_level)),
-                format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                handlers=[
-                    logging.StreamHandler()  # Console only
-                ]
+                format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+                handlers=[logging.StreamHandler()],  # Console only
             )
 
         self.logger = logging.getLogger("MemAgent")
-        
+
         # Set default level for mem_llm loggers
-        logging.getLogger("mem_llm").setLevel(getattr(logging, log_config.get("level", default_level)))
+        logging.getLogger("mem_llm").setLevel(
+            getattr(logging, log_config.get("level", default_level))
+        )
 
     def _setup_advanced_features(self, load_knowledge_base: bool) -> None:
         """Setup advanced features"""
@@ -360,7 +367,7 @@ class MemAgent:
             kb_loader = KnowledgeLoader(self.memory)
 
             # Get KB settings from config
-            if hasattr(self, 'config') and self.config:
+            if hasattr(self, "config") and self.config:
                 kb_config = self.config.get("knowledge_base", {})
 
                 # Select default KB according to usage mode
@@ -376,16 +383,22 @@ class MemAgent:
                         self.has_knowledge_base = True  # KB loaded!
                     elif default_kb == "tech_support":
                         count = kb_loader.load_default_tech_support_kb()
-                        self.logger.info(f"Technical support knowledge base loaded: {count} records")
+                        self.logger.info(
+                            f"Technical support knowledge base loaded: {count} records"
+                        )
                         self.has_knowledge_base = True  # KB loaded!
                     elif default_kb == "business_tech_support":
                         count = kb_loader.load_default_tech_support_kb()
-                        self.logger.info(f"Corporate technical support knowledge base loaded: {count} records")
+                        self.logger.info(
+                            f"Corporate technical support knowledge base loaded: {count} records"
+                        )
                         self.has_knowledge_base = True  # KB loaded!
                     elif default_kb == "personal_learning":
                         # Simple KB for personal learning
                         count = kb_loader.load_default_ecommerce_kb()  # Temporarily use the same KB
-                        self.logger.info(f"Personal learning knowledge base loaded: {count} records")
+                        self.logger.info(
+                            f"Personal learning knowledge base loaded: {count} records"
+                        )
                         self.has_knowledge_base = True  # KB loaded!
                 except Exception as e:
                     self.logger.error(f"Knowledge base loading error: {e}")
@@ -400,21 +413,21 @@ class MemAgent:
             # Fallback simple prompt
             self.current_system_prompt = "You are a helpful AI assistant."
             return
-        
+
         # Get config data
         business_config = None
         personal_config = None
-        
-        if hasattr(self, 'config') and self.config:
+
+        if hasattr(self, "config") and self.config:
             if self.usage_mode == "business":
                 business_config = self.config.get("business", {})
             else:
                 personal_config = self.config.get("personal", {})
-        
+
         # Check if tools are enabled (future feature)
         # For now, tools are always available but not advertised in prompt
         # self.has_tools = False  # Will be enabled when tool system is ready
-        
+
         # Build prompt using dynamic builder
         try:
             self.current_system_prompt = dynamic_prompt_builder.build_prompt(
@@ -424,24 +437,24 @@ class MemAgent:
                 is_multi_user=False,  # Always False for now, per-session state
                 business_config=business_config,
                 personal_config=personal_config,
-                memory_type="sql" if self.use_sql else "json"
+                memory_type="sql" if self.use_sql else "json",
             )
-            
+
             # Add tool information to prompt if tools are enabled (v2.0+)
             if self.enable_tools and self.tool_registry:
                 tools_list = self.tool_registry.list_tools()
                 tools_prompt = format_tools_for_prompt(tools_list)
                 self.current_system_prompt += f"\n\n{tools_prompt}"
-            
+
             # Log feature summary
             feature_summary = dynamic_prompt_builder.get_feature_summary(
                 has_knowledge_base=self.has_knowledge_base,
                 has_tools=self.enable_tools,
                 is_multi_user=False,
-                memory_type="sql" if self.use_sql else "json"
+                memory_type="sql" if self.use_sql else "json",
             )
             self.logger.info(f"Dynamic prompt built: {feature_summary}")
-            
+
         except Exception as e:
             self.logger.error(f"Dynamic prompt building error: {e}")
             # Fallback
@@ -455,32 +468,28 @@ class MemAgent:
 
         # Memory statistics
         try:
-            if hasattr(self.memory, 'get_statistics'):
+            if hasattr(self.memory, "get_statistics"):
                 stats = self.memory.get_statistics()
             else:
                 # Simple statistics for JSON memory
-                stats = {
-                    "total_users": 0,
-                    "total_interactions": 0,
-                    "knowledge_base_entries": 0
-                }
+                stats = {"total_users": 0, "total_interactions": 0, "knowledge_base_entries": 0}
         except Exception:
-            stats = {
-                "total_users": 0,
-                "total_interactions": 0,
-                "knowledge_base_entries": 0
-            }
+            stats = {"total_users": 0, "total_interactions": 0, "knowledge_base_entries": 0}
 
         return {
             "ollama_running": ollama_running,
             "available_models": models,
             "target_model": self.llm.model,
             "model_ready": model_exists,
-            "memory_backend": "SQL" if ADVANCED_AVAILABLE and isinstance(self.memory, SQLMemoryManager) else "JSON",
-            "total_users": stats.get('total_users', 0),
-            "total_interactions": stats.get('total_interactions', 0),
-            "kb_entries": stats.get('knowledge_base_entries', 0),
-            "status": "ready" if (ollama_running and model_exists) else "not_ready"
+            "memory_backend": (
+                "SQL"
+                if ADVANCED_AVAILABLE and isinstance(self.memory, SQLMemoryManager)
+                else "JSON"
+            ),
+            "total_users": stats.get("total_users", 0),
+            "total_interactions": stats.get("total_interactions", 0),
+            "kb_entries": stats.get("knowledge_base_entries", 0),
+            "status": "ready" if (ollama_running and model_exists) else "not_ready",
         }
 
     def set_user(self, user_id: str, name: Optional[str] = None) -> None:
@@ -499,48 +508,48 @@ class MemAgent:
 
         # Update user name (if provided)
         if name:
-            if hasattr(self.memory, 'update_user_profile'):
+            if hasattr(self.memory, "update_user_profile"):
                 self.memory.update_user_profile(user_id, {"name": name})
 
         self.logger.debug(f"Active user set: {user_id}")
-    
+
     def _execute_tool_calls(self, response_text: str, max_iterations: int = 3) -> str:
         """
         Execute tool calls found in LLM response and get results.
-        
+
         Args:
             response_text: LLM response that may contain tool calls
             max_iterations: Maximum number of tool execution iterations
-        
+
         Returns:
             Final response after all tool executions
         """
         iteration = 0
         current_text = response_text
-        
+
         while iteration < max_iterations:
             # Check if response contains tool calls
             if not ToolCallParser.has_tool_call(current_text):
                 break
-            
+
             # Parse tool calls
             tool_calls = ToolCallParser.parse(current_text)
             if not tool_calls:
                 break
-            
+
             self.logger.info(f"🔧 Detected {len(tool_calls)} tool call(s)")
-            
+
             # Execute each tool
             tool_results = []
             for call in tool_calls:
                 tool_name = call["tool"]
                 arguments = call["arguments"]
-                
+
                 self.logger.info(f"  Executing: {tool_name}({arguments})")
-                
+
                 # Execute tool
                 result = self.tool_registry.execute(tool_name, **arguments)
-                
+
                 # Handle memory-specific tools
                 if result.status.value == "success" and isinstance(result.result, str):
                     if result.result.startswith("MEMORY_SEARCH:"):
@@ -548,7 +557,9 @@ class MemAgent:
                         try:
                             search_results = self.memory_manager.search_conversations(keyword)
                             if search_results:
-                                formatted = f"Found {len(search_results)} results for '{keyword}':\n"
+                                formatted = (
+                                    f"Found {len(search_results)} results for '{keyword}':\n"
+                                )
                                 for idx, conv in enumerate(search_results[:5], 1):
                                     formatted += f"{idx}. {conv.get('user', 'N/A')}: {conv.get('message', 'N/A')[:100]}...\n"
                                 result.result = formatted
@@ -556,63 +567,66 @@ class MemAgent:
                                 result.result = f"No conversations found containing '{keyword}'"
                         except Exception as e:
                             result.result = f"Memory search error: {e}"
-                    
+
                     elif result.result == "MEMORY_USER_INFO":
                         try:
                             user_info = f"Current user: {self.current_user or 'Not set'}"
                             if self.current_user:
-                                conv_count = len(self.memory_manager.get_conversation_history(self.current_user))
+                                conv_count = len(
+                                    self.memory_manager.get_conversation_history(self.current_user)
+                                )
                                 user_info += f"\nTotal conversations: {conv_count}"
                             result.result = user_info
                         except Exception as e:
                             result.result = f"User info error: {e}"
-                    
+
                     elif result.result.startswith("MEMORY_LIST_CONVERSATIONS:"):
                         try:
                             limit = int(result.result.split(":", 1)[1])
-                            history = self.memory_manager.get_conversation_history(self.current_user or "default", limit=limit)
+                            history = self.memory_manager.get_conversation_history(
+                                self.current_user or "default", limit=limit
+                            )
                             if history:
                                 formatted = f"Last {len(history)} conversations:\n"
                                 for idx, conv in enumerate(history, 1):
-                                    role = conv.get('role', 'unknown')
-                                    msg = conv.get('content', '')[:80]
+                                    role = conv.get("role", "unknown")
+                                    msg = conv.get("content", "")[:80]
                                     formatted += f"{idx}. [{role}] {msg}...\n"
                                 result.result = formatted
                             else:
                                 result.result = "No conversation history found"
                         except Exception as e:
                             result.result = f"Conversation list error: {e}"
-                
+
                 if result.status.value == "success":  # Compare with enum value
                     self.logger.info(f"  ✅ Success: {result.result}")
                     tool_results.append(f"Tool '{tool_name}' returned: {result.result}")
                 else:
                     self.logger.warning(f"  ❌ Error: {result.error}")
                     tool_results.append(f"Tool '{tool_name}' failed with error: {result.error}")
-            
+
             # Remove tool call syntax from response
             clean_text = ToolCallParser.remove_tool_calls(current_text)
-            
+
             # If we have tool results, ask LLM to continue with the results
             if tool_results:
                 results_text = "\n".join(tool_results)
-                
+
                 # Build follow-up message for LLM
                 follow_up = f"{clean_text}\n\nTool Results:\n{results_text}\n\nPlease provide the final answer to the user based on these results."
-                
+
                 # Get LLM response with tool results
                 try:
                     messages = [
-                        {"role": "system", "content": "You are a helpful assistant. Use the tool results to answer the user's question."},
-                        {"role": "user", "content": follow_up}
+                        {
+                            "role": "system",
+                            "content": "You are a helpful assistant. Use the tool results to answer the user's question.",
+                        },
+                        {"role": "user", "content": follow_up},
                     ]
-                    
-                    llm_response = self.llm.chat(
-                        messages=messages,
-                        temperature=0.7,
-                        max_tokens=500
-                    )
-                    
+
+                    llm_response = self.llm.chat(messages=messages, temperature=0.7, max_tokens=500)
+
                     current_text = llm_response
                     iteration += 1
                 except Exception as e:
@@ -622,11 +636,16 @@ class MemAgent:
             else:
                 # No tool results, return clean text
                 return clean_text
-        
+
         return current_text
 
-    def chat(self, message: str, user_id: Optional[str] = None,
-             metadata: Optional[Dict] = None, return_metrics: bool = False) -> Union[str, ChatResponse]:
+    def chat(
+        self,
+        message: str,
+        user_id: Optional[str] = None,
+        metadata: Optional[Dict] = None,
+        return_metrics: bool = False,
+    ) -> Union[str, ChatResponse]:
         """
         Chat with user
 
@@ -654,43 +673,47 @@ class MemAgent:
                     latency=(time.time() - start_time) * 1000,
                     timestamp=datetime.now(),
                     kb_results_count=0,
-                    metadata={"error": True}
+                    metadata={"error": True},
                 )
             return error_response
 
         user_id = self.current_user
-        
+
         # Initialize tracking variables
         kb_results_count = 0
         used_kb = False
         used_memory = False
         response_source = "model"  # Default source
-        
+
         # Security check (v1.1.0+) - opt-in
         security_info = {}
         if self.enable_security and self.security_detector and self.security_sanitizer:
             # Detect injection attempts
             risk_level = self.security_detector.get_risk_level(message)
             is_suspicious, patterns = self.security_detector.detect(message)
-            
+
             if risk_level in ["high", "critical"]:
-                self.logger.warning(f"🚨 Blocked {risk_level} risk input from {user_id}: {len(patterns)} patterns detected")
+                self.logger.warning(
+                    f"🚨 Blocked {risk_level} risk input from {user_id}: {len(patterns)} patterns detected"
+                )
                 return f"⚠️ Your message was blocked due to security concerns. Please rephrase your request."
-            
+
             if is_suspicious:
-                self.logger.info(f"⚠️ Suspicious input from {user_id} (risk: {risk_level}): {len(patterns)} patterns")
-            
+                self.logger.info(
+                    f"⚠️ Suspicious input from {user_id} (risk: {risk_level}): {len(patterns)} patterns"
+                )
+
             # Sanitize input
             original_message = message
             message = self.security_sanitizer.sanitize(message, aggressive=(risk_level == "medium"))
-            
+
             if message != original_message:
                 self.logger.debug(f"Input sanitized for {user_id}")
-            
+
             security_info = {
                 "risk_level": risk_level,
                 "sanitized": message != original_message,
-                "patterns_detected": len(patterns)
+                "patterns_detected": len(patterns),
             }
 
         # Check tool commands first
@@ -705,7 +728,7 @@ class MemAgent:
                     latency=latency,
                     timestamp=datetime.now(),
                     kb_results_count=0,
-                    metadata={"tool_command": True}
+                    metadata={"tool_command": True},
                 )
             return tool_result
 
@@ -715,11 +738,11 @@ class MemAgent:
             # Check config only if it exists, otherwise always use KB
             use_kb = True
             kb_limit = 5
-            
-            if hasattr(self, 'config') and self.config:
+
+            if hasattr(self, "config") and self.config:
                 use_kb = self.config.get("response.use_knowledge_base", True)
                 kb_limit = self.config.get("knowledge_base.search_limit", 5)
-            
+
             if use_kb:
                 try:
                     kb_results = self.memory.search_knowledge(query=message, limit=kb_limit)
@@ -729,7 +752,9 @@ class MemAgent:
                         used_kb = True
                         kb_context = "\n\n📚 RELEVANT KNOWLEDGE BASE:\n"
                         for i, result in enumerate(kb_results, 1):
-                            kb_context += f"{i}. Q: {result['question']}\n   A: {result['answer']}\n"
+                            kb_context += (
+                                f"{i}. Q: {result['question']}\n   A: {result['answer']}\n"
+                            )
                         kb_context += "\n⚠️ USE THIS INFORMATION TO ANSWER! Be brief but accurate.\n"
                 except Exception as e:
                     self.logger.error(f"Knowledge base search error: {e}")
@@ -737,7 +762,7 @@ class MemAgent:
         # Rebuild system prompt to include any newly registered tools (v2.1.1+)
         if self.enable_tools and self.tool_registry:
             self._build_dynamic_system_prompt()
-        
+
         # Get conversation history
         messages = []
         if self.current_system_prompt:
@@ -745,17 +770,21 @@ class MemAgent:
 
         # Add memory history
         try:
-            if hasattr(self.memory, 'get_recent_conversations'):
-                recent_limit = self.config.get("response.recent_conversations_limit", 5) if hasattr(self, 'config') and self.config else 5
+            if hasattr(self.memory, "get_recent_conversations"):
+                recent_limit = (
+                    self.config.get("response.recent_conversations_limit", 5)
+                    if hasattr(self, "config") and self.config
+                    else 5
+                )
                 recent_convs = self.memory.get_recent_conversations(user_id, recent_limit)
 
                 if recent_convs:
                     used_memory = True
-                    
+
                 # Add conversations in chronological order (oldest first)
                 for conv in recent_convs:
-                    messages.append({"role": "user", "content": conv.get('user_message', '')})
-                    messages.append({"role": "assistant", "content": conv.get('bot_response', '')})
+                    messages.append({"role": "user", "content": conv.get("user_message", "")})
+                    messages.append({"role": "assistant", "content": conv.get("bot_response", "")})
         except Exception as e:
             self.logger.error(f"Memory history loading error: {e}")
 
@@ -764,38 +793,55 @@ class MemAgent:
         if kb_context:
             # Inject KB directly into user message for maximum visibility
             final_message = f"{kb_context}\n\nUser Question: {message}"
-        
+
         messages.append({"role": "user", "content": final_message})
 
         # Get response from LLM
-        temperature = self.config.get("llm.temperature", 0.2) if hasattr(self, 'config') and self.config else 0.2
+        temperature = (
+            self.config.get("llm.temperature", 0.2)
+            if hasattr(self, "config") and self.config
+            else 0.2
+        )
         try:
             response = self.llm.chat(
                 messages=messages,
                 temperature=temperature,
-                max_tokens=self.config.get("llm.max_tokens", 2000) if hasattr(self, 'config') and self.config else 2000  # Enough tokens for thinking models
+                max_tokens=(
+                    self.config.get("llm.max_tokens", 2000)
+                    if hasattr(self, "config") and self.config
+                    else 2000
+                ),  # Enough tokens for thinking models
             )
-            
+
             # Fallback: If response is empty (can happen with thinking models)
             if not response or response.strip() == "":
-                self.logger.warning(f"Empty response from model {self.llm.model}, retrying with simpler prompt...")
-                
+                self.logger.warning(
+                    f"Empty response from model {self.llm.model}, retrying with simpler prompt..."
+                )
+
                 # Retry with just the current message, no history
                 simple_messages = [
-                    {"role": "system", "content": "You are a helpful assistant. Respond directly and concisely."},
-                    {"role": "user", "content": message}
+                    {
+                        "role": "system",
+                        "content": "You are a helpful assistant. Respond directly and concisely.",
+                    },
+                    {"role": "user", "content": message},
                 ]
                 response = self.llm.chat(simple_messages, temperature=0.7, max_tokens=2000)
-                
+
                 # If still empty, provide fallback
                 if not response or response.strip() == "":
-                    response = "I'm having trouble responding right now. Could you rephrase your question?"
-                    self.logger.error(f"Model {self.llm.model} returned empty response even after retry")
-                    
+                    response = (
+                        "I'm having trouble responding right now. Could you rephrase your question?"
+                    )
+                    self.logger.error(
+                        f"Model {self.llm.model} returned empty response even after retry"
+                    )
+
         except Exception as e:
             self.logger.error(f"LLM response error: {e}")
             response = "Sorry, I cannot respond right now. Please try again later."
-        
+
         # Execute tool calls if tools are enabled (v2.0+)
         if self.enable_tools and self.tool_registry and response:
             try:
@@ -803,10 +849,10 @@ class MemAgent:
             except Exception as e:
                 self.logger.error(f"Tool execution error: {e}")
                 # Continue with original response
-        
+
         # Calculate latency
         latency = (time.time() - start_time) * 1000
-        
+
         # Determine response source
         if used_kb and used_memory:
             response_source = "hybrid"
@@ -814,53 +860,55 @@ class MemAgent:
             response_source = "knowledge_base"
         else:
             response_source = "model"
-        
+
         # Calculate confidence score
         confidence = calculate_confidence(
             kb_results_count=kb_results_count,
             temperature=temperature,
             used_memory=used_memory,
-            response_length=len(response)
+            response_length=len(response),
         )
 
         # Build enriched metadata with response metrics
         enriched_metadata = {}
         if metadata:
             enriched_metadata.update(metadata)
-        enriched_metadata.update({
-            "confidence": round(confidence, 3),
-            "source": response_source,
-            "latency_ms": round(latency, 1),
-            "kb_results_count": kb_results_count,
-            "used_memory": used_memory,
-            "used_kb": used_kb,
-            "response_length": len(response),
-            "model": self.model,
-            "temperature": temperature
-        })
-        
+        enriched_metadata.update(
+            {
+                "confidence": round(confidence, 3),
+                "source": response_source,
+                "latency_ms": round(latency, 1),
+                "kb_results_count": kb_results_count,
+                "used_memory": used_memory,
+                "used_kb": used_kb,
+                "response_length": len(response),
+                "model": self.model,
+                "temperature": temperature,
+            }
+        )
+
         # Save interaction
         try:
-            if hasattr(self.memory, 'add_interaction'):
+            if hasattr(self.memory, "add_interaction"):
                 self.memory.add_interaction(
                     user_id=user_id,
                     user_message=message,
                     bot_response=response,
-                    metadata=enriched_metadata
+                    metadata=enriched_metadata,
                 )
-                
+
                 # Extract and save user info to profile
                 self._update_user_profile(user_id, message, response)
-                
+
                 # Always update summary after each conversation (JSON mode)
-                if not self.use_sql and hasattr(self.memory, 'conversations'):
+                if not self.use_sql and hasattr(self.memory, "conversations"):
                     self._update_conversation_summary(user_id)
                     # Save summary update
                     if user_id in self.memory.user_profiles:
                         self.memory.save_memory(user_id)
         except Exception as e:
             self.logger.error(f"Interaction saving error: {e}")
-        
+
         # Create response metrics object
         chat_response = ChatResponse(
             text=response,
@@ -874,35 +922,37 @@ class MemAgent:
                 "temperature": temperature,
                 "used_memory": used_memory,
                 "used_kb": used_kb,
-                "user_id": user_id
-            }
+                "user_id": user_id,
+            },
         )
-        
+
         # Track metrics if enabled
         if self.track_metrics:
             self.metrics_analyzer.add_metric(chat_response)
-        
+
         # Return based on user preference
         if return_metrics:
             return chat_response
         else:
             return response
-    
-    def chat_stream(self, message: str, user_id: Optional[str] = None, metadata: Optional[Dict] = None) -> Iterator[str]:
+
+    def chat_stream(
+        self, message: str, user_id: Optional[str] = None, metadata: Optional[Dict] = None
+    ) -> Iterator[str]:
         """
         Chat with user using streaming response (real-time)
-        
+
         This method streams the response as it's generated, providing a better UX
         for longer responses (like ChatGPT's typing effect).
-        
+
         Args:
             message: User's message
             user_id: User ID (optional)
             metadata: Additional information
-            
+
         Yields:
             Response text chunks as they arrive from the LLM
-            
+
         Example:
             >>> agent = MemAgent()
             >>> agent.set_user("alice")
@@ -912,175 +962,189 @@ class MemAgent:
         """
         # Start timing
         start_time = time.time()
-        
+
         # Determine user
         if user_id:
             self.set_user(user_id)
         elif not self.current_user:
             yield "Error: User ID not specified."
             return
-        
+
         user_id = self.current_user
-        
+
         # Initialize tracking variables
         kb_results_count = 0
         used_kb = False
         used_memory = False
-        
+
         # Security check (v1.1.0+) - opt-in
         if self.enable_security and self.security_detector and self.security_sanitizer:
             risk_level = self.security_detector.get_risk_level(message)
             is_suspicious, patterns = self.security_detector.detect(message)
-            
+
             if risk_level in ["high", "critical"]:
                 self.logger.warning(f"🚨 Blocked {risk_level} risk input from {user_id}")
                 yield f"⚠️ Your message was blocked due to security concerns. Please rephrase your request."
                 return
-            
+
             # Sanitize input
             message = self.security_sanitizer.sanitize(message, aggressive=(risk_level == "medium"))
-        
+
         # Check tool commands first
         tool_result = self.tool_executor.execute_user_command(message, user_id)
         if tool_result:
             yield tool_result
             return
-        
+
         # Knowledge base search (if using SQL)
         kb_context = ""
         if ADVANCED_AVAILABLE and isinstance(self.memory, SQLMemoryManager):
             use_kb = True
             kb_limit = 5
-            
-            if hasattr(self, 'config') and self.config:
+
+            if hasattr(self, "config") and self.config:
                 use_kb = self.config.get("response.use_knowledge_base", True)
                 kb_limit = self.config.get("knowledge_base.search_limit", 5)
-            
+
             if use_kb:
                 try:
                     kb_results = self.memory.search_knowledge(query=message, limit=kb_limit)
-                    
+
                     if kb_results:
                         kb_results_count = len(kb_results)
                         used_kb = True
                         kb_context = "\n\n📚 RELEVANT KNOWLEDGE BASE:\n"
                         for i, result in enumerate(kb_results, 1):
-                            kb_context += f"{i}. Q: {result['question']}\n   A: {result['answer']}\n"
+                            kb_context += (
+                                f"{i}. Q: {result['question']}\n   A: {result['answer']}\n"
+                            )
                         kb_context += "\n⚠️ USE THIS INFORMATION TO ANSWER! Be brief but accurate.\n"
                 except Exception as e:
                     self.logger.error(f"Knowledge base search error: {e}")
-        
+
         # Rebuild system prompt to include any newly registered tools (v2.1.1+)
         if self.enable_tools and self.tool_registry:
             self._build_dynamic_system_prompt()
-        
+
         # Get conversation history
         messages = []
         if self.current_system_prompt:
             messages.append({"role": "system", "content": self.current_system_prompt})
-        
+
         # Add memory history
         try:
-            if hasattr(self.memory, 'get_recent_conversations'):
-                recent_limit = self.config.get("response.recent_conversations_limit", 5) if hasattr(self, 'config') and self.config else 5
+            if hasattr(self.memory, "get_recent_conversations"):
+                recent_limit = (
+                    self.config.get("response.recent_conversations_limit", 5)
+                    if hasattr(self, "config") and self.config
+                    else 5
+                )
                 recent_convs = self.memory.get_recent_conversations(user_id, recent_limit)
-                
+
                 if recent_convs:
                     used_memory = True
-                    
+
                 # Add conversations in chronological order
                 for conv in recent_convs:
-                    messages.append({"role": "user", "content": conv.get('user_message', '')})
-                    messages.append({"role": "assistant", "content": conv.get('bot_response', '')})
+                    messages.append({"role": "user", "content": conv.get("user_message", "")})
+                    messages.append({"role": "assistant", "content": conv.get("bot_response", "")})
         except Exception as e:
             self.logger.error(f"Memory history loading error: {e}")
-        
+
         # Add current message WITH knowledge base context (if available)
         final_message = message
         if kb_context:
             final_message = f"{kb_context}\n\nUser Question: {message}"
-        
+
         messages.append({"role": "user", "content": final_message})
-        
+
         # Get streaming response from LLM
-        temperature = self.config.get("llm.temperature", 0.2) if hasattr(self, 'config') and self.config else 0.2
-        max_tokens = self.config.get("llm.max_tokens", 2000) if hasattr(self, 'config') and self.config else 2000
-        
+        temperature = (
+            self.config.get("llm.temperature", 0.2)
+            if hasattr(self, "config") and self.config
+            else 0.2
+        )
+        max_tokens = (
+            self.config.get("llm.max_tokens", 2000)
+            if hasattr(self, "config") and self.config
+            else 2000
+        )
+
         # Collect full response for saving
         full_response = ""
-        
+
         try:
             # Stream chunks from LLM
             for chunk in self.llm.chat_stream(
-                messages=messages,
-                temperature=temperature,
-                max_tokens=max_tokens
+                messages=messages, temperature=temperature, max_tokens=max_tokens
             ):
                 full_response += chunk
                 yield chunk
-            
+
         except Exception as e:
             error_msg = f"Streaming error: {str(e)}"
             self.logger.error(error_msg)
             yield f"\n\n⚠️ {error_msg}"
             return
-        
+
         # Calculate latency
         latency = (time.time() - start_time) * 1000
-        
+
         # Determine response source
         response_source = "model"
         if used_memory and used_kb:
             response_source = "hybrid"
         elif used_kb:
             response_source = "knowledge_base"
-        
+
         # Calculate confidence
         confidence = calculate_confidence(
             kb_results_count=kb_results_count,
             temperature=temperature,
             used_memory=used_memory,
-            response_length=len(full_response)
+            response_length=len(full_response),
         )
-        
+
         # Build enriched metadata
         enriched_metadata = {}
         if metadata:
             enriched_metadata.update(metadata)
-        enriched_metadata.update({
-            "confidence": round(confidence, 3),
-            "source": response_source,
-            "latency_ms": round(latency, 1),
-            "kb_results_count": kb_results_count,
-            "used_memory": used_memory,
-            "used_kb": used_kb,
-            "response_length": len(full_response),
-            "model": self.model,
-            "temperature": temperature,
-            "streaming": True
-        })
-        
+        enriched_metadata.update(
+            {
+                "confidence": round(confidence, 3),
+                "source": response_source,
+                "latency_ms": round(latency, 1),
+                "kb_results_count": kb_results_count,
+                "used_memory": used_memory,
+                "used_kb": used_kb,
+                "response_length": len(full_response),
+                "model": self.model,
+                "temperature": temperature,
+                "streaming": True,
+            }
+        )
+
         # Save interaction
         try:
-            if hasattr(self.memory, 'add_interaction'):
+            if hasattr(self.memory, "add_interaction"):
                 self.memory.add_interaction(
                     user_id=user_id,
                     user_message=message,
                     bot_response=full_response,
-                    metadata=enriched_metadata
+                    metadata=enriched_metadata,
                 )
-                
+
                 # Extract and save user info to profile
                 self._update_user_profile(user_id, message, full_response)
-                
+
                 # Update summary (JSON mode)
-                if not self.use_sql and hasattr(self.memory, 'conversations'):
+                if not self.use_sql and hasattr(self.memory, "conversations"):
                     self._update_conversation_summary(user_id)
                     if user_id in self.memory.user_profiles:
                         self.memory.save_memory(user_id)
         except Exception as e:
             self.logger.error(f"Interaction saving error: {e}")
-        
+
         # Track metrics if enabled
         if self.track_metrics:
             chat_response = ChatResponse(
@@ -1096,165 +1160,204 @@ class MemAgent:
                     "used_memory": used_memory,
                     "used_kb": used_kb,
                     "user_id": user_id,
-                    "streaming": True
-                }
+                    "streaming": True,
+                },
             )
             self.metrics_analyzer.add_metric(chat_response)
-    
+
     def _update_user_profile(self, user_id: str, message: str, response: str):
         """Extract user info from conversation and update profile"""
         msg_lower = message.lower()
-        
+
         # Extract information
         extracted = {}
-        
+
         # Extract name
-        if "my name is" in msg_lower or "i am" in msg_lower or "i'm" in msg_lower or "adım" in msg_lower or "ismim" in msg_lower:
+        if (
+            "my name is" in msg_lower
+            or "i am" in msg_lower
+            or "i'm" in msg_lower
+            or "adım" in msg_lower
+            or "ismim" in msg_lower
+        ):
             for phrase in ["my name is ", "i am ", "i'm ", "adım ", "ismim ", "benim adım "]:
                 if phrase in msg_lower:
-                    name_part = message[msg_lower.index(phrase) + len(phrase):].strip()
+                    name_part = message[msg_lower.index(phrase) + len(phrase) :].strip()
                     name = name_part.split()[0] if name_part else None
                     if name and len(name) > 1:
-                        extracted['name'] = name.strip('.,!?')
+                        extracted["name"] = name.strip(".,!?")
                         break
-        
+
         # Extract favorite food
-        if "favorite food" in msg_lower or "favourite food" in msg_lower or "sevdiğim yemek" in msg_lower or "en sevdiğim" in msg_lower:
+        if (
+            "favorite food" in msg_lower
+            or "favourite food" in msg_lower
+            or "sevdiğim yemek" in msg_lower
+            or "en sevdiğim" in msg_lower
+        ):
             if "is" in msg_lower or ":" in msg_lower:
-                food = msg_lower.split("is")[-1].strip() if "is" in msg_lower else msg_lower.split(":")[-1].strip()
-                food = food.strip('.,!?')
+                food = (
+                    msg_lower.split("is")[-1].strip()
+                    if "is" in msg_lower
+                    else msg_lower.split(":")[-1].strip()
+                )
+                food = food.strip(".,!?")
                 if food and len(food) < 50:
-                    extracted['favorite_food'] = food
-        
+                    extracted["favorite_food"] = food
+
         # Extract location
-        if "i live in" in msg_lower or "i'm from" in msg_lower or "yaşıyorum" in msg_lower or "yaşadığım" in msg_lower:
-            for phrase in ["i live in ", "i'm from ", "from ", "yaşıyorum", "yaşadığım yer", "yaşadığım şehir"]:
+        if (
+            "i live in" in msg_lower
+            or "i'm from" in msg_lower
+            or "yaşıyorum" in msg_lower
+            or "yaşadığım" in msg_lower
+        ):
+            for phrase in [
+                "i live in ",
+                "i'm from ",
+                "from ",
+                "yaşıyorum",
+                "yaşadığım yer",
+                "yaşadığım şehir",
+            ]:
                 if phrase in msg_lower:
-                    loc = message[msg_lower.index(phrase) + len(phrase):].strip()
+                    loc = message[msg_lower.index(phrase) + len(phrase) :].strip()
                     location = loc.split()[0] if loc else None
                     if location and len(location) > 2:
-                        extracted['location'] = location.strip('.,!?')
+                        extracted["location"] = location.strip(".,!?")
                         break
-        
+
         # Save updates
         if extracted:
             try:
                 # SQL memory - store in preferences JSON
-                if hasattr(self.memory, 'update_user_profile'):
+                if hasattr(self.memory, "update_user_profile"):
                     # Get current profile
                     profile = self.memory.get_user_profile(user_id) or {}
-                    
+
                     # Update name directly if extracted
                     updates = {}
-                    if 'name' in extracted:
-                        updates['name'] = extracted.pop('name')
-                    
+                    if "name" in extracted:
+                        updates["name"] = extracted.pop("name")
+
                     # Store other info in preferences
                     if extracted:
-                        current_prefs = profile.get('preferences')
+                        current_prefs = profile.get("preferences")
                         if current_prefs:
                             try:
-                                prefs = json.loads(current_prefs) if isinstance(current_prefs, str) else current_prefs
+                                prefs = (
+                                    json.loads(current_prefs)
+                                    if isinstance(current_prefs, str)
+                                    else current_prefs
+                                )
                             except:
                                 prefs = {}
                         else:
                             prefs = {}
-                        
+
                         prefs.update(extracted)
-                        updates['preferences'] = json.dumps(prefs)
-                    
+                        updates["preferences"] = json.dumps(prefs)
+
                     if updates:
                         self.memory.update_user_profile(user_id, updates)
                         self.logger.debug(f"Profile updated for {user_id}: {extracted}")
-                
+
                 # JSON memory - direct update
-                elif hasattr(self.memory, 'update_profile'):
+                elif hasattr(self.memory, "update_profile"):
                     # Load memory if not already loaded
                     if user_id not in self.memory.user_profiles:
                         self.memory.load_memory(user_id)
-                    
+
                     # For JSON memory, merge into preferences
                     current_profile = self.memory.user_profiles.get(user_id, {})
-                    current_prefs = current_profile.get('preferences', {})
-                    
+                    current_prefs = current_profile.get("preferences", {})
+
                     # Handle case where preferences might be a JSON string
                     if isinstance(current_prefs, str):
                         try:
                             current_prefs = json.loads(current_prefs)
                         except:
                             current_prefs = {}
-                    
+
                     # Update preferences
                     if extracted:
                         current_prefs.update(extracted)
-                        self.memory.user_profiles[user_id]['preferences'] = current_prefs
-                    
+                        self.memory.user_profiles[user_id]["preferences"] = current_prefs
+
                     # Update name if extracted
-                    if 'name' in extracted:
-                        self.memory.user_profiles[user_id]['name'] = extracted['name']
-                    
+                    if "name" in extracted:
+                        self.memory.user_profiles[user_id]["name"] = extracted["name"]
+
                     # Auto-generate summary from conversation history
                     self._update_conversation_summary(user_id)
-                    
+
                     # Save to disk
                     self.memory.save_memory(user_id)
                     self.logger.debug(f"Profile updated for {user_id}: {extracted}")
             except Exception as e:
                 self.logger.error(f"Error updating profile: {e}")
-    
+
     def _update_conversation_summary(self, user_id: str) -> None:
         """
         Auto-generate conversation summary for user profile
-        
+
         Args:
             user_id: User ID
         """
         try:
-            if not hasattr(self.memory, 'conversations'):
+            if not hasattr(self.memory, "conversations"):
                 return
-            
+
             # Ensure memory is loaded
             if user_id not in self.memory.conversations:
                 self.memory.load_memory(user_id)
-                
+
             conversations = self.memory.conversations.get(user_id, [])
             if not conversations:
                 return
-            
+
             # Get recent conversations for summary
             recent_convs = conversations[-10:]  # Last 10 conversations
-            
+
             # Extract topics/interests
-            all_messages = " ".join([c.get('user_message', '') for c in recent_convs])
+            all_messages = " ".join([c.get("user_message", "") for c in recent_convs])
             topics = self._extract_topics(all_messages)
-            
+
             # Calculate engagement stats
             total_interactions = len(conversations)
-            avg_response_length = sum(len(c.get('bot_response', '')) for c in recent_convs) / len(recent_convs) if recent_convs else 0
-            
+            avg_response_length = (
+                sum(len(c.get("bot_response", "")) for c in recent_convs) / len(recent_convs)
+                if recent_convs
+                else 0
+            )
+
             # Build summary
             summary = {
                 "total_interactions": total_interactions,
                 "topics_of_interest": topics[:5] if topics else [],  # Top 5 topics
                 "avg_response_length": round(avg_response_length, 0),
-                "last_active": recent_convs[-1].get('timestamp') if recent_convs else None,
-                "engagement_level": "high" if total_interactions > 20 else ("medium" if total_interactions > 5 else "low")
+                "last_active": recent_convs[-1].get("timestamp") if recent_convs else None,
+                "engagement_level": (
+                    "high"
+                    if total_interactions > 20
+                    else ("medium" if total_interactions > 5 else "low")
+                ),
             }
-            
+
             # Update profile summary (JSON mode)
             if user_id in self.memory.user_profiles:
-                self.memory.user_profiles[user_id]['summary'] = summary
-                
+                self.memory.user_profiles[user_id]["summary"] = summary
+
         except Exception as e:
             self.logger.debug(f"Summary generation skipped: {e}")
-    
+
     def _extract_topics(self, text: str) -> List[str]:
         """
         Extract key topics/interests from conversation text
-        
+
         Args:
             text: Combined conversation text
-            
+
         Returns:
             List of extracted topics
         """
@@ -1272,16 +1375,16 @@ class MemAgent:
             "help": "Support",
             "problem": "Problem Solving",
             "question": "Questions",
-            "chat": "Chatting"
+            "chat": "Chatting",
         }
-        
+
         text_lower = text.lower()
         found_topics = []
-        
+
         for keyword, topic in keywords_map.items():
             if keyword in text_lower:
                 found_topics.append(topic)
-        
+
         # Remove duplicates while preserving order
         seen = set()
         unique_topics = []
@@ -1289,23 +1392,23 @@ class MemAgent:
             if topic not in seen:
                 seen.add(topic)
                 unique_topics.append(topic)
-        
+
         return unique_topics
 
     def get_user_profile(self, user_id: Optional[str] = None) -> Dict:
         """
         Get user's profile info
-        
+
         Args:
             user_id: User ID (uses current_user if not specified)
-            
+
         Returns:
             User profile dictionary with all info (name, favorite_food, location, etc.)
         """
         uid = user_id or self.current_user
         if not uid:
             return {}
-        
+
         try:
             # Check if SQL or JSON memory - SQL has SQLMemoryManager type
             if ADVANCED_AVAILABLE and isinstance(self.memory, SQLMemoryManager):
@@ -1313,49 +1416,52 @@ class MemAgent:
                 profile = self.memory.get_user_profile(uid)
                 if not profile:
                     return {}
-                
+
                 # Parse preferences JSON if exists
                 result = {
-                    'user_id': profile.get('user_id'),
-                    'name': profile.get('name'),
-                    'first_seen': profile.get('first_seen'),
-                    'last_interaction': profile.get('last_interaction'),
+                    "user_id": profile.get("user_id"),
+                    "name": profile.get("name"),
+                    "first_seen": profile.get("first_seen"),
+                    "last_interaction": profile.get("last_interaction"),
                 }
-                
+
                 # Merge preferences
-                prefs_str = profile.get('preferences')
+                prefs_str = profile.get("preferences")
                 if prefs_str:
                     try:
                         prefs = json.loads(prefs_str) if isinstance(prefs_str, str) else prefs_str
                         result.update(prefs)  # Add favorite_food, location, etc.
                     except:
                         pass
-                
+
                 return result
             else:
                 # JSON memory - reload from disk to get latest data
                 memory_data = self.memory.load_memory(uid)
-                profile = memory_data.get('profile', {}).copy()  # Make a copy to avoid modifying cached data
-                
+                profile = memory_data.get(
+                    "profile", {}
+                ).copy()  # Make a copy to avoid modifying cached data
+
                 # Parse preferences if it's a JSON string
-                if isinstance(profile.get('preferences'), str):
+                if isinstance(profile.get("preferences"), str):
                     try:
-                        profile['preferences'] = json.loads(profile['preferences'])
+                        profile["preferences"] = json.loads(profile["preferences"])
                     except:
-                        profile['preferences'] = {}
-                
+                        profile["preferences"] = {}
+
                 # Return profile as-is (summary should already be there if it was generated)
                 # Only regenerate if truly missing
-                summary_value = profile.get('summary')
-                summary_is_empty = (not summary_value or 
-                                   (isinstance(summary_value, dict) and len(summary_value) == 0))
-                
+                summary_value = profile.get("summary")
+                summary_is_empty = not summary_value or (
+                    isinstance(summary_value, dict) and len(summary_value) == 0
+                )
+
                 if summary_is_empty:
                     # Try to regenerate summary if missing (for old users)
                     # Ensure conversations are loaded
                     if uid not in self.memory.conversations:
                         self.memory.load_memory(uid)
-                    
+
                     if uid in self.memory.conversations and len(self.memory.conversations[uid]) > 0:
                         self._update_conversation_summary(uid)
                         # Save the updated summary
@@ -1363,21 +1469,27 @@ class MemAgent:
                             self.memory.save_memory(uid)
                         # Reload to get updated summary
                         memory_data = self.memory.load_memory(uid)
-                        profile = memory_data.get('profile', {}).copy()
+                        profile = memory_data.get("profile", {}).copy()
                         # Parse preferences again after reload
-                        if isinstance(profile.get('preferences'), str):
+                        if isinstance(profile.get("preferences"), str):
                             try:
-                                profile['preferences'] = json.loads(profile['preferences'])
+                                profile["preferences"] = json.loads(profile["preferences"])
                             except:
-                                profile['preferences'] = {}
-                
+                                profile["preferences"] = {}
+
                 return profile
         except Exception as e:
             self.logger.error(f"Error getting user profile: {e}")
             return {}
-    
-    def add_knowledge(self, category: str, question: str, answer: str,
-                     keywords: Optional[List[str]] = None, priority: int = 0) -> int:
+
+    def add_knowledge(
+        self,
+        category: str,
+        question: str,
+        answer: str,
+        keywords: Optional[List[str]] = None,
+        priority: int = 0,
+    ) -> int:
         """Add new record to knowledge base"""
         if not ADVANCED_AVAILABLE or not isinstance(self.memory, SQLMemoryManager):
             return 0
@@ -1393,15 +1505,11 @@ class MemAgent:
     def get_statistics(self) -> Dict[str, Any]:
         """Returns general statistics"""
         try:
-            if hasattr(self.memory, 'get_statistics'):
+            if hasattr(self.memory, "get_statistics"):
                 return self.memory.get_statistics()
             else:
                 # Simple statistics for JSON memory
-                return {
-                    "total_users": 0,
-                    "total_interactions": 0,
-                    "memory_backend": "JSON"
-                }
+                return {"total_users": 0, "total_interactions": 0, "memory_backend": "JSON"}
         except Exception as e:
             self.logger.error(f"Statistics retrieval error: {e}")
             return {}
@@ -1413,7 +1521,7 @@ class MemAgent:
             return []
 
         try:
-            if hasattr(self.memory, 'search_conversations'):
+            if hasattr(self.memory, "search_conversations"):
                 return self.memory.search_conversations(uid, keyword)
             else:
                 return []
@@ -1428,7 +1536,7 @@ class MemAgent:
             return "User ID not specified."
 
         try:
-            if hasattr(self.memory, 'get_user_profile'):
+            if hasattr(self.memory, "get_user_profile"):
                 profile = self.memory.get_user_profile(uid)
                 if profile:
                     return f"User: {uid}\nName: {profile.get('name', 'Unknown')}\nFirst conversation: {profile.get('first_seen', 'Unknown')}"
@@ -1446,7 +1554,9 @@ class MemAgent:
             return "User ID not specified."
 
         try:
-            if hasattr(self.memory, 'get_recent_conversations') and hasattr(self.memory, 'get_user_profile'):
+            if hasattr(self.memory, "get_recent_conversations") and hasattr(
+                self.memory, "get_user_profile"
+            ):
                 conversations = self.memory.get_recent_conversations(uid, 1000)
                 profile = self.memory.get_user_profile(uid)
 
@@ -1455,7 +1565,7 @@ class MemAgent:
                         "user_id": uid,
                         "export_date": datetime.now().isoformat(),
                         "profile": profile,
-                        "conversations": conversations
+                        "conversations": conversations,
                     }
                     return json.dumps(export_data, ensure_ascii=False, indent=2)
                 elif format == "txt":
@@ -1488,7 +1598,7 @@ class MemAgent:
             return "Use confirm=True parameter to delete data."
 
         try:
-            if hasattr(self.memory, 'clear_memory'):
+            if hasattr(self.memory, "clear_memory"):
                 self.memory.clear_memory(uid)
                 return f"All data for user {uid} has been deleted."
             else:
@@ -1502,19 +1612,19 @@ class MemAgent:
             return self.tool_executor.memory_tools.list_available_tools()
         else:
             return "Tool system not available."
-    
+
     # === METRICS & ANALYTICS METHODS (v1.3.1+) ===
-    
+
     def get_response_metrics(self, last_n: Optional[int] = None) -> Dict[str, Any]:
         """
         Get response quality metrics summary
-        
+
         Args:
             last_n: Analyze only last N responses (None = all)
-            
+
         Returns:
             Metrics summary dictionary
-            
+
         Example:
             >>> agent.get_response_metrics(last_n=10)
             {
@@ -1527,59 +1637,59 @@ class MemAgent:
             }
         """
         return self.metrics_analyzer.get_summary(last_n)
-    
+
     def get_latest_response_metric(self) -> Optional[ChatResponse]:
         """
         Get the most recent response metric
-        
+
         Returns:
             Latest ChatResponse object or None if no metrics
         """
         if not self.metrics_analyzer.metrics_history:
             return None
         return self.metrics_analyzer.metrics_history[-1]
-    
+
     def get_average_confidence(self, last_n: Optional[int] = None) -> float:
         """
         Get average confidence score
-        
+
         Args:
             last_n: Analyze only last N responses (None = all)
-            
+
         Returns:
             Average confidence (0.0-1.0)
         """
         return self.metrics_analyzer.get_average_confidence(last_n)
-    
+
     def get_kb_usage_rate(self, last_n: Optional[int] = None) -> float:
         """
         Get knowledge base usage rate
-        
+
         Args:
             last_n: Analyze only last N responses (None = all)
-            
+
         Returns:
             KB usage rate (0.0-1.0)
         """
         return self.metrics_analyzer.get_kb_usage_rate(last_n)
-    
+
     def clear_metrics(self) -> None:
         """Clear all metrics history"""
         self.metrics_analyzer.clear_history()
         self.logger.info("Metrics history cleared")
-    
+
     def export_metrics(self, format: str = "json") -> str:
         """
         Export metrics data
-        
+
         Args:
             format: Export format ('json' or 'summary')
-            
+
         Returns:
             Formatted metrics data
         """
         summary = self.get_response_metrics()
-        
+
         if format == "json":
             return json.dumps(summary, ensure_ascii=False, indent=2)
         elif format == "summary":
@@ -1594,20 +1704,20 @@ class MemAgent:
                 "",
                 "Source Distribution:",
             ]
-            for source, count in summary['source_distribution'].items():
+            for source, count in summary["source_distribution"].items():
                 lines.append(f"  - {source:20s}: {count}")
-            
+
             lines.extend(["", "Quality Distribution:"])
-            for quality, count in summary.get('quality_distribution', {}).items():
+            for quality, count in summary.get("quality_distribution", {}).items():
                 lines.append(f"  - {quality:20s}: {count}")
-            
+
             return "\n".join(lines)
         else:
             return "Unsupported format. Use 'json' or 'summary'."
 
     def close(self) -> None:
         """Clean up resources"""
-        if hasattr(self.memory, 'close'):
+        if hasattr(self.memory, "close"):
             self.memory.close()
         self.logger.info("MemAgent closed")
 
@@ -1616,4 +1726,3 @@ class MemAgent:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
-

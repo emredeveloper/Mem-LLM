@@ -8,31 +8,32 @@ Author: C. Emre Karataş
 Version: 2.1.3
 """
 
+import json
 import math
 import os
-import json
 from datetime import datetime
-from typing import List, Dict, Any
 from pathlib import Path
+from typing import Any, Dict, List
+
 from .tool_system import tool
 from .tool_workspace import get_workspace
-
 
 # ============================================================================
 # Math & Calculation Tools
 # ============================================================================
 
+
 @tool(name="calculate", description="Evaluate mathematical expressions", category="math")
 def calculate(expression: str) -> float:
     """
     Evaluate a mathematical expression safely.
-    
+
     Args:
         expression: Mathematical expression (e.g., "2 + 2", "sqrt(16)", "pi * 2", "(25 * 4) + 10")
-    
+
     Returns:
         Result of the calculation
-    
+
     Examples:
         calculate("2 + 2") -> 4.0
         calculate("sqrt(16)") -> 4.0
@@ -40,15 +41,13 @@ def calculate(expression: str) -> float:
         calculate("(25 * 4) + 10") -> 110.0
     """
     # Safe eval with math functions
-    allowed_names = {
-        k: v for k, v in math.__dict__.items() if not k.startswith("__")
-    }
+    allowed_names = {k: v for k, v in math.__dict__.items() if not k.startswith("__")}
     allowed_names["abs"] = abs
     allowed_names["round"] = round
     allowed_names["min"] = min
     allowed_names["max"] = max
     allowed_names["sum"] = sum
-    
+
     try:
         # Clean up expression - replace common text with symbols
         clean_expr = expression.strip()
@@ -56,7 +55,7 @@ def calculate(expression: str) -> float:
         clean_expr = clean_expr.replace(" times ", " * ")
         clean_expr = clean_expr.replace(" plus ", " + ")
         clean_expr = clean_expr.replace(" minus ", " - ")
-        
+
         result = eval(clean_expr, {"__builtins__": {}}, allowed_names)
         return float(result)
     except Exception as e:
@@ -67,14 +66,15 @@ def calculate(expression: str) -> float:
 # Text Processing Tools
 # ============================================================================
 
+
 @tool(name="count_words", description="Count words in text", category="text")
 def count_words(text: str) -> int:
     """
     Count the number of words in a text.
-    
+
     Args:
         text: Text to count words in
-    
+
     Returns:
         Number of words
     """
@@ -85,10 +85,10 @@ def count_words(text: str) -> int:
 def reverse_text(text: str) -> str:
     """
     Reverse the order of characters in text.
-    
+
     Args:
         text: Text to reverse
-    
+
     Returns:
         Reversed text
     """
@@ -99,10 +99,10 @@ def reverse_text(text: str) -> str:
 def to_uppercase(text: str) -> str:
     """
     Convert text to uppercase.
-    
+
     Args:
         text: Text to convert
-    
+
     Returns:
         Uppercase text
     """
@@ -113,10 +113,10 @@ def to_uppercase(text: str) -> str:
 def to_lowercase(text: str) -> str:
     """
     Convert text to lowercase.
-    
+
     Args:
         text: Text to convert
-    
+
     Returns:
         Lowercase text
     """
@@ -127,44 +127,47 @@ def to_lowercase(text: str) -> str:
 # File System Tools
 # ============================================================================
 
+
 @tool(name="read_file", description="Read contents of a text file", category="file")
 def read_file(filepath: str) -> str:
     """
     Read and return the contents of a text file.
-    
+
     Args:
         filepath: Path to the file to read
-    
+
     Returns:
         File contents as string
     """
     try:
-        with open(filepath, 'r', encoding='utf-8') as f:
+        with open(filepath, "r", encoding="utf-8") as f:
             return f.read()
     except Exception as e:
         raise ValueError(f"Error reading file: {e}")
 
 
-@tool(name="write_file", description="Write text to a file (v2.1.3: uses workspace)", category="file")
+@tool(
+    name="write_file", description="Write text to a file (v2.1.3: uses workspace)", category="file"
+)
 def write_file(filepath: str, content: str) -> str:
     """
     Write text content to a file in the tool workspace.
-    
+
     Args:
         filepath: Filename (stored in tool_workspace/)
         content: Content to write to the file
-    
+
     Returns:
         Success message with full path
     """
     try:
         workspace = get_workspace()
         full_path = workspace.get_file_path(filepath)
-        
+
         # Ensure parent directory exists
         full_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(full_path, 'w', encoding='utf-8') as f:
+
+        with open(full_path, "w", encoding="utf-8") as f:
             f.write(content)
         return f"Successfully wrote {len(content)} characters to {full_path}"
     except Exception as e:
@@ -175,10 +178,10 @@ def write_file(filepath: str, content: str) -> str:
 def list_files(directory: str) -> List[str]:
     """
     List all files in a directory.
-    
+
     Args:
         directory: Path to the directory
-    
+
     Returns:
         List of filenames
     """
@@ -192,11 +195,12 @@ def list_files(directory: str) -> List[str]:
 # Utility Tools
 # ============================================================================
 
+
 @tool(name="get_current_time", description="Get current date and time", category="utility")
 def get_current_time() -> str:
     """
     Get the current date and time.
-    
+
     Returns:
         Current datetime as string
     """
@@ -207,14 +211,14 @@ def get_current_time() -> str:
 def create_json(key: str, value: str) -> str:
     """
     Create a simple JSON object from a key-value pair.
-    
+
     Args:
         key: JSON key
         value: JSON value
-    
+
     Returns:
         Formatted JSON string
-    
+
     Example:
         create_json("name", "John") -> {"name": "John"}
     """
@@ -224,7 +228,7 @@ def create_json(key: str, value: str) -> str:
             parsed_value = json.loads(value)
         except:
             parsed_value = value
-        
+
         result = {key: parsed_value}
         return json.dumps(result, indent=2)
     except Exception as e:
@@ -235,21 +239,22 @@ def create_json(key: str, value: str) -> str:
 # Memory & Context Tools (NEW in v2.0.0)
 # ============================================================================
 
+
 @tool(name="search_memory", description="Search through conversation history", category="memory")
 def search_memory(query: str, limit: int = 5) -> str:
     """
     Search through conversation history for a keyword or phrase.
-    
+
     Args:
         query: The keyword/phrase to search for in conversation history
         limit: Maximum number of results to return (default: 5)
-    
+
     Returns:
         Search results or error message
-    
+
     Examples:
         search_memory("weather", 3) -> "Found 2 conversations about weather..."
-    
+
     Note:
         This tool requires MemAgent context. Will return instructions if called standalone.
     """
@@ -261,13 +266,13 @@ def search_memory(query: str, limit: int = 5) -> str:
 def get_user_info() -> str:
     """
     Get information about the current user.
-    
+
     Returns:
         User profile information
-    
+
     Examples:
         get_user_info() -> "Current user: john_doe (active since 2025-01-15)"
-    
+
     Note:
         This tool requires MemAgent context. Will return instructions if called standalone.
     """
@@ -279,16 +284,16 @@ def get_user_info() -> str:
 def list_conversations(limit: int = 5) -> str:
     """
     List recent conversation sessions.
-    
+
     Args:
         limit: Maximum number of conversations to list (default: 5)
-    
+
     Returns:
         List of recent conversations
-    
+
     Examples:
         list_conversations(3) -> "Last 3 conversations: ..."
-    
+
     Note:
         This tool requires MemAgent context. Will return instructions if called standalone.
     """
@@ -300,28 +305,29 @@ def list_conversations(limit: int = 5) -> str:
 # Workspace Management Tools (v2.1.3+)
 # ============================================================================
 
+
 @tool(name="list_workspace_files", description="List files in tool workspace", category="utility")
 def list_workspace_files(pattern: str = "*") -> str:
     """
     List files created by tools in the workspace.
-    
+
     Args:
         pattern: File pattern to match (default: "*" for all files)
-    
+
     Returns:
         List of workspace files with sizes
     """
     workspace = get_workspace()
     files = workspace.list_files(pattern=pattern)
-    
+
     if not files:
         return "No files in workspace"
-    
+
     result = f"📁 Workspace files ({len(files)}):\n"
     for f in files:
         size = f.stat().st_size
         result += f"  - {f.name} ({size} bytes)\n"
-    
+
     return result
 
 
@@ -329,28 +335,30 @@ def list_workspace_files(pattern: str = "*") -> str:
 def cleanup_workspace() -> str:
     """
     Clean up all files in the tool workspace.
-    
+
     Returns:
         Cleanup confirmation message
     """
     workspace = get_workspace()
     stats = workspace.get_stats()
     workspace.cleanup()
-    
-    return f"🧹 Workspace cleaned: {stats['total_files']} files ({stats['total_size_mb']} MB) removed"
+
+    return (
+        f"🧹 Workspace cleaned: {stats['total_files']} files ({stats['total_size_mb']} MB) removed"
+    )
 
 
 @tool(name="workspace_stats", description="Get tool workspace statistics", category="utility")
 def workspace_stats() -> str:
     """
     Get statistics about the tool workspace.
-    
+
     Returns:
         Workspace statistics (files, size, location)
     """
     workspace = get_workspace()
     stats = workspace.get_stats()
-    
+
     return (
         f"📊 Workspace Statistics:\n"
         f"  Files: {stats['total_files']}\n"
@@ -388,4 +396,3 @@ BUILTIN_TOOLS = [
     cleanup_workspace,
     workspace_stats,
 ]
-

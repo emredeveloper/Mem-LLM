@@ -2,10 +2,10 @@
 MemoryManager Specific Tests
 """
 
-import unittest
-import tempfile
-import shutil
 import os
+import shutil
+import tempfile
+import unittest
 
 from mem_llm import MemoryManager
 
@@ -30,4 +30,3 @@ class TestMemoryManager(unittest.TestCase):
 if __name__ == "__main__":
     print("MemoryManager tests are running...")
     unittest.main()
-

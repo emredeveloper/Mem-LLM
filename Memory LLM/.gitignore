@@ -2,6 +2,8 @@
 __pycache__/
 *.py[cod]
 *$py.class
+
+# C extensions
 *.so
 
 # Distribution / packaging
@@ -29,6 +31,10 @@ MANIFEST
 *.manifest
 *.spec
 
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
 # Unit test / coverage reports
 htmlcov/
 .tox/
@@ -42,6 +48,7 @@ coverage.xml
 *.py,cover
 .hypothesis/
 .pytest_cache/
+!tests/  # Allow tests directory
 
 # Translations
 *.mo
@@ -116,85 +123,25 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Ruff
-.ruff_cache/
-
-# pyright
-pyrightconfig.json
-
-# Python 3.11+ cache
-__pypackages__/
-
-# Memory LLM specific
-# Memory files
+# Project specific
 memories/
 *.db
-*.sqlite
-*.sqlite3
-mem_agent.log
-
-# Config files (keep .example versions)
+*.db-shm
+*.db-wal
 config.yaml
 !config.yaml.example
-
-# Release documentation (generated)
-GITHUB_RELEASE_*.md
-RELEASE_NOTES_*.md
-
-# Knowledge base
-knowledge_samples/
-knowledge_base/
-*.csv
-*.xlsx
-
-# Analytics & reports
+mem_agent.log
 analytics/
-test_report.json
-*.json.backup
+data/
+chroma/
 
-# Test artifacts
-test_*.json
-test_*.db
-test_memories/
-test_sql_memory.db
-test_simple_mem/
-test_chat_mem/
-test_persist_mem/
-test_recall_mem/
-test_isolation_mem/
-test_multi_mem/
-test_empty_mem/
-test_long_mem/
-test_special_mem/
-test_nouser_mem/
-test_check_mem/
-test_length_mem/
-
-# IDE specific
+# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# OS specific
+# OS
 .DS_Store
 Thumbs.db
-desktop.ini
-
-# Temporary files
-*.tmp
-*.temp
-*.bak
-
-# GitHub Actions
-.github/workflows/*.log
-
-# Local development
-.local/
-scratch/
-playground/
-
-# Package testing
-test-install/
-.tox/

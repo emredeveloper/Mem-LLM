@@ -9,29 +9,32 @@ Version: 2.1.1
 """
 
 import asyncio
+from typing import Any, Dict
+
 import aiohttp
-from typing import Dict, Any
+
 from .tool_system import tool
 
 # ============================================================================
 # Async Web & API Tools
 # ============================================================================
 
+
 @tool(
     name="fetch_url",
     description="Fetch content from a URL asynchronously",
     category="web",
-    pattern={"url": r'^https?://'},
-    max_length={"url": 2048}
+    pattern={"url": r"^https?://"},
+    max_length={"url": 2048},
 )
 async def fetch_url(url: str, timeout: int = 10) -> str:
     """
     Fetch content from a URL.
-    
+
     Args:
         url: The URL to fetch (must start with http:// or https://)
         timeout: Request timeout in seconds (default: 10)
-    
+
     Returns:
         Response text or error message
     """
@@ -52,17 +55,17 @@ async def fetch_url(url: str, timeout: int = 10) -> str:
     name="post_json",
     description="Post JSON data to an API endpoint",
     category="web",
-    pattern={"url": r'^https?://'}
+    pattern={"url": r"^https?://"},
 )
 async def post_json(url: str, data: Dict[str, Any], timeout: int = 10) -> str:
     """
     Post JSON data to an API endpoint.
-    
+
     Args:
         url: The API endpoint URL
         data: JSON data to post
         timeout: Request timeout in seconds
-    
+
     Returns:
         Response text or error message
     """
@@ -79,25 +82,26 @@ async def post_json(url: str, data: Dict[str, Any], timeout: int = 10) -> str:
 # Async File Operations
 # ============================================================================
 
+
 @tool(
     name="read_file_async",
     description="Read a file asynchronously",
     category="file",
-    max_length={"filepath": 260}
+    max_length={"filepath": 260},
 )
 async def read_file_async(filepath: str) -> str:
     """
     Read a file asynchronously.
-    
+
     Args:
         filepath: Path to the file
-    
+
     Returns:
         File contents or error message
     """
     try:
         loop = asyncio.get_event_loop()
-        with open(filepath, 'r', encoding='utf-8') as f:
+        with open(filepath, "r", encoding="utf-8") as f:
             content = await loop.run_in_executor(None, f.read)
         return content
     except FileNotFoundError:
@@ -106,25 +110,21 @@ async def read_file_async(filepath: str) -> str:
         return f"Error reading file: {e}"
 
 
-@tool(
-    name="write_file_async",
-    description="Write to a file asynchronously",
-    category="file"
-)
+@tool(name="write_file_async", description="Write to a file asynchronously", category="file")
 async def write_file_async(filepath: str, content: str) -> str:
     """
     Write to a file asynchronously.
-    
+
     Args:
         filepath: Path to the file
         content: Content to write
-    
+
     Returns:
         Success message or error
     """
     try:
         loop = asyncio.get_event_loop()
-        with open(filepath, 'w', encoding='utf-8') as f:
+        with open(filepath, "w", encoding="utf-8") as f:
             await loop.run_in_executor(None, f.write, content)
         return f"Successfully wrote {len(content)} chars to {filepath}"
     except Exception as e:
@@ -135,20 +135,21 @@ async def write_file_async(filepath: str, content: str) -> str:
 # Async Utility Tools
 # ============================================================================
 
+
 @tool(
     name="sleep",
     description="Asynchronously wait for specified seconds",
     category="utility",
     min_value={"seconds": 0},
-    max_value={"seconds": 60}
+    max_value={"seconds": 60},
 )
 async def async_sleep(seconds: float) -> str:
     """
     Wait asynchronously for specified seconds.
-    
+
     Args:
         seconds: Number of seconds to wait (0-60)
-    
+
     Returns:
         Completion message
     """
@@ -170,4 +171,3 @@ ASYNC_BUILTIN_TOOLS = [
 
 # Backward compatibility
 ASYNC_TOOLS = ASYNC_BUILTIN_TOOLS
-

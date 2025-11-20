@@ -3,12 +3,12 @@ Mem-Agent Comprehensive Test Suite
 Tests all basic functions
 """
 
-import unittest
-import tempfile
 import json
-import time
-import shutil
 import os
+import shutil
+import tempfile
+import time
+import unittest
 
 # Test edilecek modüller
 from mem_llm import MemAgent, MemoryManager, OllamaClient
@@ -22,11 +22,7 @@ class TestMemAgent(unittest.TestCase):
         self.temp_dir = tempfile.mkdtemp()
         self.memory_dir = os.path.join(self.temp_dir, "test_memories")
 
-        self.agent = MemAgent(
-            model="granite4:tiny-h",
-            use_sql=False,
-            memory_dir=self.memory_dir
-        )
+        self.agent = MemAgent(model="granite4:tiny-h", use_sql=False, memory_dir=self.memory_dir)
 
     def tearDown(self):
         """Her test sonrası temizlik"""
@@ -89,4 +85,3 @@ if __name__ == "__main__":
 
     # Tüm testleri çalıştır
     unittest.main(verbosity=2)
-

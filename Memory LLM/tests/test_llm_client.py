@@ -22,4 +22,3 @@ class TestLLMClient(unittest.TestCase):
 if __name__ == "__main__":
     print("LLM Client tests are running...")
     unittest.main()
-
