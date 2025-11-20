@@ -24,7 +24,7 @@ logger = get_logger("qwen3_test")
 print("TEST 1: Basic Qwen3 Chat")
 print("-" * 70)
 
-agent = MemAgent(model="qwen3:4b", use_sql=True)
+agent = MemAgent(model="granite4:3b", use_sql=True)
 agent.set_user("test_qwen3_user")
 
 response = agent.chat("Merhaba! Benim adım Ali. Python ile ilgileniyorum.")
