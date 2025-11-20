@@ -30,6 +30,7 @@ Quick, ready-to-run scripts that show how to get the most out of Mem-LLM.
 | `18_function_calling.py` | **NEW!** Function calling / Tools (v2.0.0+). |
 | `19_memory_tools_demo.py` | **NEW!** Memory-aware tools (v2.0.0+). |
 | `20_async_and_validation.py` | **NEW!** Async tools & validation (v2.1.0+). |
+| `21_analytics_and_presets.py` | **NEW!** Analytics & Config Presets (v2.1.4+). |
 
 ## 💡 Tips
 - Start with `01_hello_world.py`, then move to the scenario you need.

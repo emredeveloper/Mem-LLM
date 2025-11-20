@@ -440,16 +440,19 @@ async def search_memory(search: MemorySearchRequest):
     """Search user's memory"""
     try:
         agent = get_or_create_agent(search.user_id)
-        # Use memory manager's get_conversation_history instead
-        history = agent.memory.get_conversation_history(user_id=search.user_id)
-
-        # Filter by query if provided
-        if search.query:
-            results = [msg for msg in history if search.query.lower() in str(msg).lower()][
+        # Use appropriate method based on backend
+        if hasattr(agent.memory, "search_conversations"):
+            # SQL backend
+            results = agent.memory.search_conversations(search.user_id, search.query)[
                 : search.limit
             ]
+        elif hasattr(agent.memory, "get_recent_conversations"):
+            # SQL backend - if search not available
+            history = agent.memory.get_recent_conversations(search.user_id, limit=search.limit)
+            results = [msg for msg in history if search.query.lower() in str(msg).lower()]
         else:
-            results = history[: search.limit]
+            # JSON backend fallback
+            results = []
 
         return {"results": results, "count": len(results)}
     except Exception as e:

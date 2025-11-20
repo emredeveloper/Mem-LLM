@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.4] - 2025-11-20
+
+### 📊 Conversation Analytics
+- **New Analytics Module** - Comprehensive conversation analysis and insights
+- **Topic Extraction** - Automatically extracts key topics from conversations
+- **Engagement Metrics** - Tracks user engagement, session length, and active days
+- **Visual Reports** - Generates reports in JSON, CSV, or Markdown formats
+- **Time Distribution** - Analyzes activity patterns by hour of day
+
+### 📋 Config Presets
+- **Built-in Presets** - 8 optimized presets for common use cases:
+  - `chatbot` (General purpose)
+  - `code_assistant` (Programming expert)
+  - `creative_writer` (Storytelling)
+  - `tutor` (Educational)
+  - `analyst` (Data analysis)
+  - `translator` (Translation)
+  - `summarizer` (Content summary)
+  - `researcher` (Deep research)
+- **Custom Presets** - Create, save, and load your own configuration presets
+- **Easy Integration** - Initialize agent with `MemAgent(preset='code_assistant')`
+
+### 🛠️ Improvements & Fixes
+- **Test Coverage** - Significant increase in test coverage (Analytics & Presets)
+- **Code Quality** - Fixed syntax warnings and flake8 issues
+- **LM Studio Integration** - Improved compatibility and testing with LM Studio
+- **Ollama Integration** - Standardized on `granite4:3b` for testing
+
 ## [2.1.3] - 2025-11-10
 
 ### 🚀 Enhanced Tool Execution
@@ -16,7 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### 📝 Details
 
 LLMs often don't follow the exact `TOOL_CALL:` format. Now the parser also understands:
-- `use tool_name(...)` 
+- `use tool_name(...)`
 - `calling tool_name(...)`
 - `` `tool_name(...)` `` (markdown format)
 
@@ -344,14 +372,14 @@ When users called `agent.tool_registry.register_tool()` after creating the agent
   - Token compression: ~40-60% reduction in context size
   - Key facts extraction: Automatic user profile insights
   - Configurable thresholds and conversation limits
-  
+
 - 📤 **Data Export/Import System**: Multi-format and multi-database support
   - `DataExporter`: Export conversations to JSON, CSV, SQLite, PostgreSQL, MongoDB
   - `DataImporter`: Import from JSON, CSV, SQLite, PostgreSQL, MongoDB
   - Auto-create databases: PostgreSQL and MongoDB databases created automatically if missing
   - Enterprise-ready: Support for analytics (PostgreSQL) and real-time dashboards (MongoDB)
   - Optional dependencies: `pip install mem-llm[postgresql]`, `pip install mem-llm[mongodb]`, `pip install mem-llm[databases]`
-  
+
 - 🗄️ **In-Memory Database Support**: Temporary database operations
   - `db_path=":memory:"` parameter for MemAgent
   - No file creation: Perfect for testing and temporary workflows
@@ -364,10 +392,10 @@ When users called `agent.tool_registry.register_tool()` after creating the agent
   - Less noise in production environments
   - Users can still enable detailed logs via config
   - Examples suppress logs for cleaner demonstrations
-  
+
 - 📦 **Enhanced Package Structure**: Better optional dependencies
   - `pip install mem-llm[postgresql]` - PostgreSQL support only
-  - `pip install mem-llm[mongodb]` - MongoDB support only  
+  - `pip install mem-llm[mongodb]` - MongoDB support only
   - `pip install mem-llm[databases]` - Both PostgreSQL and MongoDB
   - `pip install mem-llm[all]` - Everything included
 
@@ -377,7 +405,7 @@ When users called `agent.tool_registry.register_tool()` after creating the agent
   - All SQLite files (.db, .db-shm, .db-wal) now in memories/ directory
   - Cleaner workspace: No database files cluttering project root
   - Automatic directory creation: memories/ folder created if missing
-  
+
 - 🔧 **MemAgent db_path Parameter**: Added missing parameter
   - New `db_path` parameter in MemAgent.__init__()
   - Enables custom database locations and in-memory databases
@@ -393,13 +421,13 @@ When users called `agent.tool_registry.register_tool()` after creating the agent
   - `InputSanitizer`: Neutralizes malicious patterns while preserving user intent
   - `SecurePromptBuilder`: Template-based secure prompt construction
   - Enable with `enable_security=True` parameter (default: False for backward compatibility)
-  
+
 - 📝 **Structured Logging System**: Production-ready logging infrastructure
   - `MemLLMLogger`: Centralized logging with file and console handlers
   - Specialized methods: `log_llm_call()`, `log_memory_operation()`, `log_error_with_context()`
   - Configurable log levels (DEBUG, INFO, WARNING, ERROR, CRITICAL)
   - Timestamps and formatted output for debugging
-  
+
 - 🔄 **Retry Logic with Exponential Backoff**: Robust error handling for network operations
   - `exponential_backoff_retry` decorator: 3 retries with 1s, 2s, 4s delays
   - `SafeExecutor`: Context manager for safe operations with automatic rollback
@@ -413,7 +441,7 @@ When users called `agent.tool_registry.register_tool()` after creating the agent
   - Configured `isolation_level=None` (autocommit mode) to prevent transaction conflicts
   - Set `busy_timeout=30000` (30 seconds) for concurrent write handling
   - Performance: 15,346 messages/second write throughput, <1ms search latency
-  
+
 - 💾 **SQLite WAL Mode**: Write-Ahead Logging for better concurrency
   - Enabled WAL mode with `PRAGMA journal_mode=WAL`
   - Configured 64MB cache (`cache_size=-64000`)
@@ -426,7 +454,7 @@ When users called `agent.tool_registry.register_tool()` after creating the agent
   - Root cause: Multiple threads trying to start nested transactions
   - Solution: Autocommit mode + RLock on all operations
   - Validated: 200 concurrent writes in 0.03s with ZERO errors
-  
+
 - 🐛 **Race Conditions**: Fixed "bad parameter or other API misuse" in multi-threaded scenarios
   - Added thread-safe connection pooling
   - Eliminated tuple index errors in concurrent reads
@@ -440,7 +468,7 @@ When users called `agent.tool_registry.register_tool()` after creating the agent
   - Jailbreak: "DAN mode", "developer mode", "unrestricted mode"
   - Token injection: Special tokens, control characters, encoding exploits
   - Context pollution: Excessive newlines, recursive instructions
-  
+
 - 🔐 **Input Sanitization**:
   - Escapes control characters and special sequences
   - Neutralizes role-switching patterns
@@ -478,7 +506,7 @@ When users called `agent.tool_registry.register_tool()` after creating the agent
   - `mem_llm/logger.py` - Structured logging system (MemLLMLogger)
   - `mem_llm/retry_handler.py` - Exponential backoff retry logic (exponential_backoff_retry, SafeExecutor)
   - `mem_llm/prompt_security.py` - Security detection/sanitization (PromptInjectionDetector, InputSanitizer, SecurePromptBuilder)
-  
+
 - **Modified Modules**:
   - `mem_llm/memory_db.py` - Thread-safe operations, WAL mode, busy timeout
   - `mem_llm/llm_client.py` - Retry logic integration

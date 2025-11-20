@@ -51,12 +51,14 @@ class TestMemoryEndpoints:
 
     def test_search_memories(self, client):
         """Test memory search endpoint"""
-        response = client.get(
-            "/api/v1/memory/search", params={"user_id": "test_user", "keyword": "test", "limit": 10}
+        response = client.post(
+            "/api/v1/memory/search", json={"user_id": "test_user", "query": "test", "limit": 10}
         )
         assert response.status_code == 200
         data = response.json()
-        assert isinstance(data, list)
+        assert isinstance(data, dict)
+        assert "results" in data
+        assert isinstance(data["results"], list)
 
 
 @pytest.mark.api

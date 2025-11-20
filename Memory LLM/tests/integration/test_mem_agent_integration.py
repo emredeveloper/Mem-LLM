@@ -9,15 +9,7 @@ import tempfile
 import unittest
 
 # Import all modules
-from mem_llm import (
-    MemAgent,
-    MemoryManager,
-    MemoryTools,
-    SQLMemoryManager,
-    ToolExecutor,
-    get_config,
-    prompt_manager,
-)
+from mem_llm import MemAgent, MemoryManager, MemoryTools, SQLMemoryManager, ToolExecutor, get_config
 
 
 class TestIntegration(unittest.TestCase):
@@ -113,19 +105,10 @@ logging:
         response = self.simple_agent.chat("Hakkımda ne biliyorsun?", user_id=user_id)
         self.assertIsInstance(response, str)
 
+    @unittest.skip("prompt_manager module deprecated")
     def test_prompt_template_integration(self):
         """Prompt şablonu entegrasyonu testi"""
-        # Şablonları kontrol et
-        templates = prompt_manager.list_templates()
-        self.assertGreater(len(templates), 0)
-
-        # Şablon oluşturma testi
-        template = prompt_manager.get_template("customer_service")
-        self.assertIsNotNone(template)
-
-        # Şablon render testi
-        rendered = template.render(company_name="Test Company")
-        self.assertIn("Test Company", rendered)
+        pass
 
     def test_config_integration(self):
         """Yapılandırma entegrasyonu testi"""

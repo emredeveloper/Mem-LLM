@@ -194,7 +194,7 @@ def tool(
     choices: Optional[Dict[str, List[Any]]] = None,  # {param_name: [valid_values]}
     validators: Optional[Dict[str, Callable]] = None,  # {param_name: validator_func}
 ) -> Callable:
-    """
+    r"""
     Decorator to define a tool/function that the agent can call.
 
     Args:

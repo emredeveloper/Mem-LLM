@@ -131,7 +131,7 @@ memories/
 config.yaml
 !config.yaml.example
 mem_agent.log
-analytics/
+
 data/
 chroma/
 logs/

@@ -15,12 +15,24 @@ Mem-LLM is a powerful Python library that brings persistent memory and function 
 - **Issues**: https://github.com/emredeveloper/Mem-LLM/issues
 - **Documentation**: See examples/ directory
 
-## 🆕 What's New in v2.1.3
+## 🆕 What's New in v2.1.4
+
+### 📊 Conversation Analytics
+- **Deep Insights** - Analyze user engagement, topics, and activity patterns
+- **Visual Reports** - Export analytics to JSON, CSV, or Markdown
+- **Engagement Metrics** - Track active days, session length, and interaction frequency
+
+### 📋 Config Presets
+- **Instant Setup** - Initialize specialized agents with one line of code
+- **8 Built-in Presets** - `chatbot`, `code_assistant`, `creative_writer`, `tutor`, `analyst`, `translator`, `summarizer`, `researcher`
+- **Custom Presets** - Save and reuse your own agent configurations
+
+## What's New in v2.1.3
 
 ### 🚀 Enhanced Tool Execution
-- ✅ **Smart parser** - Understands natural language tool calls
-- ✅ **Better prompts** - Clear DO/DON'T examples for LLM
-- ✅ **More reliable** - Tools execute even when LLM doesn't follow exact format
+- **Smart Tool Call Parser** - Understands natural language tool calls (not just `TOOL_CALL:` format)
+- **Improved System Prompt** - Clearer instructions with examples
+- **Better Error Messages** - More helpful validation feedback
 
 ## What's New in v2.1.0
 
@@ -49,7 +61,12 @@ Mem-LLM is a powerful Python library that brings persistent memory and function 
 
 ## ✨ Key Features
 
-### 🆕 v2.1.0 Features *(Latest)*
+### 🆕 v2.1.4 Features *(Latest)*
+- 📊 **Conversation Analytics** - Track topics, engagement, and usage stats
+- 📋 **Config Presets** - 8 built-in agent personas + custom preset support
+- 📈 **Visual Reports** - Export data-driven insights in multiple formats
+
+### v2.1.0 Features
 - 🚀 **Async Tool Support** - `async def` functions for non-blocking I/O
 - ✅ **Input Validation** - Pattern, range, length, choice, and custom validators
 - 🌐 **Built-in Async Tools** - `fetch_url`, `post_json`, async file operations
@@ -462,6 +479,84 @@ stats = agent.get_memory_stats()
 print(f"Users: {stats['total_users']}, Memories: {stats['total_memories']}")
 ```
 
+### 📊 Conversation Analytics (v2.1.4+)
+
+Analyze user engagement, topics, and activity patterns:
+
+```python
+from mem_llm import MemAgent, ConversationAnalytics
+
+# Create agent and have conversations
+agent = MemAgent(use_sql=False)  # Analytics works with JSON backend
+agent.set_user("alice")
+agent.chat("I love Python programming")
+agent.chat("Can you help me with data science?")
+
+# Initialize analytics
+analytics = ConversationAnalytics(agent.memory)
+
+# Get conversation statistics
+stats = analytics.get_conversation_stats("alice")
+print(f"Total messages: {stats['total_messages']}")
+print(f"Average message length: {stats['avg_message_length']}")
+
+# Analyze topics
+topics = analytics.get_topic_distribution("alice")
+print(f"Topics discussed: {topics}")  # {'python': 1, 'programming': 1, 'data': 1, 'science': 1}
+
+# Track engagement
+engagement = analytics.get_engagement_metrics("alice")
+print(f"Engagement score: {engagement['engagement_score']}")
+print(f"Active days: {engagement['active_days']}")
+
+# Export report
+report_md = analytics.export_report("alice", format="markdown")
+print(report_md)  # Full analytics report in Markdown
+```
+
+### 📋 Config Presets (v2.1.4+)
+
+Use built-in presets for instant agent setup:
+
+```python
+from mem_llm import MemAgent, ConfigPresets
+
+# Initialize with a preset (8 built-in options)
+code_assistant = MemAgent(preset="code_assistant")
+# - Optimized for programming tasks
+# - Temperature: 0.2, Max tokens: 2000
+
+creative_writer = MemAgent(preset="creative_writer")
+# - Optimized for storytelling
+# - Temperature: 0.9, Max tokens: 1500
+
+tutor = MemAgent(preset="tutor")
+# - Optimized for teaching
+# - Temperature: 0.5, Max tokens: 800
+
+# Available presets:
+# - chatbot (general purpose)
+# - code_assistant (programming expert)
+# - creative_writer (storytelling)
+# - tutor (educational)
+# - analyst (data analysis)
+# - translator (translation)
+# - summarizer (content summary)
+# - researcher (deep research)
+
+# Create custom preset
+presets = ConfigPresets()
+presets.save_custom_preset("my_bot", {
+    "temperature": 0.7,
+    "max_tokens": 1000,
+    "system_prompt": "You are a helpful assistant",
+    "tools_enabled": True
+})
+
+# Use custom preset
+my_agent = MemAgent(preset="my_bot")
+```
+
 ### CLI Interface
 
 ```bash
@@ -525,7 +620,7 @@ llm:
 memory:
   type: sql  # or 'json'
   db_path: ./data/memory.db
-  
+
 # Knowledge base
 knowledge_base:
   enabled: true

@@ -85,6 +85,7 @@ class MemAgent:
         embedding_model: str = "all-MiniLM-L6-v2",
         enable_tools: bool = False,
         tools: Optional[List] = None,
+        preset: Optional[str] = None,
         **llm_kwargs,
     ):
         """
@@ -103,6 +104,7 @@ class MemAgent:
             enable_security: Enable prompt injection protection (v1.1.0+, default: False for backward compatibility)
             enable_vector_search: Enable semantic/vector search for KB (v1.3.2+, requires chromadb) - NEW
             embedding_model: Embedding model for vector search (default: "all-MiniLM-L6-v2") - NEW
+            preset: Configuration preset name (e.g., 'chatbot', 'code_assistant') - NEW in v2.1.4
             **llm_kwargs: Additional backend-specific parameters
 
         Examples:
@@ -112,12 +114,33 @@ class MemAgent:
             # LM Studio
             agent = MemAgent(backend='lmstudio', model='llama-3-8b')
 
-            # Auto-detect
-            agent = MemAgent(auto_detect_backend=True)
+            # Using Preset
+            agent = MemAgent(preset='code_assistant')
         """
 
         # Setup logging first
         self._setup_logging()
+
+        # Load preset configuration if specified (v2.1.4)
+        self.preset_config = {}
+        if preset:
+            try:
+                from .config_presets import ConfigPresets
+
+                presets = ConfigPresets()
+                self.preset_config = presets.get_preset(preset)
+                self.logger.info(f"📋 Loaded configuration preset: {preset}")
+
+                # Apply preset settings if not explicitly provided
+                if "temperature" in self.preset_config and "temperature" not in llm_kwargs:
+                    llm_kwargs["temperature"] = self.preset_config["temperature"]
+
+                if "max_tokens" in self.preset_config and "max_tokens" not in llm_kwargs:
+                    llm_kwargs["max_tokens"] = self.preset_config["max_tokens"]
+
+                # Note: System prompt and tools are handled later
+            except Exception as e:
+                self.logger.warning(f"⚠️  Failed to load preset '{preset}': {e}")
 
         # Security features (v1.1.0+)
         self.enable_security = enable_security
@@ -158,9 +181,12 @@ class MemAgent:
         self.has_tools: bool = False  # Track tools status (v1.3.x)
 
         # Tool system (v2.0.0+)
-        self.enable_tools = enable_tools
+        # Preset can enable tools if not explicitly disabled
+        preset_tools_enabled = self.preset_config.get("tools_enabled", False)
+        self.enable_tools = enable_tools or preset_tools_enabled
+
         self.tool_registry = None
-        if enable_tools:
+        if self.enable_tools:
             self.tool_registry = ToolRegistry()
             self.has_tools = True
 
@@ -402,13 +428,31 @@ class MemAgent:
                         self.has_knowledge_base = True  # KB loaded!
                 except Exception as e:
                     self.logger.error(f"Knowledge base loading error: {e}")
-                    self.has_knowledge_base = False
+                self.has_knowledge_base = False
 
         # Build dynamic system prompt based on active features
         self._build_dynamic_system_prompt()
 
     def _build_dynamic_system_prompt(self) -> None:
         """Build dynamic system prompt based on active features"""
+        # Check if preset system prompt is available (v2.1.4)
+        if (
+            hasattr(self, "preset_config")
+            and self.preset_config
+            and "system_prompt" in self.preset_config
+        ):
+            base_prompt = self.preset_config["system_prompt"]
+
+            # Add tool information if tools are enabled
+            if self.enable_tools and self.tool_registry:
+                tools_list = self.tool_registry.list_tools()
+                tools_prompt = format_tools_for_prompt(tools_list)
+                base_prompt += f"\n\n{tools_prompt}"
+
+            self.current_system_prompt = base_prompt
+            self.logger.info("📋 Using preset system prompt")
+            return
+
         if not ADVANCED_AVAILABLE:
             # Fallback simple prompt
             self.current_system_prompt = "You are a helpful AI assistant."
