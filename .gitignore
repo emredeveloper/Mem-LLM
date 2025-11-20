@@ -56,10 +56,10 @@ story.txt
 api_data.txt
 *.tmp
 
-# Temporary test files
-test_*.py
-debug_*.py
-test_workspace.py
-test_v2.1.3_comprehensive.py
+# Temporary test files (only in root, not in tests/ directory)
+/test_*.py
+/debug_*.py
+/test_workspace.py
+/test_v2.1.3_comprehensive.py
 quickstart/check_files.py
 quickstart/test_tool_execution.py
