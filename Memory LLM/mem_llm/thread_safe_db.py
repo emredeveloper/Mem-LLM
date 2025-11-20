@@ -183,14 +183,14 @@ class ThreadSafeSQLMemory:
             # Indexes for performance
             cursor.execute(
                 """
-                CREATE INDEX IF NOT EXISTS idx_user_timestamp 
+                CREATE INDEX IF NOT EXISTS idx_user_timestamp
                 ON conversations(user_id, timestamp DESC)
             """
             )
 
             cursor.execute(
                 """
-                CREATE INDEX IF NOT EXISTS idx_resolved 
+                CREATE INDEX IF NOT EXISTS idx_resolved
                 ON conversations(user_id, resolved)
             """
             )
@@ -214,7 +214,7 @@ class ThreadSafeSQLMemory:
 
             cursor.execute(
                 """
-                CREATE INDEX IF NOT EXISTS idx_category 
+                CREATE INDEX IF NOT EXISTS idx_category
                 ON knowledge_base(category, active)
             """
             )
@@ -261,7 +261,7 @@ class ThreadSafeSQLMemory:
             # Add interaction
             cursor.execute(
                 """
-                INSERT INTO conversations 
+                INSERT INTO conversations
                 (user_id, user_message, bot_response, metadata, resolved)
                 VALUES (?, ?, ?, ?, ?)
             """,
@@ -273,7 +273,7 @@ class ThreadSafeSQLMemory:
             # Update last interaction time
             cursor.execute(
                 """
-                UPDATE users 
+                UPDATE users
                 SET last_interaction = CURRENT_TIMESTAMP
                 WHERE user_id = ?
             """,

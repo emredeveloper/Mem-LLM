@@ -135,14 +135,14 @@ class SQLMemoryManager:
         # İndeksler - Performans için
         cursor.execute(
             """
-            CREATE INDEX IF NOT EXISTS idx_user_timestamp 
+            CREATE INDEX IF NOT EXISTS idx_user_timestamp
             ON conversations(user_id, timestamp DESC)
         """
         )
 
         cursor.execute(
             """
-            CREATE INDEX IF NOT EXISTS idx_resolved 
+            CREATE INDEX IF NOT EXISTS idx_resolved
             ON conversations(user_id, resolved)
         """
         )
@@ -181,7 +181,7 @@ class SQLMemoryManager:
 
         cursor.execute(
             """
-            CREATE INDEX IF NOT EXISTS idx_category 
+            CREATE INDEX IF NOT EXISTS idx_category
             ON knowledge_base(category, active)
         """
         )
@@ -245,7 +245,7 @@ class SQLMemoryManager:
             # Record interaction
             cursor.execute(
                 """
-                INSERT INTO conversations 
+                INSERT INTO conversations
                 (user_id, user_message, bot_response, metadata, resolved)
                 VALUES (?, ?, ?, ?, ?)
             """,
@@ -257,7 +257,7 @@ class SQLMemoryManager:
             # Update user's last interaction time
             cursor.execute(
                 """
-                UPDATE users 
+                UPDATE users
                 SET last_interaction = CURRENT_TIMESTAMP
                 WHERE user_id = ?
             """,
@@ -374,7 +374,7 @@ class SQLMemoryManager:
             cursor = self.conn.cursor()
             cursor.execute(
                 f"""
-                UPDATE users 
+                UPDATE users
                 SET {', '.join(set_clause)}
                 WHERE user_id = ?
             """,
@@ -406,7 +406,7 @@ class SQLMemoryManager:
         cursor = self.conn.cursor()
         cursor.execute(
             """
-            INSERT INTO knowledge_base 
+            INSERT INTO knowledge_base
             (category, question, answer, keywords, priority)
             VALUES (?, ?, ?, ?, ?)
         """,
@@ -506,7 +506,7 @@ class SQLMemoryManager:
             sql = f"""
                 SELECT category, question, answer, priority
                 FROM knowledge_base
-                WHERE active = 1 
+                WHERE active = 1
                 AND category = ?
                 AND ({where_clause})
                 ORDER BY priority DESC, id DESC
@@ -517,7 +517,7 @@ class SQLMemoryManager:
             sql = f"""
                 SELECT category, question, answer, priority
                 FROM knowledge_base
-                WHERE active = 1 
+                WHERE active = 1
                 AND ({where_clause})
                 ORDER BY priority DESC, id DESC
                 LIMIT ?

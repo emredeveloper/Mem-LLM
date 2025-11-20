@@ -156,7 +156,7 @@ class DataExporter:
             for conv in conversations:
                 cursor.execute(
                     """
-                    INSERT INTO conversations 
+                    INSERT INTO conversations
                     (user_id, timestamp, user_message, bot_response, metadata)
                     VALUES (?, ?, ?, ?, ?)
                 """,
@@ -255,7 +255,7 @@ class DataExporter:
             for conv in conversations:
                 cursor.execute(
                     """
-                    INSERT INTO conversations 
+                    INSERT INTO conversations
                     (user_id, timestamp, user_message, bot_response, metadata)
                     VALUES (%s, %s, %s, %s, %s)
                 """,

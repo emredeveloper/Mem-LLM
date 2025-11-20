@@ -116,7 +116,7 @@ async def test_async_tool():
     @tool(name="test", description="Test")
     async def async_func(x: int) -> int:
         return x * 2
-    
+
     result = await async_func.execute({"x": 5})
     assert result == 10
 ```

@@ -12,10 +12,10 @@ Supported Backends:
 Usage:
     # Create specific backend
     client = LLMClientFactory.create('ollama', model='llama3')
-    
+
     # Auto-detect available backend
     client = LLMClientFactory.auto_detect()
-    
+
     # Get all available backends
     backends = LLMClientFactory.get_available_backends()
 

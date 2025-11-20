@@ -755,7 +755,9 @@ class MemAgent:
                             kb_context += (
                                 f"{i}. Q: {result['question']}\n   A: {result['answer']}\n"
                             )
-                        kb_context += "\n⚠️ USE THIS INFORMATION TO ANSWER! Be brief but accurate.\n"
+                        kb_context += (
+                            "\n⚠️ USE THIS INFORMATION TO ANSWER! Be brief but accurate.\n"
+                        )
                 except Exception as e:
                     self.logger.error(f"Knowledge base search error: {e}")
 
@@ -1018,7 +1020,9 @@ class MemAgent:
                             kb_context += (
                                 f"{i}. Q: {result['question']}\n   A: {result['answer']}\n"
                             )
-                        kb_context += "\n⚠️ USE THIS INFORMATION TO ANSWER! Be brief but accurate.\n"
+                        kb_context += (
+                            "\n⚠️ USE THIS INFORMATION TO ANSWER! Be brief but accurate.\n"
+                        )
                 except Exception as e:
                     self.logger.error(f"Knowledge base search error: {e}")
 
