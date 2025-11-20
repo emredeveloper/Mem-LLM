@@ -83,7 +83,9 @@ class TestToolRegistry:
         # Register using the _tool attribute
         registry.register(test_func._tool)
         tools = registry.list_tools()
-        assert "test_tool" in tools
+        # list_tools() returns Tool objects, check names
+        tool_names = [t.name for t in tools]
+        assert "test_tool" in tool_names
 
 
 if __name__ == "__main__":

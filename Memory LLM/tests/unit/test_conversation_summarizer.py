@@ -26,7 +26,7 @@ def test_basic_summarization():
 
     try:
         # Create LLM client
-        llm = OllamaClient(model="granite4:tiny-h")
+        llm = OllamaClient(model="granite4:3b")
         summarizer = ConversationSummarizer(llm)
 
         # Sample conversations
@@ -111,11 +111,11 @@ def test_auto_summarizer():
 
     try:
         # Create agent
-        agent = MemAgent(model="granite4:tiny-h", use_sql=True)
+        agent = MemAgent(model="granite4:3b", use_sql=True)
         agent.set_user("bob")
 
         # Create auto-summarizer
-        llm = OllamaClient(model="granite4:tiny-h")
+        llm = OllamaClient(model="granite4:3b")
         summarizer = ConversationSummarizer(llm)
         auto_summarizer = AutoSummarizer(
             summarizer, agent.memory, update_threshold=3  # Update every 3 conversations
@@ -172,7 +172,7 @@ def test_empty_conversations():
     print("=" * 70)
 
     try:
-        llm = OllamaClient(model="granite4:tiny-h")
+        llm = OllamaClient(model="granite4:3b")
         summarizer = ConversationSummarizer(llm)
 
         # Empty list
@@ -196,7 +196,7 @@ def test_large_conversation_history():
     print("=" * 70)
 
     try:
-        llm = OllamaClient(model="granite4:tiny-h")
+        llm = OllamaClient(model="granite4:3b")
         summarizer = ConversationSummarizer(llm)
 
         # Generate 50 conversations
@@ -251,7 +251,7 @@ def test_integration_with_memagent():
 
     try:
         # Create agent with summarization support
-        agent = MemAgent(model="granite4:tiny-h", use_sql=True)
+        agent = MemAgent(model="granite4:3b", use_sql=True)
         agent.set_user("emma")
 
         print("📊 Testing MemAgent integration...")
@@ -274,7 +274,7 @@ def test_integration_with_memagent():
             print(f"   ✅ Retrieved {len(convs)} conversations")
 
             # Summarize
-            llm = OllamaClient(model="granite4:tiny-h")
+            llm = OllamaClient(model="granite4:3b")
             summarizer = ConversationSummarizer(llm)
 
             summary = summarizer.summarize_conversations(

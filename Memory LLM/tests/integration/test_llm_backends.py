@@ -87,10 +87,10 @@ class TestLLMClientFactory(unittest.TestCase):
         print("\n🧪 TEST 4: Create Ollama client")
 
         try:
-            client = LLMClientFactory.create("ollama", model="granite4:tiny-h")
+            client = LLMClientFactory.create("ollama", model="granite4:3b")
 
             self.assertIsInstance(client, OllamaClientNew)
-            self.assertEqual(client.model, "granite4:tiny-h")
+            self.assertEqual(client.model, "granite4:3b")
 
             print("   ✅ Ollama client created successfully")
             print(f"      Model: {client.model}")
@@ -166,7 +166,7 @@ class TestMemAgentMultiBackend(unittest.TestCase):
 
         try:
             agent = MemAgent(
-                model="granite4:tiny-h", backend="ollama", use_sql=False, check_connection=False
+                model="granite4:3b", backend="ollama", use_sql=False, check_connection=False
             )
 
             self.assertIsNotNone(agent.llm)
@@ -196,7 +196,7 @@ class TestMemAgentMultiBackend(unittest.TestCase):
         try:
             # Old API (without backend parameter)
             agent = MemAgent(
-                model="granite4:tiny-h",
+                model="granite4:3b",
                 ollama_url="http://localhost:11434",
                 use_sql=False,
                 check_connection=False,
@@ -214,7 +214,7 @@ class TestOllamaClient(unittest.TestCase):
     def setUp(self):
         """Set up test client"""
         try:
-            self.client = OllamaClientNew(model="granite4:tiny-h")
+            self.client = OllamaClientNew(model="granite4:3b")
             self.available = self.client.check_connection()
         except:
             self.client = None

@@ -22,8 +22,10 @@ class TestAsyncTools:
             await asyncio.sleep(0.01)
             return x * 2
 
-        assert async_func.is_async is True
-        assert async_func.name == "async_test"
+        # The decorator creates a Tool object with is_async
+        assert hasattr(async_func, "_tool")
+        assert async_func._tool.is_async is True
+        assert async_func._tool.name == "async_test"
 
     async def test_async_tool_execution(self):
         """Test executing an async tool"""
@@ -33,11 +35,15 @@ class TestAsyncTools:
             await asyncio.sleep(0.01)
             return a + b
 
-        result = async_add.execute({"a": 5, "b": 3})
+        # Execute through the _tool object
+        result = async_add._tool.execute(a=5, b=3)
         # Result should be awaitable or already executed
         if asyncio.iscoroutine(result):
             actual_result = await result
             assert actual_result == 8
+        else:
+            # If it's a task, await it
+            assert await result == 8
 
     async def test_sync_tool_detection(self):
         """Test that sync tools are correctly identified"""
@@ -46,9 +52,9 @@ class TestAsyncTools:
         def sync_func(x: int) -> int:
             return x * 2
 
-        assert hasattr(sync_func, "is_async")
-        # Should not be marked as async
-        assert sync_func.is_async is False or not hasattr(sync_func, "is_async")
+        # Sync functions should not be marked as async
+        assert hasattr(sync_func, "_tool")
+        assert sync_func._tool.is_async is False
 
 
 @pytest.mark.unit
@@ -65,9 +71,9 @@ class TestAsyncToolRegistry:
             await asyncio.sleep(0.01)
             return x * y
 
-        registry.register(async_multiply)
+        registry.register(async_multiply._tool)
         tools = registry.list_tools()
-        assert "async_multiply" in tools
+        assert "async_multiply" in [t.name for t in tools]
 
 
 if __name__ == "__main__":

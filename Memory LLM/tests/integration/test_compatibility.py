@@ -29,7 +29,7 @@ def test_v1_0_code_compatibility():
     # Test 2: Basic agent creation (v1.0.x style - no enable_security parameter)
     print("\n2. Testing v1.0.x agent creation (no security parameter)...")
     try:
-        agent = MemAgent(model="granite4:tiny-h", use_sql=False)
+        agent = MemAgent(model="granite4:3b", use_sql=False)
         print("   ✅ Agent created without enable_security parameter")
     except Exception as e:
         print(f"   ❌ Agent creation failed: {e}")
@@ -96,7 +96,7 @@ def test_v1_1_new_features():
     try:
         from mem_llm import MemAgent
 
-        agent_secure = MemAgent(model="granite4:tiny-h", use_sql=False, enable_security=True)
+        agent_secure = MemAgent(model="granite4:3b", use_sql=False, enable_security=True)
 
         if hasattr(agent_secure, "enable_security") and agent_secure.enable_security:
             print("   ✅ Security enabled via opt-in parameter")
@@ -122,7 +122,7 @@ v1.0.x Code (Still Works):
 --------------------------
 from mem_llm import MemAgent
 
-agent = MemAgent(model="granite4:tiny-h")
+agent = MemAgent(model="granite4:3b")
 agent.set_user("alice")
 response = agent.chat("Hello!")
 
@@ -132,7 +132,7 @@ v1.1.0 with Security (Opt-in):
 from mem_llm import MemAgent
 
 agent = MemAgent(
-    model="granite4:tiny-h",
+    model="granite4:3b",
     enable_security=True  # ← Only change needed!
 )
 agent.set_user("alice")
@@ -148,7 +148,7 @@ logger = get_logger("my_app", log_file="logs/app.log")
 
 # Security-enabled agent
 agent = MemAgent(
-    model="granite4:tiny-h",
+    model="granite4:3b",
     use_sql=True,          # Thread-safe in v1.1.0
     enable_security=True   # Prompt injection protection
 )

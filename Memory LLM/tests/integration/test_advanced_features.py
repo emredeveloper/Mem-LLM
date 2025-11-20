@@ -49,7 +49,7 @@ class TestMemoryCorruption(unittest.TestCase):
 
         # Create agent with JSON memory
         memory_dir = os.path.join(self.temp_dir, "json_mem")
-        agent = MemAgent(model="granite4:tiny-h", use_sql=False, memory_dir=memory_dir)
+        agent = MemAgent(model="granite4:3b", use_sql=False, memory_dir=memory_dir)
         agent.set_user("test_user")
 
         # Add some data
@@ -264,7 +264,7 @@ class TestConcurrentAccess(unittest.TestCase):
         """Test that user data is properly isolated"""
         print("\n🧪 Testing multi-user data isolation...")
 
-        agent = MemAgent(model="granite4:tiny-h", use_sql=True, memory_dir=self.db_path)
+        agent = MemAgent(model="granite4:3b", use_sql=True, memory_dir=self.db_path)
 
         users = ["alice", "bob", "charlie", "david", "eve"]
 
@@ -335,7 +335,7 @@ class TestLongConversationHistory(unittest.TestCase):
         """Test handling when context window is exceeded"""
         print("\n🧪 Testing context window overflow handling...")
 
-        agent = MemAgent(model="granite4:tiny-h", use_sql=True, memory_dir=self.db_path)
+        agent = MemAgent(model="granite4:3b", use_sql=True, memory_dir=self.db_path)
         agent.set_user("verbose_user")
 
         # Add many long messages

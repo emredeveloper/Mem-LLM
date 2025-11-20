@@ -134,6 +134,7 @@ mem_agent.log
 analytics/
 data/
 chroma/
+logs/
 
 # IDE
 .vscode/

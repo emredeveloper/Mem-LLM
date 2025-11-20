@@ -29,7 +29,7 @@ class TestIntegration(unittest.TestCase):
 
         # For simple agent (JSON memory)
         self.simple_agent = MemAgent(
-            model="granite4:tiny-h",
+            model="granite4:3b",
             use_sql=False,
             memory_dir=os.path.join(self.temp_dir, "simple_memories"),
         )
@@ -53,7 +53,7 @@ class TestIntegration(unittest.TestCase):
         """Config file for integration test"""
         config_content = """
 llm:
-  model: "granite4:tiny-h"
+  model: "granite4:3b"
   base_url: "http://localhost:11434"
   temperature: 0.7
 

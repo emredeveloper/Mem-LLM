@@ -37,9 +37,7 @@ def test_logging_system():
     logger.error("This is an error message", error_code=500)
 
     # Test specialized logging methods
-    logger.log_llm_call(
-        model="granite4:tiny-h", prompt_length=150, response_length=300, duration=1.5
-    )
+    logger.log_llm_call(model="granite4:3b", prompt_length=150, response_length=300, duration=1.5)
 
     logger.log_memory_operation(
         operation="save", user_id="alice", success=True, details="Saved 3 conversations"
@@ -176,7 +174,7 @@ def test_integration_with_mem_agent():
         from mem_llm import MemAgent
 
         # Create agent with SQL (WAL mode will be enabled)
-        agent = MemAgent(model="granite4:tiny-h", use_sql=True, memory_dir="test_integration.db")
+        agent = MemAgent(model="granite4:3b", use_sql=True, memory_dir="test_integration.db")
 
         print("✅ MemAgent created with WAL-enabled database")
 
