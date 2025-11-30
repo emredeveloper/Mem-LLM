@@ -5,6 +5,66 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.1] - 2025-11-30
+
+### 🐛 Bug Fixes
+- **Package Distribution** - Fixed multi-agent module not being included in PyPI package
+- **MANIFEST.in** - Added `recursive-include mem_llm/multi_agent *.py` to ensure all multi-agent files are packaged
+
+### 📝 Note
+This is a critical bugfix release. Users who installed v2.2.0 should upgrade to v2.2.1 to access multi-agent features.
+
+---
+
+## [2.2.0] - 2025-11-30
+
+### 🤖 Multi-Agent Systems *(NEW - Major Feature)*
+- **BaseAgent** - Role-based AI agents with specialized behaviors
+  - 6 predefined roles: RESEARCHER, ANALYST, WRITER, VALIDATOR, COORDINATOR, GENERAL
+  - Memory isolation (private/shared memory spaces)
+  - Role-specific system prompts
+  - Conversation history tracking
+  - Inter-agent messaging capabilities
+
+- **AgentRegistry** - Centralized agent management
+  - Agent registration/deregistration
+  - Lookup by ID, role, or status
+  - Health monitoring and statistics
+  - Agent lifecycle management
+
+- **CommunicationHub** - Advanced inter-agent communication
+  - Thread-safe message queuing (FIFO)
+  - Direct agent-to-agent messaging
+  - Broadcast channels with subscriptions
+  - Message routing and delivery tracking
+  - Communication statistics and monitoring
+
+### 🧪 Testing & Quality
+- **29 new tests** - Comprehensive test coverage for multi-agent features
+  - 13 tests for BaseAgent and AgentRegistry
+  - 16 tests for Communication system
+  - 84-98% code coverage for new modules
+  - Thread-safety validation
+  - Deadlock prevention testing
+
+### 📚 Documentation & Examples
+- **New demo** - `21_multi_agent_demo.py` showcasing all features
+- **Comprehensive examples** - Agent creation, messaging, broadcast, task processing
+- **API documentation** - Full docstrings for all new classes and methods
+
+### 🔧 Technical Improvements
+- Thread-safe message queue implementation
+- Deadlock prevention in broadcast messaging
+- Efficient memory management for agent communication
+- Clean separation of concerns (agents, registry, communication)
+
+### 📦 New Modules
+- `mem_llm/multi_agent/base_agent.py` - Core agent implementation
+- `mem_llm/multi_agent/agent_registry.py` - Agent management
+- `mem_llm/multi_agent/communication.py` - Communication infrastructure
+
+---
+
 ## [2.1.4] - 2025-11-20
 
 ### 📊 Conversation Analytics

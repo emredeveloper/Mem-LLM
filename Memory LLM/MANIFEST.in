@@ -10,3 +10,4 @@ recursive-include mem_llm/web_ui *.css
 recursive-include mem_llm/web_ui *.js
 recursive-include mem_llm/web_ui *.md
 recursive-include mem_llm/analytics *.py
+recursive-include mem_llm/multi_agent *.py

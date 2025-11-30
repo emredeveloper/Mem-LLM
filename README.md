@@ -6,7 +6,16 @@
 
 Mem-LLM is a Python framework for building privacy-first, memory-enabled AI assistants that run 100% locally. The project combines persistent multi-user conversation history with optional knowledge bases, multiple storage backends, vector search capabilities, response quality metrics, and tight integration with [Ollama](https://ollama.ai) and [LM Studio](https://lmstudio.ai) so you can experiment locally and deploy production-ready workflows with quality monitoring and semantic understanding - completely private and offline.
 
-## 🆕 What's New in v2.1.4
+## 🆕 What's New in v2.2.0
+
+### 🤖 Multi-Agent Systems *(NEW - Major Feature)*
+- ✅ **Collaborative AI Agents** - Multiple specialized agents working together
+- ✅ **BaseAgent** - Role-based agents (Researcher, Analyst, Writer, Validator, Coordinator)
+- ✅ **AgentRegistry** - Centralized agent management and health monitoring
+- ✅ **CommunicationHub** - Thread-safe inter-agent messaging and broadcast channels
+- ✅ **29 New Tests** - Comprehensive test coverage (84-98%)
+
+## What's New in v2.1.4
 
 ### 📊 Conversation Analytics *(NEW)*
 - ✅ **Deep Insights** - Analyze user engagement, topics, and activity patterns
@@ -25,40 +34,6 @@ Mem-LLM is a Python framework for building privacy-first, memory-enabled AI assi
 - ✅ **Better prompts** - Clear DO/DON'T examples for LLM
 - ✅ **More reliable** - Tools execute even when LLM doesn't follow exact format
 
-## What's New in v2.1.0
-
-### 🚀 Async Tool Support *(NEW)*
-- ⚡ **Full `async def` support** for non-blocking I/O operations
-- 🌐 **Built-in async tools**: `fetch_url`, `post_json`, async file operations
-- 🔄 **Automatic async detection** and proper event loop handling
-- 📈 **Better performance** for I/O-bound tasks
-
-### ✅ Comprehensive Input Validation *(NEW)*
-- 🔒 **Pattern validation**: Regex for emails, URLs, custom formats
-- 📊 **Range validation**: Min/max for numbers
-- 📏 **Length validation**: Min/max for strings and lists
-- 🎯 **Choice validation**: Enum-like predefined values
-- 🛠️ **Custom validators**: Define your own validation logic
-- 💬 **Detailed error messages** for validation failures
-
-### v2.0.0 Features
-- 🛠️ **Function Calling** – LLMs can perform actions by calling external Python functions
-- 🧠 **Memory-Aware Tools** – Agents can search their own conversation history (unique!)
-- 🔧 **18+ Built-in Tools** – Math, text, file ops, utility, memory, and async tools
-- 🎨 **Easy Custom Tools** – Simple `@tool` decorator
-- ⛓️ **Tool Chaining** – Automatic multi-tool workflows
-
-[See full changelog](Memory%20LLM/CHANGELOG.md) | [Multi-Backend Guide](Memory%20LLM/MULTI_BACKEND_GUIDE.md)
-
-## Features
-
-### 🆕 v2.1.0 Features
-- **Async Tool Support** *(v2.1.0)* – Non-blocking I/O with `async def` functions
-- **Input Validation** *(v2.1.0)* – Pattern, range, length, choice, and custom validators
-- **Built-in Async Tools** *(v2.1.0)* – HTTP requests, file operations, utilities
-- **Safer Execution** *(v2.1.0)* – Pre-validation prevents runtime errors
-
-### v2.0.0 Features
 - **Function Calling** *(v2.0.0)* – LLMs can call external Python functions
 - **Memory-Aware Tools** *(v2.0.0)* – Agents search their own conversation history
 - **18+ Built-in Tools** *(v2.0.0)* – Math, text, file, utility, memory, and async tools
@@ -224,6 +199,14 @@ For advanced configuration (SQL storage, knowledge base support, business mode, 
 ## Contributing
 Contributions, bug reports, and feature requests are welcome! Please open an issue or submit a pull request describing your changes. Make sure to include test coverage and follow the formatting guidelines enforced by the existing codebase.
 
+## Links
+- **PyPI**: https://pypi.org/project/mem-llm/
+- **Documentation**: [Memory LLM/README.md](Memory%20LLM/README.md)
+- **Changelog**: [Memory LLM/CHANGELOG.md](Memory%20LLM/CHANGELOG.md)
+- **Issues**: https://github.com/emredeveloper/Mem-LLM/issues
+
+## License
+Mem-LLM is released under the [MIT License](LICENSE).
 ## Links
 - **PyPI**: https://pypi.org/project/mem-llm/
 - **Documentation**: [Memory LLM/README.md](Memory%20LLM/README.md)

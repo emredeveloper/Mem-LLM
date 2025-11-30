@@ -78,7 +78,7 @@ try:
 except ImportError:
     __all_metrics__ = []
 
-__version__ = "2.1.4"
+__version__ = "2.2.1"
 __author__ = "Cihat Emre Karataş"
 
 # Multi-backend LLM support (v1.3.0+)
@@ -119,6 +119,30 @@ try:
 except ImportError:
     __all_analytics__ = []
 
+# Multi-Agent Systems (v2.2.0+)
+try:
+    from .multi_agent import (
+        AgentMessage,
+        AgentRegistry,
+        AgentRole,
+        AgentStatus,
+        BaseAgent,
+        CommunicationHub,
+        MessageQueue,
+    )
+
+    __all_multi_agent__ = [
+        "BaseAgent",
+        "AgentRole",
+        "AgentStatus",
+        "AgentMessage",
+        "AgentRegistry",
+        "CommunicationHub",
+        "MessageQueue",
+    ]
+except ImportError:
+    __all_multi_agent__ = []
+
 __all__ = (
     [
         "MemAgent",
@@ -135,4 +159,5 @@ __all__ = (
     + __all_export_import__
     + __all_metrics__
     + __all_analytics__
+    + __all_multi_agent__
 )
