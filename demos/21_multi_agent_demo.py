@@ -18,12 +18,7 @@ from pathlib import Path
 # Add Memory LLM to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "Memory LLM"))
 
-from mem_llm.multi_agent import (
-    AgentRegistry,
-    AgentRole,
-    BaseAgent,
-    CommunicationHub,
-)
+from mem_llm.multi_agent import AgentRegistry, AgentRole, BaseAgent, CommunicationHub
 
 
 def print_section(title):
@@ -45,7 +40,7 @@ def main():
     registry = AgentRegistry()
 
     print("🤖 Creating Specialized Agents...")
-    
+
     # Create agents with different roles
     researcher = BaseAgent(
         name="Research Bot",
@@ -98,17 +93,13 @@ def main():
 
     print(f"\n📤 {researcher.name} → {analyst.name}")
     msg1 = researcher.send_message(
-        analyst.agent_id,
-        "I found interesting AI trends data. Can you analyze it?"
+        analyst.agent_id, "I found interesting AI trends data. Can you analyze it?"
     )
     hub.send_message(msg1)
     print(f"   Message: '{msg1.content}'")
 
     print(f"\n📤 {analyst.name} → {writer.name}")
-    msg2 = analyst.send_message(
-        writer.agent_id,
-        "Analysis complete. Please write a summary."
-    )
+    msg2 = analyst.send_message(writer.agent_id, "Analysis complete. Please write a summary.")
     hub.send_message(msg2)
     print(f"   Message: '{msg2.content}'")
 
@@ -140,9 +131,7 @@ def main():
     # Broadcast message
     print(f"\n📢 {researcher.name} broadcasting to 'ai-news'...")
     delivered = hub.broadcast(
-        researcher.agent_id,
-        "Breaking: New multi-agent framework released!",
-        channel="ai-news"
+        researcher.agent_id, "Breaking: New multi-agent framework released!", channel="ai-news"
     )
     print(f"   Delivered to {delivered} agents")
 

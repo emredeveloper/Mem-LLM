@@ -15,7 +15,33 @@ Mem-LLM is a powerful Python library that brings persistent memory and function 
 - **Issues**: https://github.com/emredeveloper/Mem-LLM/issues
 - **Documentation**: See examples/ directory
 
-## 🆕 What's New in v2.1.4
+## 🆕 What's New in v2.2.0
+
+### 🤖 Multi-Agent Systems *(NEW - Major Feature)*
+- **Collaborative AI Agents** - Multiple specialized agents working together
+- **BaseAgent** - Role-based agents (Researcher, Analyst, Writer, Validator, Coordinator)
+- **AgentRegistry** - Centralized agent management and health monitoring
+- **CommunicationHub** - Thread-safe inter-agent messaging and broadcast channels
+- **29 New Tests** - Comprehensive test coverage (84-98%)
+
+```python
+from mem_llm.multi_agent import BaseAgent, AgentRegistry, CommunicationHub, AgentRole
+
+# Create specialized agents
+researcher = BaseAgent(role=AgentRole.RESEARCHER)
+analyst = BaseAgent(role=AgentRole.ANALYST)
+
+# Register and communicate
+registry = AgentRegistry()
+registry.register(researcher)
+registry.register(analyst)
+
+hub = CommunicationHub()
+hub.register_agent(researcher.agent_id)
+hub.broadcast(researcher.agent_id, "Breaking news!", channel="updates")
+```
+
+## What's New in v2.1.4
 
 ### 📊 Conversation Analytics
 - **Deep Insights** - Analyze user engagement, topics, and activity patterns
@@ -61,7 +87,13 @@ Mem-LLM is a powerful Python library that brings persistent memory and function 
 
 ## ✨ Key Features
 
-### 🆕 v2.1.4 Features *(Latest)*
+### 🆕 v2.2.0 Features *(Latest)*
+- 🤖 **Multi-Agent Systems** - Collaborative AI agents with specialized roles
+- 📡 **Inter-Agent Communication** - Direct messaging and broadcast channels
+- 📋 **Agent Registry** - Centralized management and health monitoring
+- 🔒 **Thread-Safe** - Production-ready concurrent operations
+
+### v2.1.4 Features
 - 📊 **Conversation Analytics** - Track topics, engagement, and usage stats
 - 📋 **Config Presets** - 8 built-in agent personas + custom preset support
 - 📈 **Visual Reports** - Export data-driven insights in multiple formats
