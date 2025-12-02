@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.3] - 2025-12-01
+
+### 🧠 Hierarchical Memory System *(NEW - Major Feature)*
+- **4-Layer Memory Architecture** - Mimics human cognitive memory
+  - **Episode Layer**: Raw interaction storage (bottom layer)
+  - **Trace Layer**: Short-term memory traces and abstractions
+  - **Category Layer**: Topic-based aggregation (e.g., "python_coding", "travel")
+  - **Domain Layer**: High-level context summaries (e.g., "technology", "lifestyle")
+
+- **AutoCategorizer** - Intelligent classification
+  - Automatically analyzes interactions using LLM
+  - Assigns specific categories and broad domains
+  - Enables topic-aware retrieval
+
+- **Context Injection** - Smarter LLM context
+  - Injects hierarchical context (Active Domains, Recent Topics, Short-term Memory)
+  - Reduces context window usage while maintaining relevance
+
+### 📦 New Modules
+- `mem_llm/memory/hierarchy/` - Core hierarchical memory implementation
+- `mem_llm/memory/hierarchy/layers.py` - Layer definitions
+- `mem_llm/memory/hierarchy/categorizer.py` - LLM-based categorization
+- `mem_llm/memory/hierarchy/manager.py` - System orchestrator
+
+### 🔧 Improvements
+- **MemAgent Integration**: Seamlessly integrated via `enable_hierarchical_memory=True`
+- **Backward Compatibility**: Fully compatible with existing SQL/JSON memory systems
+
+---
+
 ## [2.2.2] - 2025-12-01
 
 ### 📝 Documentation

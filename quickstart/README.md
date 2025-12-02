@@ -1,20 +1,51 @@
-# Mem-LLM Quickstart Examples
+# 🚀 Mem-LLM Quickstart Examples
 
-Quick examples to get started with `mem-llm` v2.1.3 from PyPI.
+Get started with Mem-LLM's multi-agent features in minutes!
 
-## 📦 Installation
+## 📋 Prerequisites
 
+1.  **Install Mem-LLM**
+    ```bash
+    pip install mem-llm
+    ```
+
+2.  **Install Ollama** (or LM Studio)
+    -   Download from https://ollama.ai
+    -   Pull a model: `ollama pull granite4:3b`
+
+## 🎯 Examples
+
+### 1. Ultra Simple (simple_example.py)
+The absolute minimum - 2 agents communicating.
 ```bash
-pip install mem-llm
+python simple_example.py
 ```
 
-## 🚀 Quick Structure
-
+### 2. Quickstart (multi_agent_quickstart.py)
+A complete workflow showing agents collaborating on a task.
+```bash
+python multi_agent_quickstart.py
 ```
-quickstart/
-├── simple/         # 🟢 Simple Examples (5 files)
-│   ├── 01_hello.py              # Basic chat
-│   ├── 02_streaming.py          # Live streaming
+
+### 3. Test Installation (test_pypi.py)
+Verify your installation is working correctly.
+```bash
+python test_pypi.py
+```
+
+## 💡 What You'll Learn
+
+-   ✅ Creating AI agents with different roles
+-   ✅ Setting up agent communication
+-   ✅ Making agents work together
+-   ✅ Using the agent registry
+-   ✅ Broadcasting messages
+
+## 🔗 Next Steps
+
+-   Check out `/demos` for advanced examples
+-   Read the full documentation in `/Memory LLM/README.md`
+-   Explore different agent roles and backends
 │   ├── 03_memory.py             # Multi-user memory
 │   ├── 04_backends.py           # Ollama/LM Studio
 │   └── 05_config.py             # YAML config
@@ -108,7 +139,7 @@ memory_dir: memories
 import yaml
 with open("config.yaml") as f:
     config = yaml.safe_load(f)
-    
+
 agent = MemAgent(**config)
 ```
 
@@ -244,4 +275,3 @@ agent.chat("What do you know about Python?")
 5. **Check logs** - Enable logging for debugging
 
 **Need help?** Open an issue on GitHub! 🚀
-

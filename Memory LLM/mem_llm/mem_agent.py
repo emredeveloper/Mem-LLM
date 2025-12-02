@@ -31,13 +31,12 @@ agent = MemAgent(
 
 import json
 import logging
-import os
+
 import time
 from datetime import datetime
 from typing import Any, Dict, Iterator, List, Optional, Union
 
-from .base_llm_client import BaseLLMClient
-from .llm_client import OllamaClient  # Backward compatibility
+from .llm_client import OllamaClient  # noqa: F401 Backward compatibility
 from .llm_client_factory import LLMClientFactory
 
 # Core dependencies
@@ -50,8 +49,9 @@ try:
     from .config_manager import get_config
     from .dynamic_prompt import dynamic_prompt_builder
     from .knowledge_loader import KnowledgeLoader
+    from .memory.hierarchy import HierarchicalMemory
     from .memory_db import SQLMemoryManager
-    from .memory_tools import MemoryTools, ToolExecutor
+    from .memory_tools import ToolExecutor
 
     ADVANCED_AVAILABLE = True
 except ImportError:
@@ -86,6 +86,7 @@ class MemAgent:
         enable_tools: bool = False,
         tools: Optional[List] = None,
         preset: Optional[str] = None,
+        enable_hierarchical_memory: bool = False,
         **llm_kwargs,
     ):
         """
@@ -102,8 +103,10 @@ class MemAgent:
             auto_detect_backend: Auto-detect available LLM backend - NEW in v1.3.0
             check_connection: Verify LLM connection on startup (default: False)
             enable_security: Enable prompt injection protection (v1.1.0+, default: False for backward compatibility)
-            enable_vector_search: Enable semantic/vector search for KB (v1.3.2+, requires chromadb) - NEW
-            embedding_model: Embedding model for vector search (default: "all-MiniLM-L6-v2") - NEW
+            enable_vector_search: Enable semantic/vector search for KB
+                (v1.3.2+, requires chromadb) - NEW
+            embedding_model: Embedding model for vector search
+                (default: "all-MiniLM-L6-v2") - NEW
             preset: Configuration preset name (e.g., 'chatbot', 'code_assistant') - NEW in v2.1.4
             **llm_kwargs: Additional backend-specific parameters
 
@@ -179,6 +182,7 @@ class MemAgent:
         # Initialize flags first
         self.has_knowledge_base: bool = False  # Track KB status
         self.has_tools: bool = False  # Track tools status (v1.3.x)
+        self.enable_hierarchical_memory = enable_hierarchical_memory
 
         # Tool system (v2.0.0+)
         # Preset can enable tools if not explicitly disabled
@@ -287,7 +291,9 @@ class MemAgent:
             # Create client using factory
             try:
                 self.llm = LLMClientFactory.create(backend=backend, model=model, **llm_config)
-                self.logger.info(f"✅ Initialized {backend} backend with model: {model}")
+                self.logger.info(
+                    f"✅ Initialized {backend} backend with model: {model}"
+                )
             except Exception as e:
                 self.logger.error(f"❌ Failed to initialize {backend} backend: {e}")
                 raise
@@ -335,7 +341,7 @@ class MemAgent:
                     )
                     self.logger.error(error_msg)
                     raise ValueError(f"Model '{model}' not available")
-            except:
+            except Exception:
                 # Some backends may not support list_models, skip check
                 pass
 
@@ -353,6 +359,13 @@ class MemAgent:
 
         # Tool system (always available)
         self.tool_executor = ToolExecutor(self.memory)
+
+        # Initialize Hierarchical Memory if enabled (after memory and LLM are ready)
+        if self.enable_hierarchical_memory and ADVANCED_AVAILABLE:
+            self.hierarchical_memory = HierarchicalMemory(self.memory, self.llm)
+            self.logger.info("🧠 Hierarchical Memory System enabled")
+        else:
+            self.hierarchical_memory = None
 
         # Metrics tracking system (v1.3.1+)
         self.metrics_analyzer = ResponseMetricsAnalyzer()
@@ -738,9 +751,13 @@ class MemAgent:
 
             if risk_level in ["high", "critical"]:
                 self.logger.warning(
-                    f"🚨 Blocked {risk_level} risk input from {user_id}: {len(patterns)} patterns detected"
+                    f"🚨 Blocked {risk_level} risk input from {user_id}: "
+                    f"{len(patterns)} patterns detected"
                 )
-                return f"⚠️ Your message was blocked due to security concerns. Please rephrase your request."
+                return (
+                    "⚠️ Your message was blocked due to security concerns. "
+                    "Please rephrase your request."
+                )
 
             if is_suspicious:
                 self.logger.info(
@@ -754,7 +771,7 @@ class MemAgent:
             if message != original_message:
                 self.logger.debug(f"Input sanitized for {user_id}")
 
-            security_info = {
+            _ = {  # noqa: F841
                 "risk_level": risk_level,
                 "sanitized": message != original_message,
                 "patterns_detected": len(patterns),
@@ -935,7 +952,15 @@ class MemAgent:
 
         # Save interaction
         try:
-            if hasattr(self.memory, "add_interaction"):
+            if self.hierarchical_memory:
+                # Use hierarchical memory manager
+                self.hierarchical_memory.add_interaction(
+                    user_id=user_id,
+                    user_message=message,
+                    bot_response=response,
+                    metadata=enriched_metadata,
+                )
+            elif hasattr(self.memory, "add_interaction"):
                 self.memory.add_interaction(
                     user_id=user_id,
                     user_message=message,
@@ -1029,7 +1054,9 @@ class MemAgent:
             is_suspicious, patterns = self.security_detector.detect(message)
 
             if risk_level in ["high", "critical"]:
-                self.logger.warning(f"🚨 Blocked {risk_level} risk input from {user_id}")
+                self.logger.warning(
+                    f"🚨 Blocked {risk_level} risk input from {user_id}"
+                )
                 yield f"⚠️ Your message was blocked due to security concerns. Please rephrase your request."
                 return
 
@@ -1298,7 +1325,7 @@ class MemAgent:
                                     if isinstance(current_prefs, str)
                                     else current_prefs
                                 )
-                            except:
+                            except Exception:
                                 prefs = {}
                         else:
                             prefs = {}
@@ -1324,7 +1351,7 @@ class MemAgent:
                     if isinstance(current_prefs, str):
                         try:
                             current_prefs = json.loads(current_prefs)
-                        except:
+                        except Exception:
                             current_prefs = {}
 
                     # Update preferences
@@ -1510,7 +1537,10 @@ class MemAgent:
                     if uid not in self.memory.conversations:
                         self.memory.load_memory(uid)
 
-                    if uid in self.memory.conversations and len(self.memory.conversations[uid]) > 0:
+                    if (
+                        uid in self.memory.conversations
+                        and len(self.memory.conversations[uid]) > 0
+                    ):
                         self._update_conversation_summary(uid)
                         # Save the updated summary
                         if uid in self.memory.user_profiles:
@@ -1522,7 +1552,7 @@ class MemAgent:
                         if isinstance(profile.get("preferences"), str):
                             try:
                                 profile["preferences"] = json.loads(profile["preferences"])
-                            except:
+                            except Exception:
                                 profile["preferences"] = {}
 
                 return profile

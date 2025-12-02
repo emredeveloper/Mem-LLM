@@ -3,19 +3,19 @@ Memory-LLM: Memory-Enabled Mini Assistant
 AI library that remembers user interactions
 """
 
-from .base_llm_client import BaseLLMClient
+from .base_llm_client import BaseLLMClient  # noqa: F401
 
 # New multi-backend support (v1.3.0+)
-from .clients import LMStudioClient
-from .clients import OllamaClient as OllamaClientNew
-from .llm_client import OllamaClient  # Backward compatibility
-from .llm_client_factory import LLMClientFactory
-from .mem_agent import MemAgent
-from .memory_manager import MemoryManager
+from .clients import LMStudioClient  # noqa: F401
+from .clients import OllamaClient as OllamaClientNew  # noqa: F401
+from .llm_client import OllamaClient  # noqa: F401 Backward compatibility
+from .llm_client_factory import LLMClientFactory  # noqa: F401
+from .mem_agent import MemAgent  # noqa: F401
+from .memory_manager import MemoryManager  # noqa: F401
 
 # Tools (optional)
 try:
-    from .memory_tools import MemoryTools, ToolExecutor
+    from .memory_tools import MemoryTools, ToolExecutor  # noqa: F401
 
     __all_tools__ = ["MemoryTools", "ToolExecutor"]
 except ImportError:
@@ -23,10 +23,10 @@ except ImportError:
 
 # Pro version imports (optional)
 try:
-    from .config_from_docs import create_config_from_document
-    from .config_manager import get_config
-    from .dynamic_prompt import dynamic_prompt_builder
-    from .memory_db import SQLMemoryManager
+    from .config_from_docs import create_config_from_document  # noqa: F401
+    from .config_manager import get_config  # noqa: F401
+    from .dynamic_prompt import dynamic_prompt_builder  # noqa: F401
+    from .memory_db import SQLMemoryManager  # noqa: F401
 
     __all_pro__ = [
         "SQLMemoryManager",
@@ -39,7 +39,11 @@ except ImportError:
 
 # Security features (optional, v1.1.0+)
 try:
-    from .prompt_security import InputSanitizer, PromptInjectionDetector, SecurePromptBuilder
+    from .prompt_security import (  # noqa: F401
+        InputSanitizer,
+        PromptInjectionDetector,
+        SecurePromptBuilder,
+    )
 
     __all_security__ = ["PromptInjectionDetector", "InputSanitizer", "SecurePromptBuilder"]
 except ImportError:
@@ -47,8 +51,11 @@ except ImportError:
 
 # Enhanced features (v1.1.0+)
 try:
-    from .logger import MemLLMLogger, get_logger
-    from .retry_handler import SafeExecutor, exponential_backoff_retry
+    from .logger import MemLLMLogger, get_logger  # noqa: F401
+    from .retry_handler import (  # noqa: F401
+        SafeExecutor,
+        exponential_backoff_retry,
+    )
 
     __all_enhanced__ = ["get_logger", "MemLLMLogger", "exponential_backoff_retry", "SafeExecutor"]
 except ImportError:
@@ -56,7 +63,10 @@ except ImportError:
 
 # Conversation Summarization (v1.2.0+)
 try:
-    from .conversation_summarizer import AutoSummarizer, ConversationSummarizer
+    from .conversation_summarizer import (  # noqa: F401
+        AutoSummarizer,
+        ConversationSummarizer,
+    )
 
     __all_summarizer__ = ["ConversationSummarizer", "AutoSummarizer"]
 except ImportError:
@@ -64,7 +74,7 @@ except ImportError:
 
 # Data Export/Import (v1.2.0+)
 try:
-    from .data_export_import import DataExporter, DataImporter
+    from .data_export_import import DataExporter, DataImporter  # noqa: F401
 
     __all_export_import__ = ["DataExporter", "DataImporter"]
 except ImportError:
@@ -72,13 +82,17 @@ except ImportError:
 
 # Response Metrics (v1.3.1+)
 try:
-    from .response_metrics import ChatResponse, ResponseMetricsAnalyzer, calculate_confidence
+    from .response_metrics import (  # noqa: F401
+        ChatResponse,
+        ResponseMetricsAnalyzer,
+        calculate_confidence,
+    )
 
     __all_metrics__ = ["ChatResponse", "ResponseMetricsAnalyzer", "calculate_confidence"]
 except ImportError:
     __all_metrics__ = []
 
-__version__ = "2.2.2"
+__version__ = "2.2.3"
 __author__ = "Cihat Emre Karataş"
 
 # Multi-backend LLM support (v1.3.0+)
@@ -86,9 +100,13 @@ __all_llm_backends__ = ["BaseLLMClient", "LLMClientFactory", "OllamaClientNew", 
 
 # Tool system (v2.0.0+)
 try:
-    from .builtin_tools import BUILTIN_TOOLS
-    from .tool_system import Tool, ToolRegistry, tool
-    from .tool_workspace import ToolWorkspace, get_workspace, set_workspace
+    from .builtin_tools import BUILTIN_TOOLS  # noqa: F401
+    from .tool_system import Tool, ToolRegistry, tool  # noqa: F401
+    from .tool_workspace import (  # noqa: F401
+        ToolWorkspace,
+        get_workspace,
+        set_workspace,
+    )
 
     __all_tools__ = [
         "tool",
@@ -104,7 +122,7 @@ except ImportError:
 
 # CLI
 try:
-    from .cli import cli
+    from .cli import cli  # noqa: F401
 
     __all_cli__ = ["cli"]
 except ImportError:
@@ -112,8 +130,8 @@ except ImportError:
 
 # Analytics (v2.1.4+)
 try:
-    from .config_presets import ConfigPresets
-    from .conversation_analytics import ConversationAnalytics
+    from .config_presets import ConfigPresets  # noqa: F401
+    from .conversation_analytics import ConversationAnalytics  # noqa: F401
 
     __all_analytics__ = ["ConversationAnalytics", "ConfigPresets"]
 except ImportError:
@@ -121,7 +139,7 @@ except ImportError:
 
 # Multi-Agent Systems (v2.2.0+)
 try:
-    from .multi_agent import (
+    from .multi_agent import (  # noqa: F401
         AgentMessage,
         AgentRegistry,
         AgentRole,
@@ -143,6 +161,17 @@ try:
 except ImportError:
     __all_multi_agent__ = []
 
+# Hierarchical Memory (v2.2.3+)
+try:
+    from .memory.hierarchy import (  # noqa: F401
+        AutoCategorizer,
+        HierarchicalMemory,
+    )
+
+    __all_hierarchy__ = ["HierarchicalMemory", "AutoCategorizer"]
+except ImportError:
+    __all_hierarchy__ = []
+
 __all__ = (
     [
         "MemAgent",
@@ -160,4 +189,5 @@ __all__ = (
     + __all_metrics__
     + __all_analytics__
     + __all_multi_agent__
+    + __all_hierarchy__
 )
