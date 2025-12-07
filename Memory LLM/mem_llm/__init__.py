@@ -52,10 +52,7 @@ except ImportError:
 # Enhanced features (v1.1.0+)
 try:
     from .logger import MemLLMLogger, get_logger  # noqa: F401
-    from .retry_handler import (  # noqa: F401
-        SafeExecutor,
-        exponential_backoff_retry,
-    )
+    from .retry_handler import SafeExecutor, exponential_backoff_retry  # noqa: F401
 
     __all_enhanced__ = ["get_logger", "MemLLMLogger", "exponential_backoff_retry", "SafeExecutor"]
 except ImportError:
@@ -63,10 +60,7 @@ except ImportError:
 
 # Conversation Summarization (v1.2.0+)
 try:
-    from .conversation_summarizer import (  # noqa: F401
-        AutoSummarizer,
-        ConversationSummarizer,
-    )
+    from .conversation_summarizer import AutoSummarizer, ConversationSummarizer  # noqa: F401
 
     __all_summarizer__ = ["ConversationSummarizer", "AutoSummarizer"]
 except ImportError:
@@ -92,7 +86,7 @@ try:
 except ImportError:
     __all_metrics__ = []
 
-__version__ = "2.2.8"
+__version__ = "2.2.9"
 __author__ = "Cihat Emre Karataş"
 
 # Multi-backend LLM support (v1.3.0+)
@@ -102,11 +96,7 @@ __all_llm_backends__ = ["BaseLLMClient", "LLMClientFactory", "OllamaClientNew", 
 try:
     from .builtin_tools import BUILTIN_TOOLS  # noqa: F401
     from .tool_system import Tool, ToolRegistry, tool  # noqa: F401
-    from .tool_workspace import (  # noqa: F401
-        ToolWorkspace,
-        get_workspace,
-        set_workspace,
-    )
+    from .tool_workspace import ToolWorkspace, get_workspace, set_workspace  # noqa: F401
 
     __all_tools__ = [
         "tool",
@@ -163,10 +153,7 @@ except ImportError:
 
 # Hierarchical Memory (v2.2.3+)
 try:
-    from .memory.hierarchy import (  # noqa: F401
-        AutoCategorizer,
-        HierarchicalMemory,
-    )
+    from .memory.hierarchy import AutoCategorizer, HierarchicalMemory  # noqa: F401
 
     __all_hierarchy__ = ["HierarchicalMemory", "AutoCategorizer"]
 except ImportError:

@@ -11,7 +11,7 @@ Features:
 - User session management
 
 Author: C. Emre Karataş
-Version: 2.2.8
+Version: 2.2.9
 """
 
 import hashlib

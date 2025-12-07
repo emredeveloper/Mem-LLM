@@ -7,7 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.2.9] - 2025-01-27
 
+### 🐳 Docker Support *(NEW)*
+- **Dockerfile** - Containerized deployment for Mem-LLM API server
+  - Python 3.11-slim base image
+  - Optimized layer caching with requirements-first build
+  - Health check endpoint for container monitoring
+  - Persistent data volumes for memories and database
+
+- **Docker Compose** - Complete development/production stack
+  - Mem-LLM API server container
+  - Integrated Ollama LLM service
+  - Volume persistence for data and models
+  - Optional GPU support configuration
+  - Network isolation and service dependencies
+
+- **Docker Ignore** - Optimized build context
+  - Excludes unnecessary files from Docker builds
+  - Faster build times and smaller image sizes
+  - Proper handling of Python cache and virtual environments
+
 ### 🔧 Maintenance & Improvements
+- Fixed linter errors in API authentication module
+- Removed unused imports and fixed code quality issues
+- Added proper exception handling (bare except → Exception)
 - Version bump for PyPI release
 
 ---
