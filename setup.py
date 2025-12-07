@@ -17,5 +17,5 @@ setup(
     packages=find_packages(where="Memory LLM"),
     package_dir={"": "Memory LLM"},
     install_requires=["ollama", "chromadb", "sentence-transformers", "pytest", "pyyaml"],
-    python_requires=">=3.8",
+    python_requires=">=3.10",
 )
