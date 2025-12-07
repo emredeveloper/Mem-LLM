@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "mem-llm"
 version = "2.2.5"
 description = "Privacy-first, memory-enabled AI assistant with multi-agent systems, multi-backend LLM support (Ollama, LM Studio), vector search, and analytics - 100% local and production-ready"
-readme = "README.md"
+readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">=3.8"
 license = {text = "MIT"}
 authors = [
