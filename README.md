@@ -215,11 +215,3 @@ Contributions, bug reports, and feature requests are welcome! Please open an iss
 
 ## License
 Mem-LLM is released under the [MIT License](LICENSE).
-## Links
-- **PyPI**: https://pypi.org/project/mem-llm/
-- **Documentation**: [Memory LLM/README.md](Memory%20LLM/README.md)
-- **Changelog**: [Memory LLM/CHANGELOG.md](Memory%20LLM/CHANGELOG.md)
-- **Issues**: https://github.com/emredeveloper/Mem-LLM/issues
-
-## License
-Mem-LLM is released under the [MIT License](LICENSE).

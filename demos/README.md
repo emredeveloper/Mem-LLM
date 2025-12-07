@@ -31,6 +31,9 @@ Quick, ready-to-run scripts that show how to get the most out of Mem-LLM.
 | `19_memory_tools_demo.py` | **NEW!** Memory-aware tools (v2.0.0+). |
 | `20_async_and_validation.py` | **NEW!** Async tools & validation (v2.1.0+). |
 | `21_analytics_and_presets.py` | **NEW!** Analytics & Config Presets (v2.1.4+). |
+| `22_multi_agent_lmstudio_test.py` | Multi-agent with LM Studio backend (v2.2.0+). |
+| `23_multi_agent_mixed_models.py` | Mixed model multi-agent setup (v2.2.0+). |
+| `24_multi_agent_demo.py` | **NEW!** Complete multi-agent system demo (v2.2.0+). |
 | `hierarchical_memory_demo.py` | **NEW!** Hierarchical Memory System (v2.2.3+). |
 
 ## 💡 Tips

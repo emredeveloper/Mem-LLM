@@ -23,7 +23,7 @@ python start_web_ui.py
 
 ## 📋 Requirements
 
-- Python 3.8+
+- Python 3.10+
 - FastAPI
 - Uvicorn
 - WebSockets
@@ -41,4 +41,3 @@ Configure backend and model in the Web UI sidebar, or edit `api_server.py` defau
 ## 📄 License
 
 MIT License
-

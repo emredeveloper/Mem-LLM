@@ -15,10 +15,10 @@ Version: 2.2.0
 import sys
 from pathlib import Path
 
-# Add Memory LLM to path
+# Add Memory LLM to path - must be before other imports
 sys.path.insert(0, str(Path(__file__).parent.parent / "Memory LLM"))
 
-from mem_llm.multi_agent import AgentRegistry, AgentRole, BaseAgent, CommunicationHub
+from mem_llm.multi_agent import AgentRegistry, AgentRole, BaseAgent, CommunicationHub  # noqa: E402
 
 
 def print_section(title):
@@ -68,7 +68,7 @@ def main():
 
     # Show registry stats
     stats = registry.get_stats()
-    print(f"\n📊 Registry Stats:")
+    print("\n📊 Registry Stats:")
     print(f"   Total Agents: {stats['total_agents']}")
     print(f"   By Role: {stats['by_role']}")
 

@@ -26,7 +26,7 @@ API Documentation:
     - ReDoc: http://localhost:8000/redoc
 
 Author: C. Emre Karataş
-Version: 1.3.3
+Version: 2.2.8
 """
 
 import asyncio
@@ -35,9 +35,9 @@ import logging
 from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
-from fastapi import BackgroundTasks, FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -45,7 +45,6 @@ from pydantic import BaseModel, Field
 
 # Import Mem-LLM components
 from .mem_agent import MemAgent
-from .response_metrics import ChatResponse
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -93,7 +92,7 @@ def get_or_create_agent(user_id: str, config: Optional[Dict] = None) -> MemAgent
 async def lifespan(app: FastAPI):
     # Startup
     logger.info("🚀 Mem-LLM API Server starting...")
-    logger.info(f"📝 API Documentation: http://localhost:8000/docs")
+    logger.info("📝 API Documentation: http://localhost:8000/docs")
     logger.info(f"🔌 WebSocket endpoint: ws://localhost:8000/ws/chat/{'{user_id}'}")
     yield
     # Shutdown
@@ -105,7 +104,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Mem-LLM API",
     description="REST API for Mem-LLM - Privacy-first, Memory-enabled AI Assistant (100% Local)",
-    version="2.1.0",
+    version="2.2.8",
     docs_url="/docs",
     redoc_url="/redoc",
     lifespan=lifespan,
@@ -354,7 +353,7 @@ async def websocket_chat(websocket: WebSocket, user_id: str):
         logger.error(f"WebSocket error for {user_id}: {e}")
         try:
             await websocket.send_json({"type": "error", "content": str(e)})
-        except:
+        except Exception:
             pass
 
 
@@ -477,7 +476,7 @@ async def get_memory_stats():
                         history = agent.memory.get_conversation_history(user_id=user_id)
                         total_memories += len(history)
                     break  # Only need one agent for DB stats
-            except:
+            except Exception:
                 pass
 
         return {

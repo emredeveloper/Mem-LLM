@@ -766,9 +766,9 @@ The `examples/` directory contains ready-to-run demonstrations:
 
 ## 📊 Project Status
 
-- **Version**: 1.3.6
+- **Version**: 2.2.8
 - **Status**: Production Ready
-- **Last Updated**: November 10, 2025
+- **Last Updated**: December 7, 2025
 - **Test Coverage**: 50+ automated tests (100% success rate)
 - **Performance**: Thread-safe operations, <1ms search latency
 - **Backends**: Ollama, LM Studio (100% Local)
