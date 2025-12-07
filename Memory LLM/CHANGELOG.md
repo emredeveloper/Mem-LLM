@@ -5,6 +5,50 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.8] - 2025-01-XX
+
+### 🔧 Maintenance & Improvements
+- **Python Version Support**: Minimum Python version updated to 3.10 (removed 3.8, 3.9)
+- **Development Status**: Updated to Production/Stable (5)
+- **Classifiers**: Added "Topic :: Software Development :: Libraries :: Python Modules"
+- **Tool Configuration**: Updated Black and mypy to target Python 3.10+
+
+### 📝 Documentation
+- Fixed PyPI README.md description display
+- Updated project classifiers for better discoverability
+
+---
+
+## [2.2.7] - 2025-01-XX
+
+### 🔧 Maintenance
+- Version bump to fix PyPI README description display
+- Updated README path configuration in pyproject.toml
+
+---
+
+## [2.2.6] - 2025-01-XX
+
+### 🔧 Maintenance
+- Version bump to fix PyPI README description display
+
+---
+
+## [2.2.5] - 2025-01-XX
+
+### 🔧 Maintenance
+- Version bump to fix PyPI README description display
+
+---
+
+## [2.2.4] - 2025-01-XX
+
+### 🔧 Improvements
+- **UUID Usage**: Improved trace_id generation using UUID instead of timestamp
+- **Vector Store**: Enhanced document ID generation with UUID fallback
+
+---
+
 ## [2.2.3] - 2025-12-01
 
 ### 🧠 Hierarchical Memory System *(NEW - Major Feature)*
