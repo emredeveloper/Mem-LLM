@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="mem-llm",
-    version="2.2.3",
+    version="2.2.4",
     description="A powerful Memory LLM library with Hierarchical Memory and Multi-Backend support",
     author="Emre Q",
     packages=find_packages(where="Memory LLM"),

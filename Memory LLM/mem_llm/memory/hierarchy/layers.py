@@ -5,7 +5,7 @@ Hierarchical Memory Layers
 Defines the different layers of the hierarchical memory system.
 """
 
-
+import uuid
 from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Any, Dict, List, Optional
@@ -106,7 +106,7 @@ class TraceLayer(BaseLayer):
         if user_id not in self.traces:
             self.traces[user_id] = []
 
-        trace_id = f"trace_{len(self.traces[user_id])}_{datetime.now().timestamp()}"
+        trace_id = f"trace_{str(uuid.uuid4())}"
         trace_item = {
             "id": trace_id,
             "content": item.get("content"),

@@ -4,6 +4,7 @@ Supports multiple vector databases (Chroma, FAISS, etc.)
 """
 
 import logging
+import uuid
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
@@ -179,7 +180,8 @@ class ChromaVectorStore(VectorStore):
         metadatas = []
 
         for doc in documents:
-            doc_id = str(doc.get("id", doc.get("text", ""))[:100])
+            # Use UUID for unique document IDs, fallback to provided id or generate new
+            doc_id = str(doc.get("id", str(uuid.uuid4())))
             # Ensure unique IDs
             if doc_id in ids:
                 doc_id = f"{doc_id}_{len(ids)}"
