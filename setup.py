@@ -9,7 +9,7 @@ if readme_file.exists():
 
 setup(
     name="mem-llm",
-    version="2.2.6",
+    version="2.2.7",
     description="A powerful Memory LLM library with Hierarchical Memory and Multi-Backend support",
     long_description=long_description,
     long_description_content_type="text/markdown",
