@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.3.1] - 2025-12-13
+### Fixed
+- **Package Structure**: Added missing subpackages (workflow, memory.graph, analytics) to setuptools
+- **Dependencies**: Added `networkx>=3.0` for Knowledge Graph support
+- **PyPI Metadata**: Updated description with new v2.3 features
+
 ## [2.3.0] - 2025-12-13
 ### Added
 - **Workflow Engine**: Structured, multi-step agent workflows defined in Python or YAML.
