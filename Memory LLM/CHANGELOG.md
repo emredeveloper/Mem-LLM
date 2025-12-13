@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.3.0] - 2025-12-13
+### Added
+- **Workflow Engine**: Structured, multi-step agent workflows defined in Python or YAML.
+- **Knowledge Graph Memory**: Graph-based memory storage using NetworkX and LLM extraction.
+- **Premium Web UI**: Redesigned with dark mode, glassmorphism, and new Workflow/Graph tabs.
+- **LM Studio Integration**: Auto-configuration for `google/gemma-3-4b`.
+
+### Changed
+- **Ollama Default**: Updated to `ministral-3:3b`.
+- **API Server**: Added endpoints for graph data and workflow management.
+
+### Removed
+- **Voice Module**: Removed voice interaction features.
+
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),

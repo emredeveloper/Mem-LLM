@@ -1,641 +1,621 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mem-LLM - Memory-Enabled AI Assistant</title>
+    <title>Neural Nexus | Mem-LLM</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
     <style>
+        :root {
+            --bg-color: #0f172a;
+            --sidebar-bg: rgba(30, 41, 59, 0.7);
+            --card-bg: rgba(30, 41, 59, 0.4);
+            --accent: #6366f1;
+            --accent-glow: rgba(99, 102, 241, 0.3);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            height: 100vh;
             display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1400px;
-            width: 100%;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             overflow: hidden;
-            display: flex;
-            height: 90vh;
+            background-image: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 40%);
         }
 
+        /* Sidebar */
         .sidebar {
-            width: 300px;
-            background: #2c3e50;
-            color: white;
-            padding: 30px 20px;
+            width: 280px;
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(12px);
+            border-right: 1px solid var(--border-color);
+            padding: 24px;
             display: flex;
             flex-direction: column;
-            overflow-y: auto;
+            gap: 24px;
         }
 
-        .sidebar h1 {
-            font-size: 24px;
-            margin-bottom: 10px;
-            color: #3498db;
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
-        .sidebar p {
-            font-size: 12px;
-            opacity: 0.7;
-            margin-bottom: 30px;
+        .logo span {
+            color: var(--accent);
         }
 
-        .section {
-            margin-bottom: 25px;
+        .nav-items {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
-        .section-title {
-            font-size: 11px;
-            text-transform: uppercase;
-            opacity: 0.6;
-            margin-bottom: 10px;
-            letter-spacing: 1px;
+        .nav-item {
+            padding: 12px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            font-weight: 500;
         }
 
+        .nav-item:hover,
+        .nav-item.active {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 4px 12px var(--accent-glow);
+        }
+
+        .config-section {
+            margin-top: auto;
+            border-top: 1px solid var(--border-color);
+            padding-top: 24px;
+        }
+
+        /* Forms */
         .input-group {
-            margin-bottom: 15px;
+            margin-bottom: 16px;
         }
 
         .input-group label {
             display: block;
             font-size: 12px;
-            margin-bottom: 5px;
-            opacity: 0.8;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
         }
 
         .input-group input,
         .input-group select {
             width: 100%;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            background: #34495e;
-            color: white;
-            font-size: 14px;
-        }
-
-        .input-group select option {
-            background: #34495e;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: 8px;
+            color: var(--text-primary);
+            outline: none;
+            transition: border-color 0.2s;
         }
 
         .input-group input:focus,
         .input-group select:focus {
-            outline: 2px solid #3498db;
+            border-color: var(--accent);
         }
 
-        .stats {
-            margin-top: auto;
-            padding-top: 20px;
-            border-top: 1px solid #34495e;
-        }
-
-        .stat-item {
-            margin-bottom: 15px;
-        }
-
-        .stat-label {
-            font-size: 11px;
-            opacity: 0.6;
-            margin-bottom: 3px;
-        }
-
-        .stat-value {
-            font-size: 18px;
-            font-weight: bold;
-            color: #3498db;
-        }
-
-        .main-content {
+        /* Main Content */
+        .main {
             flex: 1;
+            position: relative;
             display: flex;
             flex-direction: column;
         }
 
-        .chat-header {
-            padding: 20px 30px;
-            background: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
+        /* Tabs Views */
+        .view {
+            display: none;
+            flex: 1;
+            height: 100%;
+            flex-direction: column;
+        }
+
+        .view.active {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
 
-        .chat-header h2 {
-            font-size: 20px;
-            color: #2c3e50;
-        }
-
-        .status {
-            font-size: 12px;
-            color: #27ae60;
-            margin-top: 5px;
-        }
-
-        .status.disconnected {
-            color: #e74c3c;
-        }
-
-        .config-info {
-            font-size: 11px;
-            color: #7f8c8d;
-            margin-top: 5px;
-        }
-
-        .chat-messages {
+        /* Chat View */
+        .chat-container {
             flex: 1;
             overflow-y: auto;
-            padding: 30px;
-            background: #f8f9fa;
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
         .message {
-            display: flex;
-            margin-bottom: 20px;
-            animation: fadeIn 0.3s;
+            max-width: 70%;
+            padding: 16px 20px;
+            border-radius: 16px;
+            line-height: 1.5;
+            font-size: 15px;
+            animation: slideIn 0.3s ease;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .message.user {
-            justify-content: flex-end;
-        }
-
-        .message-content {
-            max-width: 70%;
-            padding: 15px 20px;
-            border-radius: 15px;
-            position: relative;
-        }
-
-        .message.user .message-content {
-            background: #667eea;
+            align-self: flex-end;
+            background: var(--accent);
             color: white;
-            border-bottom-right-radius: 5px;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 4px 12px var(--accent-glow);
         }
 
-        .message.bot .message-content {
-            background: white;
-            color: #2c3e50;
-            border-bottom-left-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        .message.bot {
+            align-self: flex-start;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-bottom-left-radius: 4px;
         }
 
-        .message-time {
-            font-size: 10px;
-            opacity: 0.6;
-            margin-top: 5px;
+        .welcome {
+            text-align: center;
+            margin-top: 100px;
+            color: var(--text-secondary);
+        }
+
+        .welcome h2 {
+            color: var(--text-primary);
+            margin-bottom: 12px;
+        }
+
+        .input-area {
+            padding: 24px;
+            background: var(--bg-color);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 12px;
         }
 
         .chat-input {
-            padding: 20px 30px;
-            background: white;
-            border-top: 1px solid #e9ecef;
-            display: flex;
-            gap: 10px;
-        }
-
-        .chat-input input {
             flex: 1;
-            padding: 15px 20px;
-            border: 2px solid #e9ecef;
-            border-radius: 25px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-
-        .chat-input input:focus {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 14px 20px;
+            border-radius: 12px;
+            color: white;
             outline: none;
-            border-color: #667eea;
+            font-size: 15px;
         }
 
-        .chat-input button {
-            padding: 15px 30px;
-            background: #667eea;
-            color: white;
+        .send-btn {
+            background: var(--accent);
             border: none;
-            border-radius: 25px;
-            font-size: 14px;
-            font-weight: bold;
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
             cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .chat-input button:hover {
-            background: #5568d3;
-        }
-
-        .chat-input button:disabled {
-            background: #95a5a6;
-            cursor: not-allowed;
-        }
-
-        .welcome-message {
-            text-align: center;
-            padding: 50px 20px;
-            color: #7f8c8d;
-        }
-
-        .welcome-message h3 {
-            font-size: 24px;
-            margin-bottom: 10px;
-            color: #2c3e50;
-        }
-
-        .welcome-message p {
-            font-size: 14px;
-        }
-
-        .btn-reconnect {
-            margin-top: 10px;
-            padding: 8px 16px;
-            background: #3498db;
             color: white;
-            border: none;
-            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .send-btn:hover {
+            box-shadow: 0 0 15px var(--accent-glow);
+            transform: scale(1.05);
+        }
+
+        /* Graph View */
+        #cy {
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 1) 100%);
+        }
+
+        /* Workflow View */
+        .workflow-grid {
+            padding: 32px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .workflow-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 24px;
+            border-radius: 16px;
+            transition: all 0.2s;
+        }
+
+        .workflow-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .workflow-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .workflow-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .run-btn {
+            width: 100%;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: 8px;
             cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .run-btn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        /* Status & Toast */
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #ef4444;
+            border-radius: 50%;
+            margin-right: 8px;
+            box-shadow: 0 0 8px #ef4444;
+        }
+
+        .status-dot.connected {
+            background: #22c55e;
+            box-shadow: 0 0 8px #22c55e;
+        }
+
+        .status-bar {
+            display: flex;
+            align-items: center;
             font-size: 12px;
-        }
-
-        .btn-reconnect:hover {
-            background: #2980b9;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            background: #3498db;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            text-decoration: none;
-            font-size: 14px;
-            display: inline-block;
-        }
-
-        .btn:hover {
-            background: #2980b9;
-        }
-
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 200px;
-            }
-            
-            .message-content {
-                max-width: 85%;
-            }
+            color: var(--text-secondary);
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 24px;
         }
     </style>
 </head>
+
 <body>
-    <div class="container">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div>
-                <h1>🧠 Mem-LLM</h1>
-                <p>Memory-Enabled AI Assistant v1.3.3</p>
-            </div>
 
-            <!-- User Settings -->
-            <div class="section">
-                <div class="section-title">👤 User</div>
-                <div class="input-group">
-                    <label>User ID</label>
-                    <input type="text" id="userId" value="user123" placeholder="Enter your user ID">
-                </div>
-            </div>
-
-            <!-- Backend Settings -->
-            <div class="section">
-                <div class="section-title">🔌 Backend Settings</div>
-                
-                <div class="input-group">
-                    <label>Backend</label>
-                    <select id="backend">
-                        <option value="ollama">Ollama (Local)</option>
-                        <option value="lmstudio">LM Studio (Local)</option>
-                    </select>
-                </div>
-
-                <div class="input-group">
-                    <label>Model</label>
-                    <input type="text" id="model" value="granite4:3b" placeholder="Model name">
-                </div>
-
-                <div class="input-group">
-                    <label>API URL</label>
-                    <input type="text" id="apiUrl" value="http://localhost:8000" placeholder="API Server URL">
-                </div>
-            </div>
-
-            <!-- Memory Settings -->
-            <div class="section">
-                <div class="section-title">💾 Memory Settings</div>
-                
-                <div class="input-group">
-                    <label>
-                        <input type="checkbox" id="useSQL" checked style="width: auto; margin-right: 5px;">
-                        Use SQL Memory
-                    </label>
-                </div>
-
-                <div class="input-group">
-                    <label>
-                        <input type="checkbox" id="loadKB" checked style="width: auto; margin-right: 5px;">
-                        Load Knowledge Base
-                    </label>
-                </div>
-            </div>
-
-            <!-- Stats -->
-            <div class="stats">
-                <div class="stat-item">
-                    <div class="stat-label">Messages</div>
-                    <div class="stat-value" id="messageCount">0</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">Session Time</div>
-                    <div class="stat-value" id="sessionTime">0m</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">Backend</div>
-                    <div class="stat-value" id="currentBackend">-</div>
-                </div>
-            </div>
+    <div class="sidebar">
+        <div class="logo">
+            <span>⚡</span> Neural Nexus
         </div>
 
-        <!-- Main Chat Area -->
-        <div class="main-content">
-            <div class="chat-header">
-                <div>
-                    <h2>💬 Chat</h2>
-                    <div class="status" id="status">● Connecting...</div>
-                    <div class="config-info" id="configInfo">Configure settings and connect</div>
-                </div>
-                <div style="display: flex; gap: 10px;">
-                    <a href="memory.html" class="btn">🧠 Memory</a>
-                    <a href="metrics.html" class="btn">📊 Metrics</a>
-                </div>
-            </div>
+        <div class="status-bar">
+            <div id="statusDot" class="status-dot"></div>
+            <span id="statusText">Disconnected</span>
+        </div>
 
-            <div class="chat-messages" id="chatMessages">
-                <div class="welcome-message">
-                    <h3>👋 Welcome!</h3>
-                    <p>How can Mem-LLM help you today?</p>
-                    <p style="margin-top: 10px; font-size: 12px;">
-                        I'm an AI assistant with memory. I can remember our conversations! 🧠
-                    </p>
-                    <p style="margin-top: 15px; font-size: 11px; color: #95a5a6;">
-                        Configure backend and model settings on the left
-                    </p>
-                    <button class="btn-reconnect" onclick="connect()">Connect</button>
-                </div>
-            </div>
+        <div class="nav-items">
+            <div class="nav-item active" onclick="switchTab('chat')">💬 Chat</div>
+            <div class="nav-item" onclick="switchTab('workflows')">⚡ Workflows</div>
+            <div class="nav-item" onclick="switchTab('graph')">🕸️ Knowledge Graph</div>
+        </div>
 
-            <div class="chat-input">
-                <input type="text" id="messageInput" placeholder="Type your message..." autocomplete="off">
-                <button id="sendButton">Send</button>
+        <div class="config-section">
+            <div class="input-group">
+                <label>User ID</label>
+                <input type="text" id="userId" value="user1">
+            </div>
+            <div class="input-group">
+                <button class="run-btn" onclick="connect()">Connect System</button>
             </div>
         </div>
     </div>
 
+    <div class="main">
+
+        <!-- Chat View -->
+        <div id="chat-view" class="view active">
+            <div class="chat-container" id="chatContainer">
+                <div class="welcome">
+                    <h2>Neural Nexus v2.3.0</h2>
+                    <p>Start a conversation or select a workflow.</p>
+                </div>
+            </div>
+            <div class="input-area">
+                <input type="text" id="messageInput" class="chat-input" placeholder="Type your message..."
+                    autocomplete="off">
+                <button class="send-btn" onclick="sendMessage()">➤</button>
+            </div>
+        </div>
+
+        <!-- Workflow View -->
+        <div id="workflows-view" class="view">
+            <div class="workflow-grid" id="workflowGrid">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+
+        <!-- Graph View -->
+        <div id="graph-view" class="view">
+            <div id="cy"></div>
+            <div style="position: absolute; bottom: 20px; right: 20px;">
+                <button class="run-btn" style="width: auto; background: var(--card-bg);" onclick="loadGraph()">Refresh
+                    Graph</button>
+            </div>
+        </div>
+
+    </div>
+
     <script>
-        // WebSocket connection
+        // --- State ---
         let ws = null;
-        let messageCount = 0;
-        let sessionStart = Date.now();
+        let cy = null;
+        let currentUserId = 'user1';
 
-        // DOM elements
-        const chatMessages = document.getElementById('chatMessages');
-        const messageInput = document.getElementById('messageInput');
-        const sendButton = document.getElementById('sendButton');
-        const userIdInput = document.getElementById('userId');
-        const backendSelect = document.getElementById('backend');
-        const modelInput = document.getElementById('model');
-        const apiUrlInput = document.getElementById('apiUrl');
-        const useSQLCheckbox = document.getElementById('useSQL');
-        const loadKBCheckbox = document.getElementById('loadKB');
-        const statusElement = document.getElementById('status');
-        const configInfoElement = document.getElementById('configInfo');
-        const messageCountElement = document.getElementById('messageCount');
-        const sessionTimeElement = document.getElementById('sessionTime');
-        const currentBackendElement = document.getElementById('currentBackend');
+        // --- Tabs ---
+        function switchTab(tab) {
+            document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
 
-        // Update model when backend changes
-        backendSelect.addEventListener('change', () => {
-            const backend = backendSelect.value;
-            if (backend === 'ollama') {
-                modelInput.value = 'granite4:3b';
-            } else if (backend === 'lmstudio') {
-                modelInput.value = 'qwen/qwen3-vl-4b';
-            }
-        });
+            document.getElementById(`${tab}-view`).classList.add('active');
+            // Find nav item by text content approx or index, simple fix:
+            const tabs = ['chat', 'workflows', 'graph'];
+            document.querySelectorAll('.nav-item')[tabs.indexOf(tab)].classList.add('active');
 
-        // Connect to WebSocket
+            if (tab === 'graph') loadGraph();
+            if (tab === 'workflows') loadWorkflows();
+        }
+
+        // --- Connection ---
         function connect() {
-            const userId = userIdInput.value || 'user123';
-            const apiUrl = apiUrlInput.value || 'http://localhost:8000';
-            
-            // Extract host from API URL
-            const url = new URL(apiUrl);
-            const wsUrl = `ws://${url.host}/ws/chat/${userId}`;
-            
-            statusElement.textContent = '● Connecting...';
-            statusElement.className = 'status';
-            
-            try {
-                ws = new WebSocket(wsUrl);
+            currentUserId = document.getElementById('userId').value;
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}/ws/chat/${currentUserId}`;
 
-                ws.onopen = () => {
-                    console.log('Connected to Mem-LLM');
-                    statusElement.textContent = '● Connected';
-                    statusElement.className = 'status';
-                    
-                    const backend = backendSelect.value;
-                    const model = modelInput.value;
-                    const useSQL = useSQLCheckbox.checked;
-                    const loadKB = loadKBCheckbox.checked;
-                    
-                    currentBackendElement.textContent = backend.toUpperCase();
-                    configInfoElement.textContent = `Model: ${model} | SQL: ${useSQL ? 'On' : 'Off'} | KB: ${loadKB ? 'On' : 'Off'}`;
-                    
-                    // Send initial configuration
-                    sendConfigToAPI();
-                };
+            ws = new WebSocket(wsUrl);
 
-                ws.onclose = () => {
-                    console.log('Disconnected from Mem-LLM');
-                    statusElement.textContent = '● Disconnected';
-                    statusElement.className = 'status disconnected';
-                    configInfoElement.textContent = 'Click "Connect" button to reconnect';
-                };
+            ws.onopen = () => {
+                document.getElementById('statusDot').className = 'status-dot connected';
+                document.getElementById('statusText').innerText = 'Connected';
+            };
 
-                ws.onerror = (error) => {
-                    console.error('WebSocket error:', error);
-                    statusElement.textContent = '● Error';
-                    statusElement.className = 'status disconnected';
-                    configInfoElement.textContent = `Connection error. Is API Server running? (${apiUrl})`;
-                };
+            ws.onclose = () => {
+                document.getElementById('statusDot').className = 'status-dot';
+                document.getElementById('statusText').innerText = 'Disconnected';
+            };
 
-                ws.onmessage = (event) => {
-                    const data = JSON.parse(event.data);
-                    handleServerMessage(data);
-                };
-            } catch (error) {
-                console.error('Connection error:', error);
-                statusElement.textContent = '● Error';
-                statusElement.className = 'status disconnected';
-                configInfoElement.textContent = `Connection error: ${error.message}`;
-            }
-        }
-
-        // Send configuration to API
-        async function sendConfigToAPI() {
-            const userId = userIdInput.value || 'user123';
-            const apiUrl = apiUrlInput.value || 'http://localhost:8000';
-            const backend = backendSelect.value;
-            const model = modelInput.value;
-            
-            try {
-                const response = await fetch(`${apiUrl}/api/v1/agent/configure/${userId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        model: model,
-                        backend: backend,
-                        base_url: backend === 'ollama' ? 'http://localhost:11434' : 'http://localhost:1234'
-                    })
-                });
-                
-                if (response.ok) {
-                    console.log('Configuration sent successfully');
-                } else {
-                    console.error('Configuration failed:', response.status);
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                if (data.type === 'start') {
+                    addMessage('', 'bot', true);
+                } else if (data.type === 'chunk') {
+                    appendBotMessage(data.content);
+                } else if (data.type === 'error') {
+                    addMessage(`Error: ${data.content}`, 'bot');
                 }
-            } catch (error) {
-                console.error('Configuration error:', error);
-            }
+            };
         }
 
-        // Handle messages from server
-        let currentBotMessage = null;
-
-        function handleServerMessage(data) {
-            if (data.type === 'start') {
-                // Start of streaming response
-                currentBotMessage = addMessage('', 'bot');
-            } else if (data.type === 'chunk') {
-                // Streaming chunk
-                if (currentBotMessage) {
-                    currentBotMessage.textContent += data.content;
-                    scrollToBottom();
-                }
-            } else if (data.type === 'done') {
-                // End of streaming
-                currentBotMessage = null;
-            } else if (data.type === 'error') {
-                addMessage(`⚠️ Error: ${data.content}`, 'bot');
-            }
-        }
-
-        // Add message to chat
-        function addMessage(text, type) {
-            // Remove welcome message if exists
-            const welcomeMsg = chatMessages.querySelector('.welcome-message');
-            if (welcomeMsg) {
-                welcomeMsg.remove();
-            }
-
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${type}`;
-
-            const contentDiv = document.createElement('div');
-            contentDiv.className = 'message-content';
-            
-            const textDiv = document.createElement('div');
-            textDiv.textContent = text;
-            contentDiv.appendChild(textDiv);
-
-            const timeDiv = document.createElement('div');
-            timeDiv.className = 'message-time';
-            timeDiv.textContent = new Date().toLocaleTimeString();
-            contentDiv.appendChild(timeDiv);
-
-            messageDiv.appendChild(contentDiv);
-            chatMessages.appendChild(messageDiv);
-
-            scrollToBottom();
-
-            return textDiv; // Return text element for streaming
-        }
-
-        // Scroll to bottom
-        function scrollToBottom() {
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        // Send message
+        // --- Chat ---
         function sendMessage() {
-            const message = messageInput.value.trim();
-            if (!message || !ws || ws.readyState !== WebSocket.OPEN) {
-                if (!ws || ws.readyState !== WebSocket.OPEN) {
-                    alert('Please connect first! (Click Connect button)');
-                }
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                alert("Please connect first.");
                 return;
             }
 
-            // Add user message to UI
-            addMessage(message, 'user');
-            messageInput.value = '';
-
-            // Send to server
-            ws.send(JSON.stringify({
-                message: message,
-                metadata: {
-                    timestamp: new Date().toISOString(),
-                    backend: backendSelect.value,
-                    model: modelInput.value
-                }
-            }));
-
-            // Update stats
-            messageCount++;
-            messageCountElement.textContent = messageCount;
+            addMessage(text, 'user');
+            ws.send(JSON.stringify({ message: text, metadata: {} }));
+            input.value = '';
         }
 
-        // Event listeners
-        sendButton.addEventListener('click', sendMessage);
-        messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendMessage();
+        let currentBotMsgDiv = null;
+
+        function addMessage(text, type, isStreamStart = false) {
+            const container = document.getElementById('chatContainer');
+            // Remove welcome
+            const welcome = document.querySelector('.welcome');
+            if (welcome) welcome.remove();
+
+            const div = document.createElement('div');
+            div.className = `message ${type}`;
+            div.innerText = text;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+
+            if (isStreamStart) {
+                currentBotMsgDiv = div;
             }
+        }
+
+        function appendBotMessage(chunk) {
+            if (currentBotMsgDiv) {
+                currentBotMsgDiv.innerText += chunk;
+                document.getElementById('chatContainer').scrollTop = document.getElementById('chatContainer').scrollHeight;
+            }
+        }
+
+        document.getElementById('messageInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
         });
 
-        // Update session time every minute
-        setInterval(() => {
-            const minutes = Math.floor((Date.now() - sessionStart) / 60000);
-            sessionTimeElement.textContent = `${minutes}m`;
-        }, 60000);
+        // --- Workflows ---
+        async function loadWorkflows() {
+            const res = await fetch('/api/v1/workflows');
+            const data = await res.json();
+            const grid = document.getElementById('workflowGrid');
+            grid.innerHTML = '';
+
+            data.workflows.forEach(wf => {
+                const card = document.createElement('div');
+                card.className = 'workflow-card';
+                card.innerHTML = `
+                    <div class="workflow-title">${wf.name}</div>
+                    <div class="workflow-desc">${wf.description}</div>
+                    <button class="run-btn" onclick="runWorkflow('${wf.id}')">Run Workflow</button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        async function runWorkflow(id) {
+            const topic = prompt("Enter topic for workflow (e.g. 'AI Trends 2024'):", "Artificial Intelligence");
+            if (!topic) return;
+
+            // Create a bubble for the workflow output
+            const outputDiv = document.createElement('div');
+            outputDiv.className = 'message bot-message';
+            outputDiv.innerHTML = `<strong>⚙️ Running Workflow: ${id}...</strong><br><div class="workflow-log" style="font-family: monospace; font-size: 0.9em; color: #e2e8f0; margin-top: 5px;">Initializing...</div>`;
+            document.getElementById('chatContainer').appendChild(outputDiv);
+            document.getElementById('chatContainer').scrollTop = document.getElementById('chatContainer').scrollHeight;
+
+            const logDiv = outputDiv.querySelector('.workflow-log');
+
+            const eventSource = new EventSource(`/api/v1/workflow/stream/${id}?user_id=${currentUserId}&topic=${encodeURIComponent(topic)}`);
+
+            eventSource.onmessage = function (event) {
+                const data = JSON.parse(event.data);
+
+                if (data.type === 'start') {
+                    logDiv.innerHTML += `<div>🚀 Workflow Started</div>`;
+                } else if (data.type === 'step_start') {
+                    logDiv.innerHTML += `<div style="margin-top:5px">▶️ <strong>${data.step}</strong>: ${data.description || ''}</div>`;
+                } else if (data.type === 'step_complete') {
+                    // Show truncated output
+                    const preview = data.output.length > 100 ? data.output.substring(0, 100) + '...' : data.output;
+                    logDiv.innerHTML += `<div style="color:#94a3b8; margin-left:15px; font-size:0.85em; margin-bottom: 2px;">"${preview}"</div>`;
+                    logDiv.innerHTML += `<div>✅ Step Complete</div>`;
+                } else if (data.type === 'complete') {
+                    logDiv.innerHTML += `<div style="color:#4ade80; margin-top:10px"><strong>✅ Workflow Completed Successfully!</strong></div>`;
+                    // Pretty print results
+                    let resultHtml = '<div style="background: rgba(0,0,0,0.2); padding: 10px; margin-top: 10px; border-radius: 5px;">';
+                    for (const [key, value] of Object.entries(data.results)) {
+                        resultHtml += `<strong>[${key}]</strong>:<br>${value}<br><br>`;
+                    }
+                    resultHtml += '</div>';
+                    outputDiv.innerHTML += resultHtml;
+                    eventSource.close();
+                } else if (data.type === 'error') {
+                    logDiv.innerHTML += `<div style="color:#ef4444">❌ Error: ${data.error}</div>`;
+                    eventSource.close();
+                } else if (data.type === 'step_error') {
+                    logDiv.innerHTML += `<div style="color:#ef4444">❌ Step Error: ${data.error}</div>`;
+                    eventSource.close();
+                }
+
+                document.getElementById('chatContainer').scrollTop = document.getElementById('chatContainer').scrollHeight;
+            };
+
+            eventSource.onerror = function (err) {
+                console.error("EventSource failed:", err);
+                eventSource.close();
+            };
+        }
+
+        // --- File Upload ---
+        async function uploadFile() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('user_id', currentUserId);
+
+                try {
+                    const res = await fetch('/api/v1/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await res.json();
+                    alert(data.message);
+                    addMessage(`📂 Uploaded file: ${file.name}`, false);
+                } catch (e) {
+                    console.error(e);
+                    alert("Upload failed");
+                }
+            };
+            input.click();
+        }
+
+        // Add Upload Button locally to UI (simplified)
+        window.addEventListener('load', () => {
+            const chatInputContainer = document.querySelector('.chat-input-container');
+            const uploadBtn = document.createElement('button');
+            uploadBtn.innerText = '📎';
+            uploadBtn.className = 'send-btn'; // reuse style
+            uploadBtn.style.marginRight = '10px';
+            uploadBtn.onclick = uploadFile;
+            chatInputContainer.insertBefore(uploadBtn, document.getElementById('messageInput'));
+        });
+
+        // --- Graph ---
+        async function loadGraph() {
+            const res = await fetch(`/api/v1/graph/data?user_id=${currentUserId}`);
+            const data = await res.json();
+
+            if (cy) cy.destroy();
+
+            cy = cytoscape({
+                container: document.getElementById('cy'),
+                elements: {
+                    nodes: data.nodes.map(n => ({ data: { id: n.id, label: n.id } })),
+                    edges: data.links.map(e => ({ data: { source: e.source, target: e.target, label: e.relation } }))
+                },
+                style: [
+                    { selector: 'node', style: { 'background-color': '#6366f1', 'label': 'data(id)', 'color': '#fff', 'text-outline-width': 2, 'text-outline-color': '#6366f1' } },
+                    { selector: 'edge', style: { 'width': 2, 'line-color': '#94a3b8', 'target-arrow-shape': 'triangle', 'target-arrow-color': '#94a3b8', 'curve-style': 'bezier', 'label': 'data(label)', 'color': '#ccc', 'font-size': 10 } }
+                ],
+                layout: { name: 'cose', animate: true }
+            });
+        }
     </script>
 </body>
-</html>
 
+</html>

@@ -31,7 +31,6 @@ agent = MemAgent(
 
 import json
 import logging
-
 import time
 from datetime import datetime
 from typing import Any, Dict, Iterator, List, Optional, Union
@@ -45,6 +44,10 @@ from .response_metrics import ChatResponse, ResponseMetricsAnalyzer, calculate_c
 from .tool_system import ToolCallParser, ToolRegistry, format_tools_for_prompt
 
 # Advanced features (optional)
+ADVANCED_AVAILABLE = False
+GRAPH_AVAILABLE = False
+VOICE_AVAILABLE = False
+
 try:
     from .config_manager import get_config
     from .dynamic_prompt import dynamic_prompt_builder
@@ -54,9 +57,17 @@ try:
     from .memory_tools import ToolExecutor
 
     ADVANCED_AVAILABLE = True
-except ImportError:
-    ADVANCED_AVAILABLE = False
-    print("⚠️  Advanced features not available (install additional packages)")
+
+    # New features v2.3.0 - Managed separately to allow partial failures
+    try:
+        from .memory.graph import GraphExtractor, GraphStore
+
+        GRAPH_AVAILABLE = True
+    except ImportError as e:
+        print(f"⚠️  Graph features not available (missing dependency): {e}")
+
+except ImportError as e:
+    print(f"⚠️  Advanced features not available (install additional packages): {e}")
 
 
 class MemAgent:
@@ -68,7 +79,7 @@ class MemAgent:
 
     def __init__(
         self,
-        model: str = "granite4:3b",
+        model: str = "ministral-3:3b",
         backend: str = "ollama",
         config_file: Optional[str] = None,
         use_sql: bool = True,
@@ -87,6 +98,7 @@ class MemAgent:
         tools: Optional[List] = None,
         preset: Optional[str] = None,
         enable_hierarchical_memory: bool = False,
+        enable_graph_memory: bool = False,
         **llm_kwargs,
     ):
         """
@@ -102,7 +114,8 @@ class MemAgent:
             base_url: Backend API URL (for local backends) - NEW in v1.3.0
             auto_detect_backend: Auto-detect available LLM backend - NEW in v1.3.0
             check_connection: Verify LLM connection on startup (default: False)
-            enable_security: Enable prompt injection protection (v1.1.0+, default: False for backward compatibility)
+            enable_security: Enable prompt injection protection
+                (v1.1.0+, default: False for compatibility)
             enable_vector_search: Enable semantic/vector search for KB
                 (v1.3.2+, requires chromadb) - NEW
             embedding_model: Embedding model for vector search
@@ -262,6 +275,11 @@ class MemAgent:
         self.backend = backend  # Store backend name
         self.use_sql = use_sql  # Store SQL usage flag
 
+        # Default model for LM Studio (v2.3.0)
+        if self.backend == "lmstudio" and self.model == "ministral-3:3b":
+            self.model = "google/gemma-3-4b"
+            self.logger.info(f"🔄 Switched to default LM Studio model: {self.model}")
+
         # Initialize LLM client (v1.3.0: Multi-backend support)
         # Prepare backend configuration
         llm_config = llm_kwargs.copy()
@@ -290,10 +308,9 @@ class MemAgent:
         else:
             # Create client using factory
             try:
-                self.llm = LLMClientFactory.create(backend=backend, model=model, **llm_config)
-                self.logger.info(
-                    f"✅ Initialized {backend} backend with model: {model}"
-                )
+                # Use self.model which might have been updated (e.g. LM Studio default)
+                self.llm = LLMClientFactory.create(backend=backend, model=self.model, **llm_config)
+                self.logger.info(f"✅ Initialized {backend} backend with model: {self.model}")
             except Exception as e:
                 self.logger.error(f"❌ Failed to initialize {backend} backend: {e}")
                 raise
@@ -330,9 +347,9 @@ class MemAgent:
             # Check if model exists (for backends that support listing)
             try:
                 available_models = self.llm.list_models()
-                if available_models and model not in available_models:
+                if available_models and self.model not in available_models:
                     error_msg = (
-                        f"❌ ERROR: Model '{model}' not found in {backend}!\n"
+                        f"❌ ERROR: Model '{self.model}' not found in {backend}!\n"
                         f"   \n"
                         f"   Available models: {', '.join(available_models[:5])}\n"
                         f"   Total: {len(available_models)} models available\n"
@@ -340,14 +357,14 @@ class MemAgent:
                         f"   To skip this check, use: MemAgent(check_connection=False)"
                     )
                     self.logger.error(error_msg)
-                    raise ValueError(f"Model '{model}' not available")
+                    raise ValueError(f"Model '{self.model}' not available")
             except Exception:
                 # Some backends may not support list_models, skip check
                 pass
 
-            self.logger.info(f"✅ {backend_name} connection verified, model '{model}' ready")
+            self.logger.info(f"✅ {backend_name} connection verified, model '{self.model}' ready")
 
-        self.logger.info(f"LLM client ready: {model} on {backend}")
+        self.logger.info(f"LLM client ready: {self.model} on {backend}")
 
         # Advanced features (if available)
         if ADVANCED_AVAILABLE:
@@ -370,6 +387,28 @@ class MemAgent:
         # Metrics tracking system (v1.3.1+)
         self.metrics_analyzer = ResponseMetricsAnalyzer()
         self.track_metrics = True  # Can be disabled if needed
+
+        # Graph Memory (v2.3.0)
+        self.graph_store = None
+        self.graph_extractor = None
+        if enable_graph_memory and ADVANCED_AVAILABLE and GRAPH_AVAILABLE:
+            # Determine graph path based on memory configuration
+            graph_path = "memories/graph.json"
+            if use_sql and db_path and db_path != ":memory:":
+                # Use same dir as DB
+                import os
+
+                db_dir = os.path.dirname(db_path)
+                if db_dir:
+                    graph_path = os.path.join(db_dir, "graph.json")
+            elif memory_dir:
+                import os
+
+                graph_path = os.path.join(memory_dir, "graph.json")
+
+            self.graph_store = GraphStore(persistence_path=graph_path)
+            self.graph_extractor = GraphExtractor(self)
+            self.logger.info(f"🕸️ Graph Memory enabled (path: {graph_path})")
 
         self.logger.info("MemAgent successfully initialized")
 
@@ -743,7 +782,7 @@ class MemAgent:
         response_source = "model"  # Default source
 
         # Security check (v1.1.0+) - opt-in
-        security_info = {}
+        # Security check (v1.1.0+) - opt-in
         if self.enable_security and self.security_detector and self.security_sanitizer:
             # Detect injection attempts
             risk_level = self.security_detector.get_risk_level(message)
@@ -1054,10 +1093,8 @@ class MemAgent:
             is_suspicious, patterns = self.security_detector.detect(message)
 
             if risk_level in ["high", "critical"]:
-                self.logger.warning(
-                    f"🚨 Blocked {risk_level} risk input from {user_id}"
-                )
-                yield f"⚠️ Your message was blocked due to security concerns. Please rephrase your request."
+                self.logger.warning(f"🚨 Blocked {risk_level} risk input from {user_id}")
+                yield "⚠️ Your message was blocked due to security concerns. Please rephrase your request."
                 return
 
             # Sanitize input
@@ -1506,7 +1543,7 @@ class MemAgent:
                     try:
                         prefs = json.loads(prefs_str) if isinstance(prefs_str, str) else prefs_str
                         result.update(prefs)  # Add favorite_food, location, etc.
-                    except:
+                    except Exception:
                         pass
 
                 return result
@@ -1521,7 +1558,7 @@ class MemAgent:
                 if isinstance(profile.get("preferences"), str):
                     try:
                         profile["preferences"] = json.loads(profile["preferences"])
-                    except:
+                    except Exception:
                         profile["preferences"] = {}
 
                 # Return profile as-is (summary should already be there if it was generated)
@@ -1537,10 +1574,7 @@ class MemAgent:
                     if uid not in self.memory.conversations:
                         self.memory.load_memory(uid)
 
-                    if (
-                        uid in self.memory.conversations
-                        and len(self.memory.conversations[uid]) > 0
-                    ):
+                    if uid in self.memory.conversations and len(self.memory.conversations[uid]) > 0:
                         self._update_conversation_summary(uid)
                         # Save the updated summary
                         if uid in self.memory.user_profiles:

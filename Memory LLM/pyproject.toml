@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mem-llm"
-version = "2.2.9"
-description = "Privacy-first, memory-enabled AI assistant with multi-agent systems, multi-backend LLM support (Ollama, LM Studio), vector search, and analytics - 100% local and production-ready"
+version = "2.3.0"
+description = "Privacy-first, memory-enabled AI assistant with workflow engine, knowledge graph, multi-agent systems, multi-backend LLM support (Ollama, LM Studio), vector search, and analytics - 100% local and production-ready"
 readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">=3.10"
 license = {text = "MIT"}
@@ -29,6 +29,7 @@ dependencies = [
     "pyyaml>=6.0.1",
     "click>=8.1.0",
     "aiohttp>=3.9.0",  # Async tools support (v2.1.0+)
+    "networkx>=3.0",  # Knowledge Graph support (v2.3.0+)
 ]
 
 [project.optional-dependencies]
@@ -81,7 +82,17 @@ mem-llm = "mem_llm.cli:main"
 mem-llm-web = "mem_llm.web_launcher:main"
 
 [tool.setuptools]
-packages = ["mem_llm", "mem_llm.clients", "mem_llm.web_ui"]
+packages = [
+    "mem_llm",
+    "mem_llm.clients",
+    "mem_llm.web_ui",
+    "mem_llm.workflow",
+    "mem_llm.memory",
+    "mem_llm.memory.hierarchy",
+    "mem_llm.memory.graph",
+    "mem_llm.multi_agent",
+    "mem_llm.analytics"
+]
 
 [tool.setuptools.package-data]
 mem_llm = [

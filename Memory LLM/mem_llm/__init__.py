@@ -86,7 +86,7 @@ try:
 except ImportError:
     __all_metrics__ = []
 
-__version__ = "2.2.9"
+__version__ = "2.3.0"
 __author__ = "Cihat Emre Karataş"
 
 # Multi-backend LLM support (v1.3.0+)
@@ -159,6 +159,23 @@ try:
 except ImportError:
     __all_hierarchy__ = []
 
+# Workflow Engine (v2.3.0+)
+try:
+    from .workflow import Step, Workflow  # noqa: F401
+
+    __all_workflow__ = ["Workflow", "Step"]
+except ImportError:
+    __all_workflow__ = []
+
+# Graph Memory (v2.3.0+)
+try:
+    from .memory.graph import GraphExtractor, GraphStore  # noqa: F401
+
+    __all_graph__ = ["GraphStore", "GraphExtractor"]
+except ImportError:
+    __all_graph__ = []
+
+
 __all__ = (
     [
         "MemAgent",
@@ -177,4 +194,6 @@ __all__ = (
     + __all_analytics__
     + __all_multi_agent__
     + __all_hierarchy__
+    + __all_workflow__
+    + __all_graph__
 )

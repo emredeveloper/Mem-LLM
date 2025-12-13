@@ -37,7 +37,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -45,6 +45,9 @@ from pydantic import BaseModel, Field
 
 # Import Mem-LLM components
 from .mem_agent import MemAgent
+
+# Note: In a real app, we'd probably have a WorkflowManager attached to the agent or global
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -55,11 +58,12 @@ agents: Dict[str, MemAgent] = {}
 
 # Default agent configuration
 DEFAULT_CONFIG = {
-    "model": "granite4:3b",
+    "model": "ministral-3:3b",
     "backend": "ollama",
     "base_url": "http://localhost:11434",
     "use_sql": True,
     "load_knowledge_base": True,
+    "enable_graph_memory": True,
 }
 
 
@@ -544,6 +548,175 @@ async def get_agent_info(user_id: str):
         return agent.get_info()
     except Exception as e:
         logger.error(f"Agent info error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        logger.error(f"Agent info error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ============================================================================
+# Graph Endpoints (v2.3.0)
+# ============================================================================
+
+
+@app.get("/api/v1/graph/data", tags=["Graph"])
+async def get_graph_data(user_id: str):
+    """Get knowledge graph data for visualization"""
+    try:
+        agent = get_or_create_agent(user_id)
+        if hasattr(agent, "graph_store") and agent.graph_store:
+            # Convert networkx graph to Cytoscape format or simpler JSON
+            # Using node-link data which is compatible with D3/Cytoscape usually
+            import networkx as nx
+
+            data = nx.node_link_data(agent.graph_store.graph)
+            return data
+        return {"nodes": [], "links": []}
+    except Exception as e:
+        logger.error(f"Graph data error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ============================================================================
+# Workflow Endpoints (v2.3.0)
+# ============================================================================
+# Check for a global workflow registry or simple directory scan
+
+
+@app.get("/api/v1/workflows", tags=["Workflow"])
+async def list_workflows():
+    """List available workflows"""
+    # Mocking for now, or scanning a directory
+    return {
+        "workflows": [
+            {
+                "id": "research",
+                "name": "Deep Research",
+                "description": "Research a topic and summarize findings",
+            },
+            {
+                "id": "content_creation",
+                "name": "Content Creation",
+                "description": "Generate blog post from topic",
+            },
+        ]
+    }
+
+
+@app.post("/api/v1/workflow/run/{workflow_id}", tags=["Workflow"])
+async def run_workflow(workflow_id: str, user_id: str, input_data: Dict[str, Any]):
+    """Run a workflow (Blocking)"""
+    # ... existing code ...
+    try:
+        agent = get_or_create_agent(user_id)
+
+        # Define available workflows dynamically or via registry (simplified for demo)
+        workflow = _get_workflow(workflow_id, agent)  # Refactored helper
+
+        # Run workflow
+        context = await workflow.run(initial_data=input_data)
+
+        # Return all context data as result
+        return {"status": "completed", "workflow_id": workflow_id, "results": context.data}
+
+    except Exception as e:
+        logger.error(f"Workflow execution error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/v1/workflow/stream/{workflow_id}", tags=["Workflow"])
+async def run_workflow_stream(workflow_id: str, user_id: str, topic: str = "General"):
+    """Run a workflow and stream events (SSE)"""
+    try:
+        agent = get_or_create_agent(user_id)
+        import json
+
+        # Helper to get workflow (duplicate logic for now, should refactor)
+        workflow = _get_workflow(workflow_id, agent)
+
+        async def event_generator():
+            try:
+                async for event in workflow.run_generator(initial_data={"topic": topic}):
+                    yield f"data: {json.dumps(event)}\n\n"
+            except Exception as e:
+                yield f"data: {json.dumps({'type': 'error', 'error': str(e)})}\n\n"
+
+        return StreamingResponse(event_generator(), media_type="text/event-stream")
+
+    except Exception as e:
+        logger.error(f"Workflow stream error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+def _get_workflow(workflow_id, agent):
+    from mem_llm.workflow import Step, Workflow
+
+    if workflow_id == "research":
+        workflow = Workflow("Deep Research")
+        workflow.add_step(
+            Step(
+                "Research",
+                agent=agent,
+                action="Research the topic provided.",
+                input_key="topic",
+                output_key="facts",
+                description="Researching topic deeply...",
+            )
+        )
+        workflow.add_step(
+            Step(
+                "Summarize",
+                agent=agent,
+                action="Summarize the facts.",
+                input_key="facts",
+                output_key="summary",
+                description="Summarizing findings...",
+            )
+        )
+        return workflow
+    elif workflow_id == "content_creation":
+        workflow = Workflow("Content Creation")
+        workflow.add_step(
+            Step(
+                "Draft",
+                agent=agent,
+                action="Draft a blog post about the topic.",
+                input_key="topic",
+                output_key="draft",
+                description="Drafting blog post...",
+            )
+        )
+        return workflow
+    else:
+        raise ValueError("Workflow not found")
+
+
+@app.post("/api/v1/upload", tags=["Knowledge"])
+async def upload_file(
+    file: UploadFile = File(...),  # noqa: B008
+    user_id: str = Form(...),  # noqa: B008
+):
+    """Upload a file to the knowledge base"""
+    try:
+        # Create uploads directory if not exists
+        upload_dir = Path("uploads")
+        upload_dir.mkdir(exist_ok=True)
+
+        # Save file
+        file_path = upload_dir / file.filename
+        with open(file_path, "wb") as buffer:
+            import shutil
+
+            shutil.copyfileobj(file.file, buffer)
+
+        return {
+            "status": "success",
+            "filename": file.filename,
+            "message": "File uploaded successfully",
+        }
+
+    except Exception as e:
+        logger.error(f"Upload error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 

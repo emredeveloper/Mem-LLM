@@ -15,7 +15,24 @@ Mem-LLM is a powerful Python library that brings persistent memory and function 
 - **Issues**: https://github.com/emredeveloper/Mem-LLM/issues
 - **Documentation**: See examples/ directory
 
-## 🆕 What's New in v2.2.9
+## 🆕 What's New in v2.3.0 - "Neural Nexus"
+
+### ⚙️ Agent Workflow Engine *(NEW)*
+- ✅ **Structured Agents** - Define multi-step workflows like "Deep Research" or "Content Creation".
+- ✅ **Streaming UI** - Real-time visualization of workflow steps as they execute.
+- ✅ **Context Sharing** - Data flows automatically between steps in a workflow.
+
+### 🕸️ Knowledge Graph Memory *(NEW)*
+- ✅ **Graph Extraction** - Automatically extracts entities and relationships from conversations.
+- ✅ **Interactive Visualization** - View your agent's knowledge graph in the new Web UI tab.
+- ✅ **NetworkX Integration** - Powerful graph operations and persistence.
+
+### 🎨 Premium Web UI *(Redesigned)*
+- ✅ **Modern Aesthetics** - Dark mode, glassmorphism, and responsive design.
+- ✅ **New Features** - File uploads (📎) and Workflow Management tab.
+- ✅ **LM Studio Integration** - Auto-configuration for local models like `gemma-3-4b`.
+
+## What's New in v2.2.9
 
 ### 🐳 Docker Support *(NEW)*
 - **Containerized Deployment** - Run Mem-LLM API server in Docker containers
