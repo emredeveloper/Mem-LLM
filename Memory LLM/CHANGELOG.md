@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.3.3] - 2025-12-19
+### Fixed
+- **Tests**: Resolved major test failures in `test_extractor`, `test_health_check`, and `LLMClientFactory`.
+- **Linting**: Fixed `B041` (duplicate keys in prompt security) and `PytestReturnNotNoneWarning`.
+- **Stability**: Standardized mock objects and assertions in unit/integration tests.
+
+### Changed
+- **Workflow**: Completely removed `flake8` from pre-commit and dev dependencies to simplify linting process.
+- **CI/CD**: Standardized on `black` and `isort` for code formatting.
+
 ## [2.3.1] - 2025-12-13
 ### Fixed
 - **Package Structure**: Added missing subpackages (workflow, memory.graph, analytics) to setuptools
