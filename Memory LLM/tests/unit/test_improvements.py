@@ -7,7 +7,8 @@ Tests logging, retry logic, and WAL mode improvements
 import os
 import sys
 import time
-from pathlib import Path
+
+import pytest
 
 # Add parent directory to path
 from mem_llm.logger import get_logger
@@ -39,7 +40,6 @@ def test_logging_system():
 
     print("✅ Logging system test passed!")
     print("   Log file created at: logs/test.log")
-    return True
 
 
 def test_retry_logic():
@@ -64,8 +64,7 @@ def test_retry_logic():
         result = unstable_function()
         print(f"✅ Retry logic works! Result: {result} (after {attempt_count[0]} attempts)")
     except Exception as e:
-        print(f"❌ Retry test failed: {e}")
-        return False
+        pytest.fail(f"Retry test failed: {e}")
 
     # Test 2: SafeExecutor
     executor = SafeExecutor(logger=logger.logger)
@@ -88,7 +87,6 @@ def test_retry_logic():
     print(f"✅ Fallback execution: {result}")
 
     print("✅ Retry logic test passed!")
-    return True
 
 
 def test_wal_mode():
@@ -114,8 +112,7 @@ def test_wal_mode():
     if journal_mode.upper() == "WAL":
         print("✅ WAL mode is enabled!")
     else:
-        print("⚠️  WAL mode is NOT enabled")
-        return False
+        pytest.fail("⚠️  WAL mode is NOT enabled")
 
     # Check other pragmas
     cursor.execute("PRAGMA synchronous")
@@ -155,7 +152,6 @@ def test_wal_mode():
     _ = f"{db_path}-shm"
 
     print("✅ WAL mode test passed!")
-    return True
 
 
 def test_integration_with_mem_agent():
@@ -191,14 +187,10 @@ def test_integration_with_mem_agent():
             os.remove("test_integration.db")
 
         print("✅ Integration test passed!")
-        return True
+        print("✅ Integration test passed!")
 
     except Exception as e:
-        print(f"❌ Integration test failed: {e}")
-        import traceback
-
-        traceback.print_exc()
-        return False
+        pytest.fail(f"Integration test failed: {e}")
 
 
 def main():

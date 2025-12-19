@@ -6,7 +6,8 @@ Tests the conversation summarization feature.
 """
 
 import time
-from pathlib import Path
+
+import pytest
 
 # Import Mem-LLM components
 from mem_llm import MemAgent
@@ -101,11 +102,9 @@ def test_basic_summarization():
         print(f"   - Tokens saved: ~{stats['tokens_saved']}")
 
         print("\n✅ TEST 1 PASSED\n")
-        return True
 
     except Exception as e:
-        print(f"\n❌ TEST 1 FAILED: {e}\n")
-        return False
+        pytest.fail(f"\n❌ TEST 1 FAILED: {e}\n")
 
 
 def test_auto_summarizer():

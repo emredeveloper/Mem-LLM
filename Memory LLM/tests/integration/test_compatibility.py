@@ -7,6 +7,8 @@ Ensures existing v1.0.x code continues to work
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 
@@ -25,8 +27,7 @@ def test_v1_0_code_compatibility():
 
         print("   ✅ Core imports work")
     except Exception as e:
-        print(f"   ❌ Import failed: {e}")
-        return False
+        pytest.fail(f"Import failed: {e}")
 
     # Test 2: Basic agent creation (v1.0.x style - no enable_security parameter)
     print("\n2. Testing v1.0.x agent creation (no security parameter)...")
@@ -34,8 +35,7 @@ def test_v1_0_code_compatibility():
         agent = MemAgent(model="rnj-1:latest", use_sql=False)
         print("   ✅ Agent created without enable_security parameter")
     except Exception as e:
-        print(f"   ❌ Agent creation failed: {e}")
-        return False
+        pytest.fail(f"Agent creation failed: {e}")
 
     # Test 3: Basic operations (v1.0.x style)
     print("\n3. Testing v1.0.x operations...")
@@ -44,8 +44,7 @@ def test_v1_0_code_compatibility():
         # Note: We won't actually call chat as it requires Ollama
         print("   ✅ set_user() works")
     except Exception as e:
-        print(f"   ❌ Operation failed: {e}")
-        return False
+        pytest.fail(f"Operation failed: {e}")
 
     # Test 4: Verify security is disabled by default
     print("\n4. Testing security is disabled by default...")
@@ -57,7 +56,6 @@ def test_v1_0_code_compatibility():
     print("\n" + "=" * 70)
     print("✅ ALL v1.0.x CODE WORKS WITHOUT MODIFICATION")
     print("=" * 70)
-    return True
 
 
 def test_v1_1_new_features():

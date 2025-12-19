@@ -37,7 +37,6 @@ dev = [
     "pytest>=7.4.0",
     "pytest-cov>=4.1.0",
     "black>=23.7.0",
-    "flake8>=6.1.0",
 ]
 web = [
     "flask>=3.0.0",
@@ -62,7 +61,6 @@ all = [
     "pytest>=7.4.0",
     "pytest-cov>=4.1.0",
     "black>=23.7.0",
-    "flake8>=6.1.0",
     "flask>=3.0.0",
     "flask-cors>=4.0.0",
     "fastapi>=0.104.0",
@@ -218,30 +216,6 @@ known_third_party = [
     "pytest",
 ]
 
-[tool.flake8]
-max-line-length = 100
-extend-ignore = [
-    "E203",  # Whitespace before ':' (conflicts with Black)
-    "E266",  # Too many leading '#' for block comment
-    "E501",  # Line too long (handled by Black)
-    "W503",  # Line break before binary operator
-]
-exclude = [
-    ".git",
-    "__pycache__",
-    "build",
-    "dist",
-    ".eggs",
-    "*.egg-info",
-    ".tox",
-    ".venv",
-    "venv",
-    "env",
-]
-per-file-ignores = [
-    "__init__.py:F401",  # Allow unused imports in __init__.py
-]
-max-complexity = 10
 
 [tool.mypy]
 python_version = "3.10"

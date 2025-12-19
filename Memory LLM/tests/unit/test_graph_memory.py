@@ -1,6 +1,5 @@
 from unittest.mock import MagicMock
 
-import networkx as nx
 import pytest
 
 from mem_llm.memory.graph.extractor import GraphExtractor
@@ -66,10 +65,12 @@ def test_persistence(tmp_path):
 
 def test_extractor():
     mock_agent = MagicMock()
-    mock_agent.chat.return_value = '[["Alice", "knows", "Bob"]]'
+    # Setup mock agent response
+    mock_agent.llm = MagicMock()
+    mock_agent.llm.chat.return_value = '[["Alice", "knows", "Bob"]]'
 
     extractor = GraphExtractor(mock_agent)
     triplets = extractor.extract("Alice knows Bob")
 
     assert len(triplets) == 1
-    assert triplets[0] == ("Alice", "knows", "Bob")
+    assert triplets[0] == ["Alice", "knows", "Bob"]

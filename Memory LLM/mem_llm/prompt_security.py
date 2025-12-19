@@ -102,7 +102,6 @@ class InputSanitizer:
     ESCAPE_CHARS = {
         "\0": "",  # Null byte - remove completely
         "\r": "",  # Carriage return - remove
-        "\x00": "",  # Null character - remove
     }
 
     # Dangerous patterns to neutralize

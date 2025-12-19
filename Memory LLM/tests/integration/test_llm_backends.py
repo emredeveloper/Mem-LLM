@@ -14,7 +14,13 @@ from pathlib import Path
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from mem_llm import BaseLLMClient, LLMClientFactory, LMStudioClient, MemAgent, OllamaClientNew
+from mem_llm import (  # noqa: E402
+    BaseLLMClient,
+    LLMClientFactory,
+    LMStudioClient,
+    MemAgent,
+    OllamaClientNew,
+)
 
 
 class TestBaseLLMClient(unittest.TestCase):
@@ -118,7 +124,7 @@ class TestLLMClientFactory(unittest.TestCase):
         print("\n🧪 TEST 6: Invalid backend handling")
 
         with self.assertRaises(ValueError) as context:
-            _ = LLMClientFactory.create_client(backend="invalid", model="test")
+            _ = LLMClientFactory.create(backend="invalid", model="test")
 
         self.assertIn("Unsupported backend", str(context.exception))
         print("   ✅ Invalid backend error handled correctly")
@@ -215,7 +221,7 @@ class TestOllamaClient(unittest.TestCase):
         try:
             self.client = OllamaClientNew(model="rnj-1:latest")
             self.available = self.client.check_connection()
-        except:
+        except Exception:
             self.client = None
             self.available = False
 
@@ -254,7 +260,7 @@ class TestLMStudioClient(unittest.TestCase):
         try:
             self.client = LMStudioClient(model="local-model")
             self.available = self.client.check_connection()
-        except:
+        except Exception:
             self.client = None
             self.available = False
 
