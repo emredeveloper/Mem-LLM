@@ -3,7 +3,6 @@ LLM Client - Local model integration with Ollama
 Works with Granite4:tiny-h model
 """
 
-import json
 import time
 from typing import Dict, List, Optional
 
@@ -34,7 +33,7 @@ class OllamaClient:
         try:
             response = requests.get(f"{self.base_url}/api/tags", timeout=5)
             return response.status_code == 200
-        except:
+        except Exception:
             return False
 
     def list_models(self) -> List[str]:
@@ -50,7 +49,7 @@ class OllamaClient:
                 data = response.json()
                 return [model["name"] for model in data.get("models", [])]
             return []
-        except:
+        except Exception:
             return []
 
     def generate(

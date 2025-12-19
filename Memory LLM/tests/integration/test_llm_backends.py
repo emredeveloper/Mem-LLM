@@ -7,7 +7,6 @@ Tests for Ollama and LM Studio backends (100% local).
 Author: C. Emre Karataş
 """
 
-import os
 import sys
 import unittest
 from pathlib import Path
@@ -26,7 +25,7 @@ class TestBaseLLMClient(unittest.TestCase):
         print("\n🧪 TEST 1: Base client is abstract")
 
         with self.assertRaises(TypeError):
-            client = BaseLLMClient(model="test")
+            _ = BaseLLMClient(model="test")
 
         print("   ✅ BaseLLMClient is abstract as expected")
 
@@ -87,10 +86,10 @@ class TestLLMClientFactory(unittest.TestCase):
         print("\n🧪 TEST 4: Create Ollama client")
 
         try:
-            client = LLMClientFactory.create("ollama", model="granite4:3b")
+            client = LLMClientFactory.create("ollama", model="rnj-1:latest")
 
             self.assertIsInstance(client, OllamaClientNew)
-            self.assertEqual(client.model, "granite4:3b")
+            self.assertEqual(client.model, "rnj-1:latest")
 
             print("   ✅ Ollama client created successfully")
             print(f"      Model: {client.model}")
@@ -119,7 +118,7 @@ class TestLLMClientFactory(unittest.TestCase):
         print("\n🧪 TEST 6: Invalid backend handling")
 
         with self.assertRaises(ValueError) as context:
-            client = LLMClientFactory.create("invalid_backend")
+            _ = LLMClientFactory.create_client(backend="invalid", model="test")
 
         self.assertIn("Unsupported backend", str(context.exception))
         print("   ✅ Invalid backend error handled correctly")
@@ -144,15 +143,15 @@ class TestLLMClientFactory(unittest.TestCase):
 
         # Check Ollama
         ollama_available = LLMClientFactory.check_backend_availability("ollama")
-        print(
-            f"   {'✅' if ollama_available else '❌'} Ollama: {'Available' if ollama_available else 'Not available'}"
-        )
+        status = "Available" if ollama_available else "Not available"
+        icon = "✅" if ollama_available else "❌"
+        print(f"   {icon} Ollama: {status}")
 
         # Check LM Studio
         lmstudio_available = LLMClientFactory.check_backend_availability("lmstudio")
-        print(
-            f"   {'✅' if lmstudio_available else '❌'} LM Studio: {'Available' if lmstudio_available else 'Not available'}"
-        )
+        status = "Available" if lmstudio_available else "Not available"
+        icon = "✅" if lmstudio_available else "❌"
+        print(f"   {icon} LM Studio: {status}")
 
         print("   ℹ️  Availability check completed")
 
@@ -166,7 +165,7 @@ class TestMemAgentMultiBackend(unittest.TestCase):
 
         try:
             agent = MemAgent(
-                model="granite4:3b", backend="ollama", use_sql=False, check_connection=False
+                model="rnj-1:latest", backend="ollama", use_sql=False, check_connection=False
             )
 
             self.assertIsNotNone(agent.llm)
@@ -196,7 +195,7 @@ class TestMemAgentMultiBackend(unittest.TestCase):
         try:
             # Old API (without backend parameter)
             agent = MemAgent(
-                model="granite4:3b",
+                model="rnj-1:latest",
                 ollama_url="http://localhost:11434",
                 use_sql=False,
                 check_connection=False,
@@ -214,7 +213,7 @@ class TestOllamaClient(unittest.TestCase):
     def setUp(self):
         """Set up test client"""
         try:
-            self.client = OllamaClientNew(model="granite4:3b")
+            self.client = OllamaClientNew(model="rnj-1:latest")
             self.available = self.client.check_connection()
         except:
             self.client = None

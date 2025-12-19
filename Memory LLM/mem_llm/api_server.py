@@ -26,7 +26,7 @@ API Documentation:
     - ReDoc: http://localhost:8000/redoc
 
 Author: C. Emre Karataş
-Version: 2.2.9
+Version: 2.3.2
 """
 
 import asyncio
@@ -58,7 +58,7 @@ agents: Dict[str, MemAgent] = {}
 
 # Default agent configuration
 DEFAULT_CONFIG = {
-    "model": "ministral-3:3b",
+    "model": "rnj-1:latest",
     "backend": "ollama",
     "base_url": "http://localhost:11434",
     "use_sql": True,
@@ -108,7 +108,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Mem-LLM API",
     description="REST API for Mem-LLM - Privacy-first, Memory-enabled AI Assistant (100% Local)",
-    version="2.2.9",
+    version="2.3.2",
     docs_url="/docs",
     redoc_url="/redoc",
     lifespan=lifespan,
@@ -202,7 +202,7 @@ async def api_info():
     """API information endpoint"""
     return {
         "name": "Mem-LLM API",
-        "version": "2.1.0",
+        "version": "2.3.2",
         "status": "running",
         "documentation": "/docs",
         "endpoints": {
@@ -215,7 +215,7 @@ async def api_info():
     }
 
 
-@app.get("/health", tags=["General"])
+@app.get("/api/v1/health", tags=["General"])
 async def health_check():
     """Health check endpoint"""
     return {
@@ -549,9 +549,6 @@ async def get_agent_info(user_id: str):
     except Exception as e:
         logger.error(f"Agent info error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-    except Exception as e:
-        logger.error(f"Agent info error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ============================================================================
@@ -577,9 +574,21 @@ async def get_graph_data(user_id: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# ============================================================================
-# Workflow Endpoints (v2.3.0)
-# ============================================================================
+@app.post("/api/v1/graph/clear", tags=["Graph"])
+async def clear_graph(user_id: str):
+    """Clear knowledge graph for a user"""
+    try:
+        agent = get_or_create_agent(user_id)
+        if hasattr(agent, "clear_graph_memory"):
+            success = agent.clear_graph_memory(user_id)
+            if success:
+                return {"status": "success", "message": "Graph memory cleared"}
+        return {"status": "error", "message": "Graph memory not available"}
+    except Exception as e:
+        logger.error(f"Graph clear error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # Check for a global workflow registry or simple directory scan
 
 
@@ -747,7 +756,7 @@ if web_ui_path.exists():
         index_path = web_ui_path / "index.html"
         if index_path.exists():
             return FileResponse(str(index_path), media_type="text/html")
-        return {"message": "Mem-LLM API Server", "version": "2.1.0"}
+        return {"message": "Mem-LLM API Server", "version": "2.3.2"}
 
     @app.get("/memory")
     async def memory_page():

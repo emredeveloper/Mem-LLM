@@ -11,7 +11,7 @@ Version: 1.3.0
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Iterator, List, Optional, Union
+from typing import Any, Dict, Iterator, List, Optional
 
 
 class BaseLLMClient(ABC):

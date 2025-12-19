@@ -8,17 +8,11 @@ import json
 import os
 import shutil
 import sqlite3
-
-# Add parent directory to path
-import sys
 import tempfile
 import unittest
-from datetime import datetime
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from mem_llm import MemAgent
+# Add parent directory to path
 from mem_llm.data_export_import import DataExporter, DataImporter
 from mem_llm.memory_db import SQLMemoryManager
 from mem_llm.memory_manager import MemoryManager
@@ -100,7 +94,7 @@ class TestDataExportImport(unittest.TestCase):
         self.assertEqual(len(conversations), 3)
 
         print(f"   ✅ Imported {result['conversations']} conversations")
-        print(f"   ✅ Data integrity: OK")
+        print("   ✅ Data integrity: OK")
 
     def test_export_to_csv(self):
         """Test CSV export"""
@@ -235,7 +229,7 @@ class TestDataExportImport(unittest.TestCase):
             self.assertEqual(orig["bot_response"], imp["bot_response"])
 
         print(f"   ✅ Roundtrip successful: {len(original)} conversations")
-        print(f"   ✅ Data integrity: 100%")
+        print("   ✅ Data integrity: 100%")
 
     def test_sql_memory_export(self):
         """Test export with SQLMemoryManager"""

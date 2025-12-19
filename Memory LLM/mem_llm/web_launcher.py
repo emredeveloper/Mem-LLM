@@ -21,7 +21,7 @@ def check_backend_available():
         response = requests.get("http://localhost:11434/api/tags", timeout=2)
         if response.status_code == 200:
             backends.append("Ollama (http://localhost:11434)")
-    except:
+    except Exception:
         pass
 
     # Check LM Studio
@@ -29,7 +29,7 @@ def check_backend_available():
         response = requests.get("http://localhost:1234/v1/models", timeout=2)
         if response.status_code == 200:
             backends.append("LM Studio (http://localhost:1234)")
-    except:
+    except Exception:
         pass
 
     return backends
@@ -43,7 +43,7 @@ def check_api_ready(url="http://localhost:8000/api/v1/health", timeout=30):
             response = requests.get(url, timeout=1)
             if response.status_code == 200:
                 return True
-        except:
+        except Exception:
             pass
         time.sleep(0.5)
     return False

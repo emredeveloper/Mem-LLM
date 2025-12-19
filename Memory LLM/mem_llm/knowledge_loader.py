@@ -5,14 +5,6 @@ Loads pre-prepared problem/solution database into the system
 
 import json
 
-try:
-    import yaml
-except ImportError:
-    import pyyaml as yaml
-
-from pathlib import Path
-from typing import Dict, List, Optional
-
 from .memory_db import SQLMemoryManager
 
 
@@ -50,14 +42,14 @@ class KnowledgeLoader:
             {
                 "category": "shipping",
                 "question": "When will my order arrive?",
-                "answer": "Orders are shipped within 2-3 business days and delivered within 3-5 business days.",
+                "answer": "Orders are shipped within 2-3 business days and delivered within 3-5 days.",
                 "keywords": ["shipping", "delivery", "time"],
                 "priority": 10,
             },
             {
                 "category": "return",
                 "question": "How do I return a product?",
-                "answer": "You can return products within 14 days. Create a return request from My Orders page.",
+                "answer": "You can return products within 14 days. Create a request from My Orders page.",
                 "keywords": ["return", "refund"],
                 "priority": 10,
             },

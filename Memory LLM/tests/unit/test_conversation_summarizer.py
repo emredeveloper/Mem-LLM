@@ -5,14 +5,10 @@ Test Conversation Summarizer
 Tests the conversation summarization feature.
 """
 
-import os
-import sys
+import time
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-import time
-
+# Import Mem-LLM components
 from mem_llm import MemAgent
 from mem_llm.conversation_summarizer import AutoSummarizer, ConversationSummarizer
 from mem_llm.llm_client import OllamaClient
@@ -26,14 +22,16 @@ def test_basic_summarization():
 
     try:
         # Create LLM client
-        llm = OllamaClient(model="granite4:3b")
+        llm = OllamaClient(model="rnj-1:latest")
         summarizer = ConversationSummarizer(llm)
 
         # Sample conversations
         conversations = [
             {
                 "user_message": "Hi! My name is Alice and I'm a Python developer.",
-                "bot_response": "Hello Alice! Nice to meet you. How can I help you with Python today?",
+                "bot_response": (
+                    "Hello Alice! Nice to meet you. " "How can I help you with Python today?"
+                ),
             },
             {
                 "user_message": "I'm working on a machine learning project with scikit-learn.",
@@ -41,11 +39,17 @@ def test_basic_summarization():
             },
             {
                 "user_message": "It's a classification problem. I need to predict customer churn.",
-                "bot_response": "Customer churn prediction is a common use case. Have you considered using Random Forest or Gradient Boosting?",
+                "bot_response": (
+                    "Customer churn prediction is a common use case. "
+                    "Have you considered using Random Forest or Gradient Boosting?"
+                ),
             },
             {
                 "user_message": "Yes, I'm trying Random Forest but the accuracy is only 75%.",
-                "bot_response": "You might want to try feature engineering or hyperparameter tuning to improve accuracy.",
+                "bot_response": (
+                    "You might want to try feature engineering or hyperparameter "
+                    "tuning to improve accuracy."
+                ),
             },
             {
                 "user_message": "Good idea! Also, I live in San Francisco and work remotely.",
@@ -64,17 +68,17 @@ def test_basic_summarization():
 
         # Display results
         print(f"\n✅ Summary generated in {duration:.2f}s")
-        print(f"\n📝 SUMMARY:")
+        print("\n📝 SUMMARY:")
         print("-" * 70)
         print(summary["summary"])
         print("-" * 70)
 
         if summary.get("key_facts"):
-            print(f"\n🔑 KEY FACTS:")
+            print("\n🔑 KEY FACTS:")
             for i, fact in enumerate(summary["key_facts"], 1):
                 print(f"   {i}. {fact}")
 
-        print(f"\n📊 METADATA:")
+        print("\n📊 METADATA:")
         print(f"   - Conversations summarized: {summary['conversation_count']}")
         print(f"   - User ID: {summary['user_id']}")
         print(f"   - Generated at: {summary['generated_at']}")
@@ -85,9 +89,10 @@ def test_basic_summarization():
         )
         stats = summarizer.get_summary_stats(original_text, summary["summary"])
 
-        print(f"\n💾 COMPRESSION STATS:")
+        print("\n💾 COMPRESSION STATS:")
         print(
-            f"   - Original: {stats['original_length']} chars (~{stats['original_tokens_est']} tokens)"
+            f"   - Original: {stats['original_length']} chars "
+            f"(~{stats['original_tokens_est']} tokens)"
         )
         print(
             f"   - Summary: {stats['summary_length']} chars (~{stats['summary_tokens_est']} tokens)"
@@ -111,17 +116,17 @@ def test_auto_summarizer():
 
     try:
         # Create agent
-        agent = MemAgent(model="granite4:3b", use_sql=True)
+        agent = MemAgent(model="rnj-1:latest", use_sql=True)
         agent.set_user("bob")
 
         # Create auto-summarizer
-        llm = OllamaClient(model="granite4:3b")
+        llm = OllamaClient(model="rnj-1:latest")
         summarizer = ConversationSummarizer(llm)
         auto_summarizer = AutoSummarizer(
             summarizer, agent.memory, update_threshold=3  # Update every 3 conversations
         )
 
-        print(f"📊 Adding conversations with auto-summary (threshold=3)...")
+        print("📊 Adding conversations with auto-summary (threshold=3)...")
 
         # Add conversations one by one
         test_messages = [
@@ -134,7 +139,7 @@ def test_auto_summarizer():
 
         for i, msg in enumerate(test_messages, 1):
             # Add conversation
-            response = agent.chat(msg)
+            _ = agent.chat(msg)
             print(f"\n   {i}. Added: '{msg[:50]}...'")
 
             # Increment counter
@@ -143,13 +148,13 @@ def test_auto_summarizer():
             # Check for auto-update
             summary = auto_summarizer.check_and_update("bob")
             if summary:
-                print(f"      🔄 Auto-summary triggered!")
+                print("      🔄 Auto-summary triggered!")
                 print(f"      📝 Summary: {summary['summary'][:80]}...")
 
         # Get final summary
         final_summary = auto_summarizer.get_summary("bob")
 
-        print(f"\n✅ Final Summary:")
+        print("✅ Final Summary:")
         print("-" * 70)
         print(final_summary["summary"])
         print("-" * 70)
@@ -172,7 +177,7 @@ def test_empty_conversations():
     print("=" * 70)
 
     try:
-        llm = OllamaClient(model="granite4:3b")
+        llm = OllamaClient(model="rnj-1:latest")
         summarizer = ConversationSummarizer(llm)
 
         # Empty list
@@ -196,7 +201,7 @@ def test_large_conversation_history():
     print("=" * 70)
 
     try:
-        llm = OllamaClient(model="granite4:3b")
+        llm = OllamaClient(model="rnj-1:latest")
         summarizer = ConversationSummarizer(llm)
 
         # Generate 50 conversations
@@ -218,8 +223,8 @@ def test_large_conversation_history():
                 }
             )
 
-        print(f"📊 Summarizing {len(conversations)} conversations...")
-        print(f"   (Will use last 20 due to max_conversations limit)")
+        print("📊 Summarizing 50 conversations...")
+        print("   (Will use last 20 due to max_conversations limit)")
 
         start_time = time.time()
         summary = summarizer.summarize_conversations(
@@ -251,7 +256,7 @@ def test_integration_with_memagent():
 
     try:
         # Create agent with summarization support
-        agent = MemAgent(model="granite4:3b", use_sql=True)
+        agent = MemAgent(model="rnj-1:latest", use_sql=True)
         agent.set_user("emma")
 
         print("📊 Testing MemAgent integration...")
@@ -274,14 +279,14 @@ def test_integration_with_memagent():
             print(f"   ✅ Retrieved {len(convs)} conversations")
 
             # Summarize
-            llm = OllamaClient(model="granite4:3b")
+            llm = OllamaClient(model="rnj-1:latest")
             summarizer = ConversationSummarizer(llm)
 
             summary = summarizer.summarize_conversations(
                 convs, user_id="emma", max_conversations=10
             )
 
-            print(f"\n📝 Integration Summary:")
+            print("📝 Integration Summary:")
             print("-" * 70)
             print(summary["summary"])
             print("-" * 70)

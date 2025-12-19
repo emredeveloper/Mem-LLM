@@ -21,17 +21,12 @@ Version: 1.3.0
 """
 
 import json
-import os
-import sys
 import time
-from typing import Dict, Iterator, List, Optional
+from typing import Dict, Iterator, List
 
 import requests
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from base_llm_client import BaseLLMClient
+from ..base_llm_client import BaseLLMClient
 
 
 class LMStudioClient(BaseLLMClient):
@@ -201,7 +196,7 @@ class LMStudioClient(BaseLLMClient):
                             error_msg += f" - {error_detail.get('message', response.text)}"
                         else:
                             error_msg += f" - {error_detail}"
-                    except:
+                    except (ValueError, json.JSONDecodeError):
                         error_msg += f" - {response.text[:200]}"
 
                     self.logger.error(error_msg)
@@ -338,7 +333,7 @@ class LMStudioClient(BaseLLMClient):
                         error_msg += f" - {error_detail.get('message', response.text)}"
                     else:
                         error_msg += f" - {error_detail}"
-                except:
+                except (ValueError, json.JSONDecodeError):
                     error_msg += f" - {response.text[:200]}"
 
                 self.logger.error(error_msg)

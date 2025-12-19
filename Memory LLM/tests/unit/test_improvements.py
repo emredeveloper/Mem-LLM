@@ -10,15 +10,9 @@ import time
 from pathlib import Path
 
 # Add parent directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from mem_llm.logger import MemLLMLogger, get_logger
+from mem_llm.logger import get_logger
 from mem_llm.memory_db import SQLMemoryManager
-from mem_llm.retry_handler import (
-    SafeExecutor,
-    check_connection_with_retry,
-    exponential_backoff_retry,
-)
+from mem_llm.retry_handler import SafeExecutor, exponential_backoff_retry
 
 
 def test_logging_system():
@@ -37,14 +31,14 @@ def test_logging_system():
     logger.error("This is an error message", error_code=500)
 
     # Test specialized logging methods
-    logger.log_llm_call(model="granite4:3b", prompt_length=150, response_length=300, duration=1.5)
+    logger.log_llm_call(model="rnj-1:latest", prompt_length=150, response_length=300, duration=1.5)
 
     logger.log_memory_operation(
         operation="save", user_id="alice", success=True, details="Saved 3 conversations"
     )
 
     print("✅ Logging system test passed!")
-    print(f"   Log file created at: logs/test.log")
+    print("   Log file created at: logs/test.log")
     return True
 
 
@@ -156,9 +150,9 @@ def test_wal_mode():
     db.conn.close()
     os.remove(db_path)
 
-    # Check for WAL files (they should be created)
-    wal_file = f"{db_path}-wal"
-    shm_file = f"{db_path}-shm"
+    # Check for WAL files
+    _ = f"{db_path}-wal"
+    _ = f"{db_path}-shm"
 
     print("✅ WAL mode test passed!")
     return True
@@ -174,7 +168,7 @@ def test_integration_with_mem_agent():
         from mem_llm import MemAgent
 
         # Create agent with SQL (WAL mode will be enabled)
-        agent = MemAgent(model="granite4:3b", use_sql=True, memory_dir="test_integration.db")
+        agent = MemAgent(model="rnj-1:latest", use_sql=True, memory_dir="test_integration.db")
 
         print("✅ MemAgent created with WAL-enabled database")
 

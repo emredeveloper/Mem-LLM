@@ -26,7 +26,7 @@ def cli():
 
 @cli.command()
 @click.option("--user", "-u", default="default", help="User ID for the chat session")
-@click.option("--model", "-m", default="granite4:3b", help="LLM model to use")
+@click.option("--model", "-m", default="rnj-1:latest", help="LLM model to use")
 @click.option("--sql/--json", default=False, help="Use SQL (default: JSON)")
 @click.option("--config", "-c", type=click.Path(exists=True), help="Config file path")
 def chat(user: str, model: str, sql: bool, config: Optional[str]):
@@ -62,7 +62,7 @@ def chat(user: str, model: str, sql: bool, config: Optional[str]):
 
         agent.set_user(user)
 
-        click.echo(f"\n✅ Chat session started")
+        click.echo("\n✅ Chat session started")
         click.echo(f"   User: {user}")
         click.echo(f"   Model: {model}")
         click.echo(f"   Memory: {'SQL' if sql else 'JSON'}")
@@ -190,7 +190,7 @@ def export(user: str, format: str, output: Optional[str], sql: bool):
 
 
 @cli.command()
-@click.option("--model", "-m", default="granite4:3b", help="Model to check")
+@click.option("--model", "-m", default="rnj-1:latest", help="Model to check")
 def check(model: str):
     """
     Check if Ollama and model are ready
@@ -214,7 +214,7 @@ def check(model: str):
         click.echo(f"KB Entries:        {status['kb_entries']}")
 
         if status["available_models"]:
-            click.echo(f"\nAvailable Models:")
+            click.echo("\nAvailable Models:")
             for m in status["available_models"]:
                 click.echo(f"  • {m}")
 

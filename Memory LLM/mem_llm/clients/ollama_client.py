@@ -10,17 +10,12 @@ Version: 1.3.0
 """
 
 import json
-import os
-import sys
 import time
-from typing import Dict, Iterator, List, Optional
+from typing import Dict, Iterator, List
 
 import requests
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from base_llm_client import BaseLLMClient
+from ..base_llm_client import BaseLLMClient
 
 
 class OllamaClient(BaseLLMClient):
@@ -35,7 +30,7 @@ class OllamaClient(BaseLLMClient):
     """
 
     def __init__(
-        self, model: str = "granite4:3b", base_url: str = "http://localhost:11434", **kwargs
+        self, model: str = "rnj-1:latest", base_url: str = "http://localhost:11434", **kwargs
     ):
         """
         Initialize Ollama client

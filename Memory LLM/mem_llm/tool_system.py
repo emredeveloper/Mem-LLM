@@ -18,7 +18,6 @@ Version: 2.1.1
 
 import asyncio
 import inspect
-import json
 import logging
 import re
 from dataclasses import dataclass, field
@@ -156,7 +155,7 @@ class Tool:
             if self.is_async:
                 # Run async function
                 try:
-                    loop = asyncio.get_running_loop()
+                    asyncio.get_running_loop()
                     # Already in async context, create task
                     return asyncio.create_task(self.function(**validated_kwargs))
                 except RuntimeError:
@@ -424,7 +423,10 @@ class ToolCallParser:
 
     # Alternative patterns for natural language tool calls (v2.1.3+)
     NATURAL_PATTERNS = [
-        r"(?:using|use|call|execute)\s+(?:the\s+)?[`']?(\w+)[`']?\s+(?:tool|function)?\s*(?:with|to|on)?\s*\((.*?)\)",
+        (
+            r"(?:using|use|call|execute)\s+(?:the\s+)?[`']?(\w+)[`']?\s+"
+            r"(?:tool|function)?\s*(?:with|to|on)?\s*\((.*?)\)"
+        ),
         r"(?:tool|function)\s+[`']?(\w+)[`']?\s*\((.*?)\)",
         r"`(\w+)\((.*?)\)`",  # Markdown code format
     ]

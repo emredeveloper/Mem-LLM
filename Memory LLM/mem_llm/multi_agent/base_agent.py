@@ -68,7 +68,7 @@ class BaseAgent:
         agent_id: Optional[str] = None,
         name: Optional[str] = None,
         role: AgentRole = AgentRole.GENERAL,
-        model: str = "granite4:3b",
+        model: str = "rnj-1:latest",
         backend: str = "ollama",
         enable_tools: bool = False,
         private_memory: bool = True,
@@ -167,11 +167,26 @@ class BaseAgent:
         """
         # Role-specific instructions
         role_instructions = {
-            AgentRole.RESEARCHER: "You are a research specialist. Focus on gathering accurate, comprehensive information. Cite sources when possible.",
-            AgentRole.ANALYST: "You are a data analyst. Focus on analyzing information, finding patterns, and drawing insights.",
-            AgentRole.WRITER: "You are a content writer. Focus on creating clear, engaging, well-structured content.",
-            AgentRole.VALIDATOR: "You are a quality validator. Focus on checking accuracy, consistency, and completeness.",
-            AgentRole.COORDINATOR: "You are a task coordinator. Focus on organizing work, delegating tasks, and ensuring completion.",
+            AgentRole.RESEARCHER: (
+                "You are a research specialist. Focus on gathering accurate, "
+                "comprehensive information. Cite sources when possible."
+            ),
+            AgentRole.ANALYST: (
+                "You are a data analyst. Focus on analyzing information, "
+                "finding patterns, and drawing insights."
+            ),
+            AgentRole.WRITER: (
+                "You are a content writer. Focus on creating clear, engaging, "
+                "well-structured content."
+            ),
+            AgentRole.VALIDATOR: (
+                "You are a quality validator. Focus on checking accuracy, "
+                "consistency, and completeness."
+            ),
+            AgentRole.COORDINATOR: (
+                "You are a task coordinator. Focus on organizing work, "
+                "delegating tasks, and ensuring completion."
+            ),
             AgentRole.GENERAL: "You are a helpful assistant.",
         }
 
@@ -252,4 +267,7 @@ class BaseAgent:
         }
 
     def __repr__(self) -> str:
-        return f"BaseAgent(id={self.agent_id}, name={self.name}, role={self.role.value}, status={self.status.value})"
+        return (
+            f"BaseAgent(id={self.agent_id}, name={self.name}, "
+            f"role={self.role.value}, status={self.status.value})"
+        )

@@ -16,7 +16,7 @@ class TestOllamaIntegration:
     def setup(self):
         """Setup test environment"""
         self.ollama_url = "http://localhost:11434"
-        self.model_name = "granite4:3b"
+        self.model_name = "rnj-1:latest"
 
     def test_ollama_client_creation(self):
         """Test creating Ollama client"""
@@ -46,8 +46,7 @@ class TestOllamaIntegration:
             assert models is not None
             assert isinstance(models, list)
             # Check if our test model is in the list
-            model_names = [m.get("name", "") for m in models]
-            assert self.model_name in model_names
+            assert self.model_name in models
         except Exception as e:
             pytest.skip(f"Ollama not available: {e}")
 

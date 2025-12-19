@@ -6,7 +6,7 @@ Tools for users to manage their memory data
 import json
 import re
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict
 
 
 class MemoryTools:

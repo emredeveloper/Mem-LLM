@@ -3,7 +3,6 @@ Configuration Manager
 Reads and manages configuration from YAML file
 """
 
-import os
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -36,7 +35,7 @@ class ConfigManager:
         """Returns default configuration"""
         return {
             "llm": {
-                "model": "granite4:3b",
+                "model": "rnj-1:latest",
                 "base_url": "http://localhost:11434",
                 "temperature": 0.7,
                 "max_tokens": 500,
@@ -62,7 +61,7 @@ class ConfigManager:
                 "search_limit": 5,
                 "min_relevance_score": 0.3,
                 "enable_vector_search": False,  # v1.3.2+ - Optional semantic search
-                "embedding_model": "all-MiniLM-L6-v2",  # Sentence transformers model
+                "embedding_model": "nomic-embed-text-v2-moe:latest",  # Sentence transformers model
             },
             "response": {
                 "use_knowledge_base": True,
@@ -216,6 +215,5 @@ def get_config(config_file: str = "config.yaml") -> ConfigManager:
 
 def reload_config() -> None:
     """Reloads global configuration"""
-    global _config_manager
     if _config_manager:
         _config_manager.reload()

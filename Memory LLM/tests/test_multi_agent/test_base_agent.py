@@ -15,7 +15,7 @@ class TestBaseAgent:
 
     def test_agent_creation(self):
         """Test basic agent creation"""
-        agent = BaseAgent(name="Test Agent", role=AgentRole.RESEARCHER, model="granite4:3b")
+        agent = BaseAgent(name="Test Agent", role=AgentRole.RESEARCHER, model="rnj-1:latest")
 
         assert agent.name == "Test Agent"
         assert agent.role == AgentRole.RESEARCHER
@@ -30,7 +30,7 @@ class TestBaseAgent:
 
     def test_agent_process(self):
         """Test agent task processing"""
-        agent = BaseAgent(role=AgentRole.GENERAL, model="granite4:3b")
+        agent = BaseAgent(role=AgentRole.GENERAL, model="rnj-1:latest")
 
         # Simple task
         response = agent.process("Say hello")

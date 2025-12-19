@@ -14,8 +14,6 @@ NOTE: These tests are skipped on Windows due to file locking issues
 import json
 import os
 import random
-
-# Import Mem-LLM components
 import sys
 import tempfile
 import threading
@@ -23,11 +21,9 @@ import time
 import unittest
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
+# Import Mem-LLM components
 from mem_llm import MemAgent
 from mem_llm.memory_db import SQLMemoryManager
-from mem_llm.memory_manager import MemoryManager
 
 
 @unittest.skip("Windows file locking issues in CI/CD")
@@ -196,7 +192,7 @@ class TestConcurrentAccess(unittest.TestCase):
         self.assertEqual(total_count, expected, f"Expected {expected} records, got {total_count}")
 
         print(f"   ✅ {total_count} concurrent writes in {elapsed:.2f}s")
-        print(f"   ✅ No race conditions detected")
+        print("   ✅ No race conditions detected")
 
     def test_concurrent_read_write(self):
         """Test simultaneous reads and writes"""
@@ -262,7 +258,7 @@ class TestConcurrentAccess(unittest.TestCase):
 
         print(f"   ✅ {len(read_counts)} reads completed")
         print(f"   ✅ {sum(write_counts)} writes completed")
-        print(f"   ✅ No blocking or deadlocks detected")
+        print("   ✅ No blocking or deadlocks detected")
 
     def test_multi_user_isolation(self):
         """Test that user data is properly isolated"""
@@ -356,7 +352,7 @@ class TestLongConversationHistory(unittest.TestCase):
             total_length = sum(len(c["user_message"]) + len(c["bot_response"]) for c in recent)
 
             print(f"   ✅ Context size: {total_length:,} characters")
-            print(f"   ✅ No overflow crash with large history")
+            print("   ✅ No overflow crash with large history")
 
         except Exception as e:
             self.fail(f"Should handle large context gracefully: {e}")

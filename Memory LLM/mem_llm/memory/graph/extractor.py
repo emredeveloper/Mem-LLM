@@ -22,41 +22,54 @@ class GraphExtractor:
         Returns list of (Source, Relation, Target).
         """
         prompt = f"""
-        Analyze the following text and extract knowledge graph triplets.
-        Return ONLY a JSON array of arrays, where each inner array is ["Source", "Relation", "Target"].
-        Entities should be simplistic and normalized (e.g., "Elon Musk", not "he").
-        Relations should be verbs or prepositions (e.g., "is_CEO_of", "located_in").
+        Extract knowledge graph triplets from the following conversation.
 
-        Text: "{text}"
+        GOAL: Identify entities (people, places, interests, facts) and their relations.
+        CRITICAL: DO NOT extract conversation metadata like "User says hello"
+        or "Assistant replies".
+        Only extract factual knowledge about the user or the topics discussed.
 
-        Example Output:
-        [["Alice", "knows", "Bob"], ["Bob", "lives_in", "Paris"]]
+        Format: Return ONLY a JSON array of arrays: [["Source", "Relation", "Target"]].
+        Example: [["User", "lives_in", "Istanbul"], ["Python", "is_a", "Programming Language"]]
+
+        Text to analyze:
+        ---
+        {text}
+        ---
 
         JSON Output:
         """
 
-        response = self.agent.chat(prompt)
+        # Use direct LLM call instead of agent.chat to avoid recursion/infinite loops
+        # and to keep extraction logic separate from conversation history
+        messages = [{"role": "user", "content": prompt}]
+        response = self.agent.llm.chat(messages=messages, temperature=0.1)
+
+        import re
 
         try:
-            # Clean response to ensure it's just JSON
+            # More robust parsing: find all patterns that look like ["Source", "Relation", "Target"]
+            triplet_pattern = r'\[\s*"([^"]+)"\s*,\s*"([^"]+)"\s*,\s*"([^"]+)"\s*\]'
+            matches = re.findall(triplet_pattern, response)
+
+            if matches:
+                return [list(m) for m in matches]
+
+            # Fallback for standard JSON array
             cleaned_response = response.strip()
             if cleaned_response.startswith("```json"):
-                cleaned_response = cleaned_response[7:-3]
+                cleaned_response = cleaned_response[7:-3].strip()
             elif cleaned_response.startswith("```"):
-                cleaned_response = cleaned_response[3:-3]
+                cleaned_response = cleaned_response[3:-3].strip()
 
             triplets = json.loads(cleaned_response)
-
             valid_triplets = []
-            for t in triplets:
-                if isinstance(t, list) and len(t) == 3:
-                    valid_triplets.append((str(t[0]), str(t[1]), str(t[2])))
-
+            if isinstance(triplets, list):
+                for t in triplets:
+                    if isinstance(t, list) and len(t) == 3:
+                        valid_triplets.append((str(t[0]), str(t[1]), str(t[2])))
             return valid_triplets
 
-        except json.JSONDecodeError:
-            logger.warning(f"Failed to parse graph extraction JSON: {response}")
-            return []
         except Exception as e:
-            logger.error(f"Graph extraction error: {e}")
+            logger.warning(f"Failed to parse graph extraction: {e}. Response was: {response}")
             return []

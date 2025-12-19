@@ -54,7 +54,6 @@ class VectorStore(ABC):
 
 try:
     import chromadb
-    from chromadb.config import Settings
 
     CHROMA_AVAILABLE = True
 except ImportError:
@@ -69,7 +68,7 @@ class ChromaVectorStore(VectorStore):
         self,
         collection_name: str = "knowledge_base",
         persist_directory: Optional[str] = None,
-        embedding_model: str = "all-MiniLM-L6-v2",
+        embedding_model: str = "nomic-embed-text-v2-moe:latest",
     ):
         """
         Initialize ChromaDB vector store
@@ -132,13 +131,14 @@ class ChromaVectorStore(VectorStore):
 
                     if embedding_fn_class:
                         self._embedding_fn = embedding_fn_class(model_name=self.embedding_model)
-                        logger.info(
-                            f"Loaded embedding model using ChromaDB native function: {self.embedding_model}"
+                        self.logger.info(
+                            "Loaded embedding model using ChromaDB native function: "
+                            f"{self.embedding_model}"
                         )
                     else:
                         raise AttributeError("SentenceTransformerEmbeddingFunction not found")
 
-                except (ImportError, AttributeError, Exception) as e:
+                except Exception:
                     # Fallback: Custom embedding function wrapper compatible with ChromaDB
                     from sentence_transformers import SentenceTransformer
 
@@ -159,7 +159,7 @@ class ChromaVectorStore(VectorStore):
 
                     self._embedding_fn = CustomEmbeddingFunction(model, self.embedding_model)
                     logger.info(
-                        f"Loaded embedding model using custom wrapper: {self.embedding_model} (fallback: {e})"
+                        f"Loaded embedding model using custom wrapper: {self.embedding_model}"
                     )
             except ImportError:
                 raise ImportError(
@@ -295,7 +295,8 @@ def create_vector_store(store_type: str = "chroma", **kwargs) -> Optional[Vector
     if store_type == "chroma":
         if not CHROMA_AVAILABLE:
             logger.info(
-                "ℹ️  Vector search disabled (ChromaDB not installed). For semantic search, run: pip install chromadb sentence-transformers"
+                "ℹ️  Vector search disabled (ChromaDB not installed). "
+                "For semantic search, run: pip install chromadb sentence-transformers"
             )
             return None
         return ChromaVectorStore(**kwargs)

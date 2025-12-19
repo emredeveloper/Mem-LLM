@@ -15,7 +15,13 @@ Mem-LLM is a powerful Python library that brings persistent memory and function 
 - **Issues**: https://github.com/emredeveloper/Mem-LLM/issues
 - **Documentation**: See examples/ directory
 
-## 🆕 What's New in v2.3.0 - "Neural Nexus"
+## 🆕 What's New in v2.3.2
+
+- ✅ **Knowledge Graph Robustness** - Improved extraction logic using regex and fixed recursive LLM loops.
+- ✅ **Graph Control & UI** - Added "Clear Memory" functionality and live Toast notifications for graph updates.
+- ✅ **UI Simplification** - Streamlined interface by removing workflows to focus on core chat and memory graph.
+
+## 🆕 What's New in v2.3.0
 
 ### ⚙️ Agent Workflow Engine *(NEW)*
 - ✅ **Structured Agents** - Define multi-step workflows like "Deep Research" or "Content Creation".

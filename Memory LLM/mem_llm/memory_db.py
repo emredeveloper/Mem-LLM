@@ -7,9 +7,8 @@ import json
 import logging
 import sqlite3
 import threading
-from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +30,7 @@ class SQLMemoryManager:
         db_path: str = "memories/memories.db",
         enable_vector_search: bool = False,
         vector_store_type: str = "chroma",
-        embedding_model: str = "all-MiniLM-L6-v2",
+        embedding_model: str = "nomic-embed-text-v2-moe:latest",
     ):
         """
         Args:
@@ -78,8 +77,11 @@ class SQLMemoryManager:
                             "Failed to initialize vector store, falling back to keyword search"
                         )
                         self.enable_vector_search = False
+                except (ValueError, json.JSONDecodeError) as e:
+                    logger.error(f"Error initializing vector store due to data format: {e}")
+                    self.enable_vector_search = False
                 except Exception as e:
-                    logger.error(f"Error initializing vector store: {e}")
+                    logger.error(f"An unexpected error occurred initializing vector store: {e}")
                     self.enable_vector_search = False
 
     def _init_database(self) -> None:

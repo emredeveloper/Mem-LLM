@@ -9,7 +9,7 @@ import tempfile
 import unittest
 
 # Import all modules
-from mem_llm import MemAgent, MemoryManager, MemoryTools, SQLMemoryManager, ToolExecutor, get_config
+from mem_llm import MemAgent, ToolExecutor
 
 
 class TestIntegration(unittest.TestCase):
@@ -161,7 +161,7 @@ logging:
         start_time = time.time()
 
         for i in range(3):
-            response = self.simple_agent.chat(f"Performans testi mesaj {i}")
+            _ = self.simple_agent.chat(f"Performans testi mesaj {i}")
 
         end_time = time.time()
         duration = end_time - start_time

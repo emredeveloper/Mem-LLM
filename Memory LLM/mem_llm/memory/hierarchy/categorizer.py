@@ -6,7 +6,7 @@ Uses LLM to automatically categorize interactions for hierarchical memory.
 """
 
 import logging
-from typing import Any, Tuple
+from typing import Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +42,10 @@ class AutoCategorizer:
             return ("general", "general")
 
     def _build_prompt(self, user_msg: str, bot_msg: str) -> str:
-        return f"""Analyze the following interaction and assign it to a specific CATEGORY and a broader DOMAIN.
+        prompt = (
+            "Analyze the interaction and assign it to a specific CATEGORY and a broader DOMAIN."
+        )
+        return f"""{prompt}
 
 INTERACTION:
 User: {user_msg[:500]}

@@ -1,8 +1,7 @@
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import pytest
 
-from mem_llm.config_presets import ConfigPresets
 from mem_llm.mem_agent import MemAgent
 
 
@@ -28,7 +27,7 @@ class TestPresetIntegration:
         # We need to mock _setup_logging and other internal calls to avoid side effects
         with patch.object(
             MemAgent, "_setup_logging", side_effect=mock_setup_logging, autospec=True
-        ), patch.object(MemAgent, "_build_dynamic_system_prompt") as mock_build_prompt:
+        ), patch.object(MemAgent, "_build_dynamic_system_prompt"):
             agent = MemAgent(preset="test_preset", auto_detect_backend=False)
 
             # Check if preset was loaded
@@ -77,8 +76,8 @@ class TestPresetIntegration:
             #    llm_kwargs['temperature'] = ...
 
             # So if we pass temperature=0.9, it is in llm_kwargs, so it won't be overwritten.
-            # This test is a bit weak without mocking the factory, but sufficient for integration check
-            # that it doesn't crash.
+            # This test is a bit weak without mocking the factory, but sufficient
+            # for integration check that it doesn't crash.
 
-            agent = MemAgent(preset="test_preset", temperature=0.9, auto_detect_backend=False)
+            _ = MemAgent(preset="test_preset", temperature=0.9, auto_detect_backend=False)
             # If it didn't crash, good.

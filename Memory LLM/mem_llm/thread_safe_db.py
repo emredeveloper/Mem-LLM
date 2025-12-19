@@ -327,5 +327,5 @@ class ThreadSafeSQLMemory:
         """Cleanup on deletion"""
         try:
             self.close()
-        except:
+        except Exception:
             pass

@@ -59,7 +59,10 @@ class GraphStore:
 
     def get_summary(self) -> str:
         """Return a text summary of graph stats."""
-        return f"Graph contains {self.graph.number_of_nodes()} entities and {self.graph.number_of_edges()} relationships."
+        return (
+            f"Graph contains {self.graph.number_of_nodes()} entities "
+            f"and {self.graph.number_of_edges()} relationships."
+        )
 
     def save(self):
         """Save graph to JSON."""
@@ -84,3 +87,10 @@ class GraphStore:
             logger.info(f"Graph loaded from {self.persistence_path}")
         except Exception as e:
             logger.error(f"Failed to load graph: {e}")
+
+    def clear(self):
+        """Clear the graph and save empty state."""
+        self.graph.clear()
+        if self.persistence_path:
+            self.save()
+        logger.info("Graph cleared")

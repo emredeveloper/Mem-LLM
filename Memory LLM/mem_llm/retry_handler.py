@@ -51,7 +51,8 @@ def exponential_backoff_retry(
                     if attempt == max_retries:
                         if logger:
                             logger.error(
-                                f"Function {func.__name__} failed after {max_retries} retries: {str(e)}"
+                                f"Function {func.__name__} failed after {max_retries} "
+                                f"retries: {str(e)}"
                             )
                         raise
 
@@ -61,7 +62,7 @@ def exponential_backoff_retry(
                     if logger:
                         logger.warning(
                             f"Function {func.__name__} failed (attempt {attempt + 1}/{max_retries}), "
-                            f"retrying in {delay:.2f}s: {str(e)}"
+                            f"retrying in {delay:.2f}s: {e}"
                         )
 
                     time.sleep(delay)
@@ -140,7 +141,7 @@ class SafeExecutor:
                 if start != -1 and end != -1:
                     partial = json_string[start : end + 1]
                     return json.loads(partial)
-            except:
+            except Exception:
                 pass
 
             return default if default is not None else {}

@@ -15,7 +15,7 @@ the system prompt to actual capabilities.
 """
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Dict, Optional
 
 
 class DynamicPromptBuilder:
@@ -23,7 +23,7 @@ class DynamicPromptBuilder:
 
     def __init__(self):
         self.base_instructions = {
-            "core": """You are a helpful AI assistant that maintains conversation context and provides accurate, relevant responses.
+            "core": """You are a helpful AI assistant that maintains conversation context and provides accurate responses.
 
 ⚠️ OUTPUT FORMAT:
 - If you're a thinking-enabled model (Qwen, DeepSeek, etc.), DO NOT show your internal reasoning
@@ -48,7 +48,7 @@ KNOWLEDGE BASE PRIORITY (⚠️ CRITICAL):
 2. Knowledge base entries are marked with "📚 RELEVANT KNOWLEDGE"
 3. Answer from knowledge base EXACTLY as provided
 4. DO NOT make up information not in the knowledge base
-5. If knowledge base has no info, then use conversation history or say "I don't have specific information about that"
+5. If knowledge base has no info, then use conversation history or say "I don't have information about that"
 
 RESPONSE PRIORITY:
 1️⃣ Knowledge Base (if available) ← ALWAYS FIRST!

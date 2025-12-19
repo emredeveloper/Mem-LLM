@@ -4,7 +4,6 @@ Stores, updates and remembers user interactions.
 """
 
 import json
-import os
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -49,7 +48,7 @@ class MemoryManager:
                 if isinstance(profile.get("preferences"), str):
                     try:
                         profile["preferences"] = json.loads(profile["preferences"])
-                    except:
+                    except (ValueError, json.JSONDecodeError):
                         profile["preferences"] = {}
 
                 self.user_profiles[user_id] = profile
@@ -316,7 +315,7 @@ class MemoryManager:
                 with open(user_file, "r", encoding="utf-8") as f:
                     data = json.load(f)
                     total_interactions += len(data.get("conversations", []))
-            except:
+            except (ValueError, json.JSONDecodeError, OSError):
                 pass
 
         return {

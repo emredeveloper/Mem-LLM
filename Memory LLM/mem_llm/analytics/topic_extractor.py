@@ -179,9 +179,6 @@ class TopicExtractor:
 
         all_text = " ".join(messages)
 
-        # Get more keywords initially to filter later if needed
-        keywords = self.extract_keywords(all_text, top_n * 3)
-
         # Count occurrences across messages to find distribution
         # We want to know how many times each keyword appears in the total corpus
         # But extract_keywords already gives us the most common ones.

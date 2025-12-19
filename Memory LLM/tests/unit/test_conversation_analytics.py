@@ -1,6 +1,6 @@
 import json
 from datetime import datetime, timedelta
-from unittest.mock import MagicMock, Mock
+from unittest.mock import Mock
 
 import pytest
 

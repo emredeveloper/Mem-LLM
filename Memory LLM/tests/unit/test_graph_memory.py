@@ -29,7 +29,7 @@ def test_search_graph(graph_store):
     assert len(results) == 1
     assert results[0] == ("Alice", "knows", "Bob")
 
-    # Search Bob (depth 1) -> knows Alice (inverse in ego graph since undirected radius) + lives_in Paris
+    # Search Bob (depth 1) -> knows Alice (inverse in ego graph) + lives_in Paris
     # ego_graph with center Bob includes Alice and Paris.
     # Edges: (Alice, Bob), (Bob, Paris)
     results_bob = graph_store.search("Bob")

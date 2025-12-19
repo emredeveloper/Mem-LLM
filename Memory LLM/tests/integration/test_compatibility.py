@@ -21,6 +21,8 @@ def test_v1_0_code_compatibility():
     try:
         from mem_llm import MemAgent, MemoryManager, OllamaClient
 
+        _ = [MemAgent, MemoryManager, OllamaClient]
+
         print("   ✅ Core imports work")
     except Exception as e:
         print(f"   ❌ Import failed: {e}")
@@ -29,7 +31,7 @@ def test_v1_0_code_compatibility():
     # Test 2: Basic agent creation (v1.0.x style - no enable_security parameter)
     print("\n2. Testing v1.0.x agent creation (no security parameter)...")
     try:
-        agent = MemAgent(model="granite4:3b", use_sql=False)
+        agent = MemAgent(model="rnj-1:latest", use_sql=False)
         print("   ✅ Agent created without enable_security parameter")
     except Exception as e:
         print(f"   ❌ Agent creation failed: {e}")
@@ -69,6 +71,8 @@ def test_v1_1_new_features():
     try:
         from mem_llm import InputSanitizer, PromptInjectionDetector, SecurePromptBuilder
 
+        _ = [InputSanitizer, PromptInjectionDetector, SecurePromptBuilder]
+
         print("   ✅ Security classes imported")
     except ImportError as e:
         print(f"   ⚠️  Security imports not available: {e}")
@@ -77,6 +81,8 @@ def test_v1_1_new_features():
     print("\n2. Testing new logging imports...")
     try:
         from mem_llm import MemLLMLogger, get_logger
+
+        _ = [MemLLMLogger, get_logger]
 
         print("   ✅ Logging classes imported")
     except ImportError as e:
@@ -87,6 +93,8 @@ def test_v1_1_new_features():
     try:
         from mem_llm import SafeExecutor, exponential_backoff_retry
 
+        _ = [SafeExecutor, exponential_backoff_retry]
+
         print("   ✅ Retry handler imported")
     except ImportError as e:
         print(f"   ⚠️  Retry handler imports not available: {e}")
@@ -96,7 +104,7 @@ def test_v1_1_new_features():
     try:
         from mem_llm import MemAgent
 
-        agent_secure = MemAgent(model="granite4:3b", use_sql=False, enable_security=True)
+        agent_secure = MemAgent(model="rnj-1:latest", use_sql=False, enable_security=True)
 
         if hasattr(agent_secure, "enable_security") and agent_secure.enable_security:
             print("   ✅ Security enabled via opt-in parameter")
@@ -122,7 +130,7 @@ v1.0.x Code (Still Works):
 --------------------------
 from mem_llm import MemAgent
 
-agent = MemAgent(model="granite4:3b")
+agent = MemAgent(model="rnj-1:latest")
 agent.set_user("alice")
 response = agent.chat("Hello!")
 
@@ -132,7 +140,7 @@ v1.1.0 with Security (Opt-in):
 from mem_llm import MemAgent
 
 agent = MemAgent(
-    model="granite4:3b",
+    model="rnj-1:latest",
     enable_security=True  # ← Only change needed!
 )
 agent.set_user("alice")
@@ -148,7 +156,7 @@ logger = get_logger("my_app", log_file="logs/app.log")
 
 # Security-enabled agent
 agent = MemAgent(
-    model="granite4:3b",
+    model="rnj-1:latest",
     use_sql=True,          # Thread-safe in v1.1.0
     enable_security=True   # Prompt injection protection
 )

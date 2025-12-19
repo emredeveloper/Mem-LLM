@@ -167,7 +167,7 @@ class InputSanitizer:
             # Check for excessive non-printable characters
             non_printable = sum(1 for c in text if ord(c) < 32 and c not in "\n\r\t")
             return non_printable > len(text) * 0.1  # More than 10% non-printable
-        except:
+        except Exception:
             return True
 
 
@@ -294,7 +294,7 @@ def test_prompt_injection():
         if is_suspicious:
             print(f"   ⚠️  SUSPICIOUS - Patterns: {len(patterns)}")
         else:
-            print(f"   ✅ SAFE")
+            print("   ✅ SAFE")
 
         if sanitized != test:
             print(f"   Sanitized: '{sanitized}'")

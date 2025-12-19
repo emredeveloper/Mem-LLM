@@ -79,7 +79,7 @@ class MemAgent:
 
     def __init__(
         self,
-        model: str = "ministral-3:3b",
+        model: str = "rnj-1:latest",
         backend: str = "ollama",
         config_file: Optional[str] = None,
         use_sql: bool = True,
@@ -93,7 +93,7 @@ class MemAgent:
         check_connection: bool = False,
         enable_security: bool = False,
         enable_vector_search: bool = False,
-        embedding_model: str = "all-MiniLM-L6-v2",
+        embedding_model: str = "nomic-embed-text-v2-moe:latest",
         enable_tools: bool = False,
         tools: Optional[List] = None,
         preset: Optional[str] = None,
@@ -119,7 +119,7 @@ class MemAgent:
             enable_vector_search: Enable semantic/vector search for KB
                 (v1.3.2+, requires chromadb) - NEW
             embedding_model: Embedding model for vector search
-                (default: "all-MiniLM-L6-v2") - NEW
+                (default: "nomic-embed-text-v2-moe:latest") - NEW
             preset: Configuration preset name (e.g., 'chatbot', 'code_assistant') - NEW in v2.1.4
             **llm_kwargs: Additional backend-specific parameters
 
@@ -211,7 +211,10 @@ class MemAgent:
             if tools:
                 for tool in tools:
                     self.tool_registry.register_function(tool)
-                self.logger.info(f"🔧 Registered {len(tools)} custom tools")
+                self.logger.info(
+                    f"Successfully loaded {len(self.tool_registry.tools)} tool(s): "
+                    f"{[t for t in self.tool_registry.tools.keys()]}"
+                )
 
             builtin_count = len(self.tool_registry.tools)
             self.logger.info(f"🛠️  Tool system enabled ({builtin_count} tools available)")
@@ -255,7 +258,7 @@ class MemAgent:
             )
             self.logger.info(f"SQL memory system active: {final_db_path}")
             if vector_search_enabled:
-                self.logger.info(f"🔍 Vector search enabled (model: {vector_model})")
+                self.logger.info(f"Vector search enabled using model: {vector_model}")
         else:
             # JSON memory (simple)
             json_dir = (
@@ -276,7 +279,7 @@ class MemAgent:
         self.use_sql = use_sql  # Store SQL usage flag
 
         # Default model for LM Studio (v2.3.0)
-        if self.backend == "lmstudio" and self.model == "ministral-3:3b":
+        if self.backend == "lmstudio" and self.model == "rnj-1:latest":
             self.model = "google/gemma-3-4b"
             self.logger.info(f"🔄 Switched to default LM Studio model: {self.model}")
 
@@ -303,7 +306,8 @@ class MemAgent:
             else:
                 self.logger.error("❌ No LLM backend available.")
                 raise RuntimeError(
-                    "No LLM backend detected. Please start a local LLM service (Ollama or LM Studio)."
+                    "No LLM backend detected. Please start a local LLM service "
+                    "(Ollama or LM Studio)."
                 )
         else:
             # Create client using factory
@@ -657,7 +661,9 @@ class MemAgent:
                                     f"Found {len(search_results)} results for '{keyword}':\n"
                                 )
                                 for idx, conv in enumerate(search_results[:5], 1):
-                                    formatted += f"{idx}. {conv.get('user', 'N/A')}: {conv.get('message', 'N/A')[:100]}...\n"
+                                    msg_preview = conv.get("message", "N/A")[:100]
+                                    user_name = conv.get("user", "N/A")
+                                    formatted += f"{idx}. {user_name}: {msg_preview}...\n"
                                 result.result = formatted
                             else:
                                 result.result = f"No conversations found containing '{keyword}'"
@@ -709,14 +715,20 @@ class MemAgent:
                 results_text = "\n".join(tool_results)
 
                 # Build follow-up message for LLM
-                follow_up = f"{clean_text}\n\nTool Results:\n{results_text}\n\nPlease provide the final answer to the user based on these results."
+                follow_up = (
+                    f"{clean_text}\n\nTool Results:\n{results_text}\n\n"
+                    "Please provide the final answer to the user based on these results."
+                )
 
                 # Get LLM response with tool results
                 try:
                     messages = [
                         {
                             "role": "system",
-                            "content": "You are a helpful assistant. Use the tool results to answer the user's question.",
+                            "content": (
+                                "You are a helpful assistant. "
+                                "Use the tool results to answer the user's question."
+                            ),
                         },
                         {"role": "user", "content": follow_up},
                     ]
@@ -749,7 +761,8 @@ class MemAgent:
             message: User's message
             user_id: User ID (optional)
             metadata: Additional information
-            return_metrics: If True, returns ChatResponse with metrics; if False, returns only text (default)
+            return_metrics: If True, returns ChatResponse with metrics; if False,
+                            returns only text (default)
 
         Returns:
             Bot's response (str) or ChatResponse object with metrics
@@ -800,7 +813,8 @@ class MemAgent:
 
             if is_suspicious:
                 self.logger.info(
-                    f"⚠️ Suspicious input from {user_id} (risk: {risk_level}): {len(patterns)} patterns"
+                    f"⚠️ Suspicious input from {user_id} (risk: {risk_level}): "
+                    f"{len(patterns)} patterns"
                 )
 
             # Sanitize input
@@ -1010,6 +1024,9 @@ class MemAgent:
                 # Extract and save user info to profile
                 self._update_user_profile(user_id, message, response)
 
+                # Update graph memory (v2.3.0)
+                self._update_graph_memory(message, response)
+
                 # Always update summary after each conversation (JSON mode)
                 if not self.use_sql and hasattr(self.memory, "conversations"):
                     self._update_conversation_summary(user_id)
@@ -1094,7 +1111,10 @@ class MemAgent:
 
             if risk_level in ["high", "critical"]:
                 self.logger.warning(f"🚨 Blocked {risk_level} risk input from {user_id}")
-                yield "⚠️ Your message was blocked due to security concerns. Please rephrase your request."
+                yield (
+                    "⚠️ Your message was blocked due to security concerns. "
+                    "Please rephrase your request."
+                )
                 return
 
             # Sanitize input
@@ -1248,6 +1268,9 @@ class MemAgent:
 
                 # Extract and save user info to profile
                 self._update_user_profile(user_id, message, full_response)
+
+                # Update graph memory (v2.3.0)
+                self._update_graph_memory(message, full_response)
 
                 # Update summary (JSON mode)
                 if not self.use_sql and hasattr(self.memory, "conversations"):
@@ -1408,6 +1431,36 @@ class MemAgent:
                     self.logger.debug(f"Profile updated for {user_id}: {extracted}")
             except Exception as e:
                 self.logger.error(f"Error updating profile: {e}")
+
+    def _update_graph_memory(self, message: str, response: str) -> None:
+        """Extract triplets from conversation and update graph memory"""
+        if not self.graph_extractor or not self.graph_store:
+            return
+
+        try:
+            # Combine message and response for context
+            text = f"User: {message}\nAssistant: {response}"
+
+            # Extract triplets
+            triplets = self.graph_extractor.extract(text)
+
+            if triplets:
+                self.logger.info(f"🕸️ Found {len(triplets)} graph triplets to save")
+                for source, relation, target in triplets:
+                    self.graph_store.add_triplet(source, relation, target)
+
+                # Save graph to disk
+                self.graph_store.save()
+        except Exception as e:
+            self.logger.error(f"Graph memory update error: {e}")
+
+    def clear_graph_memory(self, user_id: str):
+        """Clear knowledge graph memory for user"""
+        if self.graph_store:
+            self.graph_store.clear()
+            self.logger.info(f"Graph memory cleared for {user_id}")
+            return True
+        return False
 
     def _update_conversation_summary(self, user_id: str) -> None:
         """
@@ -1651,7 +1704,9 @@ class MemAgent:
             if hasattr(self.memory, "get_user_profile"):
                 profile = self.memory.get_user_profile(uid)
                 if profile:
-                    return f"User: {uid}\nName: {profile.get('name', 'Unknown')}\nFirst conversation: {profile.get('first_seen', 'Unknown')}"
+                    name = profile.get("name", "Unknown")
+                    first_seen = profile.get("first_seen", "Unknown")
+                    return f"User: {uid}\nName: {name}\nFirst conversation: {first_seen}"
                 else:
                     return f"User {uid} not found."
             else:

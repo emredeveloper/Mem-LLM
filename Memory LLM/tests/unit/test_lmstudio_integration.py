@@ -31,4 +31,4 @@ def test_ollama_default_preserved():
     agent = MemAgent(backend="ollama", check_connection=False)
 
     assert agent.backend == "ollama"
-    assert agent.model == "ministral-3:3b", "Ollama default should be ministral-3:3b"
+    assert agent.model == "rnj-1:latest", "Ollama default should be rnj-1:latest"

@@ -6,7 +6,6 @@ Provides structured logging with different levels and output formats.
 
 import logging
 import sys
-from datetime import datetime
 from pathlib import Path
 from typing import Optional
 

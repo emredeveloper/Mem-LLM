@@ -11,9 +11,13 @@ Version: 2.1.3
 import json
 import math
 import os
+import platform
+import random
+import uuid
 from datetime import datetime
-from pathlib import Path
-from typing import Any, Dict, List
+from typing import List
+
+import psutil
 
 from .tool_system import tool
 from .tool_workspace import get_workspace
@@ -226,13 +230,57 @@ def create_json(key: str, value: str) -> str:
         # Try to parse value as JSON type
         try:
             parsed_value = json.loads(value)
-        except:
+        except (ValueError, TypeError, json.JSONDecodeError):
             parsed_value = value
 
         result = {key: parsed_value}
         return json.dumps(result, indent=2)
     except Exception as e:
         return f"Error creating JSON: {e}"
+
+
+@tool(name="get_system_info", description="Get system environment information", category="utility")
+def get_system_info() -> str:
+    """
+    Get information about the system environment.
+
+    Returns:
+        System information (OS, CPU, Memory)
+    """
+    cpu_count = psutil.cpu_count()
+    memory = psutil.virtual_memory()
+    total_mem_gb = round(memory.total / (1024**3), 2)
+    os_info = f"{platform.system()} {platform.release()}"
+
+    return (
+        f"🖥️ System Info:\n"
+        f"  OS: {os_info}\n"
+        f"  CPU: {cpu_count} cores\n"
+        f"  Memory: {total_mem_gb} GB\n"
+        f"  Python: {platform.python_version()}"
+    )
+
+
+@tool(name="generate_random", description="Generate random strings or UUIDs", category="utility")
+def generate_random(type: str = "uuid", length: int = 12) -> str:
+    """
+    Generate a random string or UUID.
+
+    Args:
+        type: Type of random string ('uuid', 'hex', 'password')
+        length: Length for hex/password (default: 12)
+
+    Returns:
+        Generated random string
+    """
+    if type == "uuid":
+        return str(uuid.uuid4())
+    elif type == "hex":
+        return "".join(random.choices("0123456789abcdef", k=length))
+    elif type == "password":
+        chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*"
+        return "".join(random.choices(chars, k=length))
+    return f"Unsupported type: {type}"
 
 
 # ============================================================================
@@ -387,6 +435,8 @@ BUILTIN_TOOLS = [
     # Utility
     get_current_time,
     create_json,
+    get_system_info,
+    generate_random,
     # Memory (v2.0.0+)
     search_memory,
     get_user_info,

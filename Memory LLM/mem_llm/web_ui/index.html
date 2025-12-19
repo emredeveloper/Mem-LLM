@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neural Nexus | Mem-LLM</title>
+    <title>Mem-LLM | Intelligent Memory Graph</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -123,6 +123,35 @@
             border-color: var(--accent);
         }
 
+        .run-btn {
+            width: 100%;
+            padding: 12px 20px;
+            background: var(--accent);
+            border: 1px solid var(--border-color);
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px var(--accent-glow);
+        }
+
+        .run-btn:hover {
+            background: #4f46e5;
+            border-color: #4f46e5;
+            box-shadow: 0 6px 20px var(--accent-glow);
+            transform: translateY(-2px);
+        }
+
+        .run-btn:active {
+            transform: translateY(0);
+        }
+
         /* Main Content */
         .main {
             flex: 1;
@@ -160,6 +189,26 @@
             line-height: 1.5;
             font-size: 15px;
             animation: slideIn 0.3s ease;
+            position: relative;
+        }
+
+        .message:hover .copy-btn {
+            opacity: 1;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(0, 0, 0, 0.3);
+            border: none;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 10px;
+            opacity: 0;
+            transition: opacity 0.2s;
         }
 
         @keyframes slideIn {
@@ -245,55 +294,80 @@
             background: radial-gradient(circle at center, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 1) 100%);
         }
 
-        /* Workflow View */
-        .workflow-grid {
-            padding: 32px;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 24px;
+        /* Notifications / Toasts */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
         }
 
-        .workflow-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            padding: 24px;
-            border-radius: 16px;
-            transition: all 0.2s;
-        }
-
-        .workflow-card:hover {
-            transform: translateY(-4px);
-            border-color: var(--accent);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        .workflow-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .workflow-desc {
+        .toast {
+            background: #1e293b;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            border-left: 4px solid var(--accent);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
             font-size: 14px;
-            color: var(--text-secondary);
-            margin-bottom: 20px;
-            line-height: 1.5;
+            font-weight: 500;
+            animation: toastIn 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            pointer-events: auto;
         }
 
-        .run-btn {
-            width: 100%;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.05);
+        @keyframes toastIn {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .toast.success {
+            border-left-color: #22c55e;
+        }
+
+        .toast.error {
+            border-left-color: #ef4444;
+        }
+
+        .toast.info {
+            border-left-color: var(--accent);
+        }
+
+        /* Graph Info Banner */
+        .graph-banner {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(8px);
             border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 10;
         }
 
-        .run-btn:hover {
-            background: var(--accent);
-            border-color: var(--accent);
+        .graph-banner strong {
+            color: var(--text-primary);
         }
 
         /* Status & Toast */
@@ -320,6 +394,12 @@
             border-bottom: 1px solid var(--border-color);
             margin-bottom: 24px;
         }
+
+        #userLabel {
+            font-weight: 600;
+            color: var(--accent);
+            margin-left: 5px;
+        }
     </style>
 </head>
 
@@ -327,17 +407,17 @@
 
     <div class="sidebar">
         <div class="logo">
-            <span>⚡</span> Neural Nexus
+            <span>⚡</span> Mem-LLM
         </div>
 
         <div class="status-bar">
             <div id="statusDot" class="status-dot"></div>
             <span id="statusText">Disconnected</span>
+            <span id="userLabel"></span>
         </div>
 
         <div class="nav-items">
             <div class="nav-item active" onclick="switchTab('chat')">💬 Chat</div>
-            <div class="nav-item" onclick="switchTab('workflows')">⚡ Workflows</div>
             <div class="nav-item" onclick="switchTab('graph')">🕸️ Knowledge Graph</div>
         </div>
 
@@ -358,8 +438,8 @@
         <div id="chat-view" class="view active">
             <div class="chat-container" id="chatContainer">
                 <div class="welcome">
-                    <h2>Neural Nexus v2.3.0</h2>
-                    <p>Start a conversation or select a workflow.</p>
+                    <h2>Mem-LLM v2.3.2</h2>
+                    <p>Start a conversation to build your knowledge graph.</p>
                 </div>
             </div>
             <div class="input-area">
@@ -369,21 +449,30 @@
             </div>
         </div>
 
-        <!-- Workflow View -->
-        <div id="workflows-view" class="view">
-            <div class="workflow-grid" id="workflowGrid">
-                <!-- Injected via JS -->
+        <!-- Graph View -->
+        <div id="graph-view" class="view">
+            <div class="graph-banner">
+                <span style="font-size: 24px;">💡</span>
+                <div>
+                    <strong>Pro-tip:</strong> Information shared during chat (interests, locations, relations) is
+                    automatically extracted.
+                    Click <strong>Refresh Graph</strong> to see new updates.
+                </div>
+            </div>
+            <div id="cy"></div>
+            <div style="position: absolute; bottom: 20px; right: 20px; display: flex; gap: 12px;">
+                <button class="run-btn"
+                    style="width: auto; background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.2); color: #ef4444;"
+                    onclick="clearGraph()">
+                    <span>🗑️</span> Clear Memory
+                </button>
+                <button class="run-btn" style="width: auto; background: var(--card-bg);" onclick="loadGraph()">
+                    <span>🔄</span> Refresh Graph
+                </button>
             </div>
         </div>
 
-        <!-- Graph View -->
-        <div id="graph-view" class="view">
-            <div id="cy"></div>
-            <div style="position: absolute; bottom: 20px; right: 20px;">
-                <button class="run-btn" style="width: auto; background: var(--card-bg);" onclick="loadGraph()">Refresh
-                    Graph</button>
-            </div>
-        </div>
+        <div id="toastContainer" class="toast-container"></div>
 
     </div>
 
@@ -398,13 +487,35 @@
             document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
 
-            document.getElementById(`${tab}-view`).classList.add('active');
-            // Find nav item by text content approx or index, simple fix:
-            const tabs = ['chat', 'workflows', 'graph'];
-            document.querySelectorAll('.nav-item')[tabs.indexOf(tab)].classList.add('active');
+            const view = document.getElementById(`${tab}-view`);
+            if (view) view.classList.add('active');
+
+            const tabMap = { 'chat': 0, 'graph': 1 };
+            const navItems = document.querySelectorAll('.nav-item');
+            if (navItems[tabMap[tab]] !== undefined) {
+                navItems[tabMap[tab]].classList.add('active');
+            }
 
             if (tab === 'graph') loadGraph();
-            if (tab === 'workflows') loadWorkflows();
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+
+            let icon = 'ℹ️';
+            if (type === 'success') icon = '✅';
+            if (type === 'error') icon = '❌';
+
+            toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(20px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
         }
 
         // --- Connection ---
@@ -413,16 +524,21 @@
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
             const wsUrl = `${protocol}//${window.location.host}/ws/chat/${currentUserId}`;
 
+            if (ws) ws.close();
             ws = new WebSocket(wsUrl);
 
             ws.onopen = () => {
                 document.getElementById('statusDot').className = 'status-dot connected';
-                document.getElementById('statusText').innerText = 'Connected';
+                document.getElementById('statusText').innerText = 'Connected:';
+                document.getElementById('userLabel').innerText = currentUserId;
+                showToast("System connected successfully", "success");
             };
 
             ws.onclose = () => {
                 document.getElementById('statusDot').className = 'status-dot';
                 document.getElementById('statusText').innerText = 'Disconnected';
+                document.getElementById('userLabel').innerText = '';
+                showToast("System disconnected", "error");
             };
 
             ws.onmessage = (event) => {
@@ -444,7 +560,7 @@
             if (!text) return;
 
             if (!ws || ws.readyState !== WebSocket.OPEN) {
-                alert("Please connect first.");
+                showToast("Please connect first", "error");
                 return;
             }
 
@@ -457,18 +573,27 @@
 
         function addMessage(text, type, isStreamStart = false) {
             const container = document.getElementById('chatContainer');
-            // Remove welcome
             const welcome = document.querySelector('.welcome');
             if (welcome) welcome.remove();
 
             const div = document.createElement('div');
             div.className = `message ${type}`;
-            div.innerText = text;
+
+            const contentSpan = document.createElement('span');
+            contentSpan.innerText = text;
+            div.appendChild(contentSpan);
+
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'copy-btn';
+            copyBtn.innerText = 'Copy';
+            copyBtn.onclick = () => copyToClipboard(contentSpan.innerText, copyBtn);
+            div.appendChild(copyBtn);
+
             container.appendChild(div);
             container.scrollTop = container.scrollHeight;
 
             if (isStreamStart) {
-                currentBotMsgDiv = div;
+                currentBotMsgDiv = contentSpan;
             }
         }
 
@@ -479,82 +604,18 @@
             }
         }
 
+        function copyToClipboard(text, btn) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = btn.innerText;
+                btn.innerText = 'Copied!';
+                setTimeout(() => btn.innerText = originalText, 2000);
+            });
+        }
+
         document.getElementById('messageInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') sendMessage();
         });
 
-        // --- Workflows ---
-        async function loadWorkflows() {
-            const res = await fetch('/api/v1/workflows');
-            const data = await res.json();
-            const grid = document.getElementById('workflowGrid');
-            grid.innerHTML = '';
-
-            data.workflows.forEach(wf => {
-                const card = document.createElement('div');
-                card.className = 'workflow-card';
-                card.innerHTML = `
-                    <div class="workflow-title">${wf.name}</div>
-                    <div class="workflow-desc">${wf.description}</div>
-                    <button class="run-btn" onclick="runWorkflow('${wf.id}')">Run Workflow</button>
-                `;
-                grid.appendChild(card);
-            });
-        }
-
-        async function runWorkflow(id) {
-            const topic = prompt("Enter topic for workflow (e.g. 'AI Trends 2024'):", "Artificial Intelligence");
-            if (!topic) return;
-
-            // Create a bubble for the workflow output
-            const outputDiv = document.createElement('div');
-            outputDiv.className = 'message bot-message';
-            outputDiv.innerHTML = `<strong>⚙️ Running Workflow: ${id}...</strong><br><div class="workflow-log" style="font-family: monospace; font-size: 0.9em; color: #e2e8f0; margin-top: 5px;">Initializing...</div>`;
-            document.getElementById('chatContainer').appendChild(outputDiv);
-            document.getElementById('chatContainer').scrollTop = document.getElementById('chatContainer').scrollHeight;
-
-            const logDiv = outputDiv.querySelector('.workflow-log');
-
-            const eventSource = new EventSource(`/api/v1/workflow/stream/${id}?user_id=${currentUserId}&topic=${encodeURIComponent(topic)}`);
-
-            eventSource.onmessage = function (event) {
-                const data = JSON.parse(event.data);
-
-                if (data.type === 'start') {
-                    logDiv.innerHTML += `<div>🚀 Workflow Started</div>`;
-                } else if (data.type === 'step_start') {
-                    logDiv.innerHTML += `<div style="margin-top:5px">▶️ <strong>${data.step}</strong>: ${data.description || ''}</div>`;
-                } else if (data.type === 'step_complete') {
-                    // Show truncated output
-                    const preview = data.output.length > 100 ? data.output.substring(0, 100) + '...' : data.output;
-                    logDiv.innerHTML += `<div style="color:#94a3b8; margin-left:15px; font-size:0.85em; margin-bottom: 2px;">"${preview}"</div>`;
-                    logDiv.innerHTML += `<div>✅ Step Complete</div>`;
-                } else if (data.type === 'complete') {
-                    logDiv.innerHTML += `<div style="color:#4ade80; margin-top:10px"><strong>✅ Workflow Completed Successfully!</strong></div>`;
-                    // Pretty print results
-                    let resultHtml = '<div style="background: rgba(0,0,0,0.2); padding: 10px; margin-top: 10px; border-radius: 5px;">';
-                    for (const [key, value] of Object.entries(data.results)) {
-                        resultHtml += `<strong>[${key}]</strong>:<br>${value}<br><br>`;
-                    }
-                    resultHtml += '</div>';
-                    outputDiv.innerHTML += resultHtml;
-                    eventSource.close();
-                } else if (data.type === 'error') {
-                    logDiv.innerHTML += `<div style="color:#ef4444">❌ Error: ${data.error}</div>`;
-                    eventSource.close();
-                } else if (data.type === 'step_error') {
-                    logDiv.innerHTML += `<div style="color:#ef4444">❌ Step Error: ${data.error}</div>`;
-                    eventSource.close();
-                }
-
-                document.getElementById('chatContainer').scrollTop = document.getElementById('chatContainer').scrollHeight;
-            };
-
-            eventSource.onerror = function (err) {
-                console.error("EventSource failed:", err);
-                eventSource.close();
-            };
-        }
 
         // --- File Upload ---
         async function uploadFile() {
@@ -574,46 +635,76 @@
                         body: formData
                     });
                     const data = await res.json();
-                    alert(data.message);
-                    addMessage(`📂 Uploaded file: ${file.name}`, false);
+                    showToast(data.message, "success");
+                    addMessage(`📂 Uploaded file: ${file.name}`, 'user');
                 } catch (e) {
                     console.error(e);
-                    alert("Upload failed");
+                    showToast("Upload failed", "error");
                 }
             };
             input.click();
         }
 
-        // Add Upload Button locally to UI (simplified)
-        window.addEventListener('load', () => {
-            const chatInputContainer = document.querySelector('.chat-input-container');
-            const uploadBtn = document.createElement('button');
-            uploadBtn.innerText = '📎';
-            uploadBtn.className = 'send-btn'; // reuse style
-            uploadBtn.style.marginRight = '10px';
-            uploadBtn.onclick = uploadFile;
-            chatInputContainer.insertBefore(uploadBtn, document.getElementById('messageInput'));
-        });
-
         // --- Graph ---
         async function loadGraph() {
-            const res = await fetch(`/api/v1/graph/data?user_id=${currentUserId}`);
-            const data = await res.json();
+            showToast("Loading graph data...", "info");
+            console.log("🕸️ Loading knowledge graph data...");
+            try {
+                const res = await fetch(`/api/v1/graph/data?user_id=${currentUserId}`);
+                if (!res.ok) throw new Error(`API error: ${res.status}`);
 
-            if (cy) cy.destroy();
+                const data = await res.json();
+                console.log("📦 Graph data received:", data);
 
-            cy = cytoscape({
-                container: document.getElementById('cy'),
-                elements: {
-                    nodes: data.nodes.map(n => ({ data: { id: n.id, label: n.id } })),
-                    edges: data.links.map(e => ({ data: { source: e.source, target: e.target, label: e.relation } }))
-                },
-                style: [
-                    { selector: 'node', style: { 'background-color': '#6366f1', 'label': 'data(id)', 'color': '#fff', 'text-outline-width': 2, 'text-outline-color': '#6366f1' } },
-                    { selector: 'edge', style: { 'width': 2, 'line-color': '#94a3b8', 'target-arrow-shape': 'triangle', 'target-arrow-color': '#94a3b8', 'curve-style': 'bezier', 'label': 'data(label)', 'color': '#ccc', 'font-size': 10 } }
-                ],
-                layout: { name: 'cose', animate: true }
-            });
+                if (!data || typeof data !== 'object') {
+                    console.warn("⚠️ Received invalid graph data format");
+                    return;
+                }
+
+                const nodes = data.nodes || [];
+                const links = data.links || data.edges || [];
+
+                if (cy) cy.destroy();
+
+                cy = cytoscape({
+                    container: document.getElementById('cy'),
+                    elements: {
+                        nodes: nodes.map(n => ({ data: { id: n.id, label: n.label || n.id } })),
+                        edges: links.map(e => ({ data: { source: e.source, target: e.target, label: e.relation || e.type || '' } }))
+                    },
+                    style: [
+                        { selector: 'node', style: { 'background-color': '#6366f1', 'label': 'data(id)', 'color': '#fff', 'text-outline-width': 2, 'text-outline-color': '#6366f1' } },
+                        { selector: 'edge', style: { 'width': 2, 'line-color': '#94a3b8', 'target-arrow-shape': 'triangle', 'target-arrow-color': '#94a3b8', 'curve-style': 'bezier', 'label': 'data(label)', 'color': '#ccc', 'font-size': 10 } }
+                    ],
+                    layout: { name: 'cose', animate: true }
+                });
+                if (nodes.length > 0) {
+                    showToast(`Graph rendered: ${nodes.length} nodes found.`, "success");
+                } else {
+                    showToast("Graph is currently empty. It will populate as you chat.", "info");
+                }
+            } catch (err) {
+                showToast("Failed to load graph data.", "error");
+                console.error("❌ Failed to load graph:", err);
+            }
+        }
+
+        async function clearGraph() {
+            if (!confirm("Are you sure you want to clear the entire graph memory?")) return;
+
+            try {
+                const res = await fetch(`/api/v1/graph/clear?user_id=${currentUserId}`, { method: 'POST' });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    showToast("Graph memory cleared successfully.", "success");
+                    loadGraph();
+                } else {
+                    showToast(data.message, "error");
+                }
+            } catch (err) {
+                showToast("Failed to clear graph memory.", "error");
+                console.error(err);
+            }
         }
     </script>
 </body>

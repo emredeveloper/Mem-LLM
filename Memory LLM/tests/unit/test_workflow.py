@@ -1,11 +1,9 @@
-import asyncio
 import os
 import tempfile
 from unittest.mock import MagicMock
 
 import pytest
 
-from mem_llm.mem_agent import MemAgent
 from mem_llm.workflow.workflow_engine import Step, Workflow
 
 

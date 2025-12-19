@@ -9,7 +9,7 @@ import logging
 import sqlite3
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -457,7 +457,7 @@ class DataImporter:
                     if row.get("metadata"):
                         try:
                             metadata = json.loads(row["metadata"])
-                        except:
+                        except (ValueError, json.JSONDecodeError):
                             pass
 
                     self.memory.add_conversation(
@@ -516,7 +516,7 @@ class DataImporter:
                 if row["metadata"]:
                     try:
                         metadata = json.loads(row["metadata"])
-                    except:
+                    except (ValueError, json.JSONDecodeError):
                         pass
 
                 self.memory.add_conversation(

@@ -67,12 +67,11 @@ class Step:
                 # Execute agent chat
                 # Note: Assuming synchronous chat for now unless we use a wrapper,
                 # but let's wrap in existing loop if needed or just call blocking
-                # To be true async, MemAgent needs async methods, but we can run in executor if needed.
-                # For now, we'll call it directly (blocking) as MemAgent is primarily sync focused
+                # To be true async, MemAgent needs async methods, but we can run in executor.
+                # For now, we'll call it directly (blocking) as MemAgent is primarily sync
                 # (though it has some async tools support).
-                logger.info(
-                    f" Agent {self.agent.agent_id if hasattr(self.agent, 'agent_id') else 'Agent'} thinking..."
-                )
+                agent_label = self.agent.agent_id if hasattr(self.agent, "agent_id") else "Agent"
+                logger.info(f" Agent {agent_label} thinking...")
                 result = self.agent.chat(prompt)
 
             # Case 2: Tool Execution
