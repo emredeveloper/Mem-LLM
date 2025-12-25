@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.4.0] - 2025-12-25
+### Added
+- **Release v2.4.0** — Bumped package metadata and published to PyPI.
+
+### Changed
+- **Docs**: Updated top-level README and package description used on PyPI.
+- **Packaging**: Ensured Python >=3.8 support and refreshed build process.
+
+### Fixed
+- **Author**: Normalized author name to "Cihat Emre Karataş" across the codebase.
+
+
 ## [2.3.7] - 2025-12-25
 ### Fixed
 - **Demo File**: Corrected undefined `translate_to_turkish` function in `18_function_calling.py` demo
