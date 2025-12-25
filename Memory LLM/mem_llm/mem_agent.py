@@ -647,6 +647,12 @@ class MemAgent:
 
                 self.logger.info(f"  Executing: {tool_name}({arguments})")
 
+                # Check if tool exists before executing
+                if not self.tool_registry.get(tool_name):
+                    self.logger.warning(f"Tool '{tool_name}' not found in registry. Available tools: {list(self.tool_registry.tools.keys())}")
+                    # Skip this tool call and continue with others
+                    continue
+
                 # Execute tool
                 result = self.tool_registry.execute(tool_name, **arguments)
 

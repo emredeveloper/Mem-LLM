@@ -25,7 +25,7 @@ API Documentation:
     - Swagger UI: http://localhost:8000/docs
     - ReDoc: http://localhost:8000/redoc
 
-Author: C. Emre Karataş
+Author: Cihat Emre Karataş
 Version: 2.3.2
 """
 
@@ -108,7 +108,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Mem-LLM API",
     description="REST API for Mem-LLM - Privacy-first, Memory-enabled AI Assistant (100% Local)",
-    version="2.3.2",
+    version="2.3.8",
     docs_url="/docs",
     redoc_url="/redoc",
     lifespan=lifespan,

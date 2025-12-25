@@ -40,7 +40,7 @@ def main():
             name="LM Studio Researcher",
             role=AgentRole.RESEARCHER,
             backend="lmstudio",
-            model="local-model",
+            model="google/gemma-3-4b",
         )
         print(f"✅ Created: {researcher.name}")
 

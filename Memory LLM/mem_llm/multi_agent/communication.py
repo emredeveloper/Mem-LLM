@@ -4,7 +4,7 @@ Communication Protocol for Multi-Agent System
 
 Handles message passing, queuing, and broadcasting between agents.
 
-Author: C. Emre Karataş
+Author: Cihat Emre Karataş
 Version: 2.2.0
 """
 

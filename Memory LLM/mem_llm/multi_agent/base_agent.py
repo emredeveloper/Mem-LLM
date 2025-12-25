@@ -4,7 +4,7 @@ Base Agent Class for Multi-Agent System
 
 Defines the core agent interface and functionality.
 
-Author: C. Emre Karataş
+Author: Cihat Emre Karataş
 Version: 2.2.0
 """
 

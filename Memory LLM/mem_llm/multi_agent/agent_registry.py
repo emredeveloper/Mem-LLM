@@ -4,7 +4,7 @@ Agent Registry - Manages all agents in the system
 
 Provides centralized agent management, lookup, and health monitoring.
 
-Author: C. Emre Karataş
+Author: Cihat Emre Karataş
 Version: 2.2.0
 """
 

@@ -15,11 +15,11 @@ Mem-LLM is a powerful Python library that brings persistent memory and function 
 - **Issues**: https://github.com/emredeveloper/Mem-LLM/issues
 - **Documentation**: See examples/ directory
 
-## 🆕 What's New in v2.3.2
+## 🆕 What's New in v2.3.8
 
-- ✅ **Knowledge Graph Robustness** - Improved extraction logic using regex and fixed recursive LLM loops.
-- ✅ **Graph Control & UI** - Added "Clear Memory" functionality and live Toast notifications for graph updates.
-- ✅ **UI Simplification** - Streamlined interface by removing workflows to focus on core chat and memory graph.
+- ✅ **Author & Metadata Fixes** - Corrected author name across the codebase and packaging metadata (now **Cihat Emre Karataş**).
+- ✅ **Packaging & Compatibility** - Bumped package metadata to **2.3.8** and set Python requirement to **>=3.8**.
+- ✅ **README & PyPI Description** - Updated short description (used by PyPI) and cleaned up outdated changelog entries.
 
 ## 🆕 What's New in v2.3.0
 
@@ -857,7 +857,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👤 Author
 
-**C. Emre Karataş**
+**Cihat Emre Karataş**
 - Email: karatasqemre@gmail.com
 - GitHub: [@emredeveloper](https://github.com/emredeveloper)
 

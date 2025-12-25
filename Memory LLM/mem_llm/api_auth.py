@@ -10,7 +10,7 @@ Features:
 - Rate limiting
 - User session management
 
-Author: C. Emre Karataş
+Author: Cihat Emre Karataş
 Version: 2.3.2
 """
 

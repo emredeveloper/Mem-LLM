@@ -5,7 +5,7 @@ Base LLM Client Interface
 Abstract base class for all LLM client implementations.
 Ensures consistent interface across different backends (Ollama, LM Studio)
 
-Author: C. Emre Karataş
+Author: Cihat Emre Karataş
 Version: 1.3.0
 """
 

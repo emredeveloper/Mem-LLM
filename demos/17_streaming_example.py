@@ -11,7 +11,7 @@ Benefits:
 - Lower perceived latency
 - Professional chat interface feeling
 
-Author: C. Emre Karataş
+Author: Cihat Emre Karataş
 Version: 1.3.3
 """
 

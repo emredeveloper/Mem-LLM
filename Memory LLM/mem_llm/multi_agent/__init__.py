@@ -10,7 +10,7 @@ Features:
 - Workflow orchestration
 - Shared and private memory spaces
 
-Author: C. Emre Karataş
+Author: Cihat Emre Karataş
 Version: 2.2.0
 """
 

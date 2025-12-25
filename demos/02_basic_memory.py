@@ -17,7 +17,7 @@ print("Basic Memory")
 print("=" * 60)
 
 # Create agent
-agent = MemAgent(model="granite4:tiny-h", use_sql=False)
+agent = MemAgent(model="granite4:3b", use_sql=False)
 agent.set_user("john")
 
 print("\n💬 Conversation 1: Share Information")

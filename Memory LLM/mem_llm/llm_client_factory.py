@@ -19,7 +19,7 @@ Usage:
     # Get all available backends
     backends = LLMClientFactory.get_available_backends()
 
-Author: C. Emre Karataş
+Author: Cihat Emre Karataş
 Version: 1.3.0
 """
 

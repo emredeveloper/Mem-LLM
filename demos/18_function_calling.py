@@ -45,19 +45,19 @@ agent = MemAgent(
 agent.set_user("demo_user")
 
 # Test calculator
-print("\n📊 Testing Calculator:")
+print("\n[📊] Testing Calculator:")
 print("User: Calculate (25 * 4) + 10")
 response = agent.chat("Calculate (25 * 4) + 10")
 print(f"Bot: {response}")
 
 # Test text processing
-print("\n📝 Testing Text Processing:")
+print("\n[📝] Testing Text Processing:")
 print("User: Count the words in 'Hello world from AI agent'")
 response = agent.chat("Count the words in 'Hello world from AI agent'")
 print(f"Bot: {response}")
 
 # Test current time
-print("\n🕐 Testing Time:")
+print("\n[🕐] Testing Time:")
 print("User: What is the current time?")
 response = agent.chat("What is the current time?")
 print(f"Bot: {response}")
@@ -84,7 +84,7 @@ def get_weather(city: str) -> str:
     return weather_data.get(city, f"Weather data not available for {city}")
 
 
-@tool(name="translate", description="Translate text to Spanish", category="text")
+@tool(name="translate_to_spanish", description="Translate text to Spanish", category="text")
 def translate_to_spanish(text: str) -> str:
     """Simple translation (demo only)"""
     translations = {
@@ -96,12 +96,24 @@ def translate_to_spanish(text: str) -> str:
     return translations.get(text.lower(), f"Translation not available for '{text}'")
 
 
+@tool(name="translate_to_turkish", description="Translate text to Turkish", category="text")
+def translate_to_turkish(text: str) -> str:
+    """Simple translation to Turkish (demo only)"""
+    translations = {
+        "hello": "merhaba",
+        "goodbye": "hoscakal",
+        "thank you": "tesekkur ederim",
+        "good morning": "gunaydin"
+    }
+    return translations.get(text.lower(), f"Translation not available for '{text}'")
+
+
 # Create agent with custom tools
 agent_custom = MemAgent(
     backend='ollama',
     model='granite4:3b',
     enable_tools=True,
-    tools=[get_weather, translate_to_turkish],  # 🔥 Add custom tools
+    tools=[get_weather, translate_to_spanish, translate_to_turkish],  # 🔥 Add custom tools
     use_sql=False
 )
 
@@ -112,7 +124,12 @@ print("User: What's the weather in Tokyo?")
 response = agent_custom.chat("What's the weather in Tokyo?")
 print(f"Bot: {response}")
 
-print("\n🌍 Testing Custom Translation Tool:")
+print("\n[🌍] Testing Custom Translation Tool (Spanish):")
+print("User: Translate 'hello' to Spanish")
+response = agent_custom.chat("Translate 'hello' to Spanish")
+print(f"Bot: {response}")
+
+print("\n[🌍] Testing Custom Translation Tool (Turkish):")
 print("User: Translate 'hello' to Turkish")
 response = agent_custom.chat("Translate 'hello' to Turkish")
 print(f"Bot: {response}")
@@ -126,7 +143,7 @@ print("DEMO 3: Complex Multi-Tool Usage")
 print("="*70)
 
 # Agent can chain multiple tools
-print("\n🔗 Testing Tool Chaining:")
+print("\n[🔗] Testing Tool Chaining:")
 print("User: Calculate 100 divided by 4, then convert the result to uppercase text")
 response = agent.chat("Calculate 100 divided by 4, then convert the result to uppercase text")
 print(f"Bot: {response}")
@@ -139,7 +156,7 @@ print("\n" + "="*70)
 print("DEMO 4: File Operations")
 print("="*70)
 
-print("\n📁 Testing File Tools:")
+print("\n[📁] Testing File Tools:")
 print("User: Create a file called 'test_output.txt' with content 'Hello from AI agent!'")
 response = agent.chat("Create a file called 'test_output.txt' with content 'Hello from AI agent!'")
 print(f"Bot: {response}")
@@ -152,23 +169,24 @@ print(f"Bot: {response}")
 import os
 if os.path.exists("test_output.txt"):
     os.remove("test_output.txt")
-    print("\n🗑️  Cleaned up test file")
+    print("\n[🗑️] Cleaned up test file")
 
 # ============================================================================
 # Summary
 # ============================================================================
 
 print("\n" + "="*70)
-print("✅ FUNCTION CALLING DEMO COMPLETED!")
+print("FUNCTION CALLING DEMO COMPLETED! ✅")
 print("="*70)
 
-print("\n📚 Available Built-in Tools:")
+print("\nAvailable Built-in Tools 📚:")
 print("  Math: calculate")
 print("  Text: count_words, reverse_text, to_uppercase, to_lowercase")
 print("  File: read_file, write_file, list_files")
 print("  Utility: get_current_time, create_json")
+print("  Custom: get_weather, translate_to_spanish, translate_to_turkish")
 
-print("\n🎯 Key Features:")
+print("\nKey Features 🎯:")
 print("  ✅ Built-in tools (10+ tools)")
 print("  ✅ Custom tool registration")
 print("  ✅ Automatic tool detection")
@@ -176,7 +194,7 @@ print("  ✅ Multi-tool chaining")
 print("  ✅ Error handling")
 print("  ✅ Type hints support")
 
-print("\n🚀 Next Steps:")
+print("\nNext Steps 🚀:")
 print("  1. Create your own custom tools with @tool decorator")
 print("  2. Combine tools with memory and knowledge base")
 print("  3. Build complex agent workflows")

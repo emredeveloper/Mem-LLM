@@ -12,7 +12,7 @@ Features:
 - Tool result formatting
 - Built-in common tools
 
-Author: C. Emre Karataş
+Author: Cihat Emre Karataş
 Version: 2.1.1
 """
 
@@ -382,10 +382,13 @@ class ToolRegistry:
         # Get tool
         tool = self.get(tool_name)
         if not tool:
+            # Log available tools for debugging
+            available_tools = list(self.tools.keys())
+            logger.warning(f"Tool '{tool_name}' not found in call. Available tools: {available_tools}. Full match: {match.group(0) if 'match' in locals() else 'N/A'}")
             return ToolCallResult(
                 tool_name=tool_name,
                 status=ToolCallStatus.NOT_FOUND,
-                error=f"Tool '{tool_name}' not found",
+                error=f"Tool '{tool_name}' not found. Available tools: {available_tools}",
                 execution_time=time.time() - start_time,
             )
 
@@ -419,16 +422,18 @@ class ToolCallParser:
 
     # Pattern to detect tool calls in LLM output
     # Format: TOOL_CALL: tool_name(arg1="value1", arg2="value2")
-    TOOL_CALL_PATTERN = r"TOOL_CALL:\s*(\w+)\((.*?)\)"
+    # Using a more robust pattern that handles nested parentheses and validates tool names
+    TOOL_CALL_PATTERN = r"TOOL_CALL:\s*([a-zA-Z_][a-zA-Z0-9_]*)\((.*?)\)(?=\s|$|[^a-zA-Z0-9_\(])"
 
     # Alternative patterns for natural language tool calls (v2.1.3+)
+    # Updated to better handle nested parentheses and validate tool names
     NATURAL_PATTERNS = [
         (
-            r"(?:using|use|call|execute)\s+(?:the\s+)?[`']?(\w+)[`']?\s+"
-            r"(?:tool|function)?\s*(?:with|to|on)?\s*\((.*?)\)"
+            r"(?:using|use|call|execute)\s+(?:the\s+)?[`']?([a-zA-Z_][a-zA-Z0-9_]*)[`']?\s+"
+            r"(?:tool|function)?\s*(?:with|to|on)?\s*\((.*?)\)(?=\s|$|[.!?])"
         ),
-        r"(?:tool|function)\s+[`']?(\w+)[`']?\s*\((.*?)\)",
-        r"`(\w+)\((.*?)\)`",  # Markdown code format
+        r"(?:tool|function)\s+[`']?([a-zA-Z_][a-zA-Z0-9_]*)[`']?\s*\((.*?)\)(?=\s|$|[.!?])",
+        r"`([a-zA-Z_][a-zA-Z0-9_]*)\((.*?)\)`",  # Markdown code format
     ]
 
     @staticmethod
@@ -440,17 +445,22 @@ class ToolCallParser:
         Returns:
             List of dicts with 'tool' and 'arguments' keys
         """
+        logger.debug(f"Attempting to parse tool calls from text: {text[:200]}...")
         tool_calls = []
 
         # Try explicit TOOL_CALL format first
         matches = re.finditer(ToolCallParser.TOOL_CALL_PATTERN, text, re.MULTILINE)
         matches_list = list(matches)
 
+        logger.debug(f"Found {len(matches_list)} matches with explicit TOOL_CALL pattern")
+
         # If no explicit format found, try natural language patterns (v2.1.3+)
         if not matches_list:
             for pattern in ToolCallParser.NATURAL_PATTERNS:
-                matches_list.extend(re.finditer(pattern, text, re.IGNORECASE | re.MULTILINE))
-                if matches_list:
+                pattern_matches = list(re.finditer(pattern, text, re.IGNORECASE | re.MULTILINE))
+                matches_list.extend(pattern_matches)
+                logger.debug(f"Pattern '{pattern[:30]}...' found {len(pattern_matches)} matches")
+                if pattern_matches:
                     logger.info(
                         f"🔍 Detected natural language tool call using pattern: {pattern[:50]}..."
                     )
@@ -458,13 +468,36 @@ class ToolCallParser:
 
         matches = matches_list
 
+        logger.debug(f"Total matches found: {len(matches)}")
+
         for match in matches:
+            # Extract the full tool call string to handle nested parentheses properly
+            full_match_str = match.group(0)
             tool_name = match.group(1)
-            args_str = match.group(2)
+            # Get the argument part for debugging too
+            try:
+                args_str = match.group(2)
+            except IndexError:
+                args_str = ""
+
+            logger.debug(f"Full match: '{full_match_str}', Tool name: '{tool_name}', Args: '{args_str}'")
+
+            # Validate that the tool name is a valid identifier to prevent issues like 'tool_name'
+            # This prevents cases where LLM generates something like "tool_name" as a literal instead of a real tool name
+            import re
+            if not re.match(r'^[a-zA-Z_][a-zA-Z0-9_]*$', tool_name):
+                logger.warning(f"Invalid tool name format: '{tool_name}'. Skipping this match: {full_match_str}")
+                continue
+
+            # More robust argument extraction that handles nested parentheses
+            extracted_args = ToolCallParser._extract_arguments(full_match_str, tool_name)
+
+            # Debug logging to help with troubleshooting
+            logger.debug(f"Parsed tool call - Name: '{tool_name}', Args: '{extracted_args}'")
 
             # Parse arguments
             arguments = {}
-            if args_str.strip():
+            if extracted_args.strip():
                 try:
                     # Try to parse as Python kwargs
                     # Handle both key="value" and positional args
@@ -477,7 +510,7 @@ class ToolCallParser:
                     paren_depth = 0
                     quote_char = None
 
-                    for char in args_str:
+                    for char in extracted_args:
                         if char in ['"', "'"] and quote_char is None:
                             quote_char = char
                             in_quotes = True
@@ -533,11 +566,50 @@ class ToolCallParser:
 
                     arguments = args_dict
                 except Exception as e:
-                    logger.warning(f"Failed to parse arguments: {args_str} - Error: {e}")
+                    logger.warning(f"Failed to parse arguments: {extracted_args} - Error: {e}")
 
             tool_calls.append({"tool": tool_name, "arguments": arguments})
 
+        logger.debug(f"Returning {len(tool_calls)} tool calls: {tool_calls}")
         return tool_calls
+
+    @staticmethod
+    def _extract_arguments(full_match_str: str, tool_name: str) -> str:
+        """
+        Extract arguments from a tool call string, properly handling nested parentheses.
+
+        Args:
+            full_match_str: Full matched tool call string (e.g., "TOOL_CALL: calculate((25 * 4) + 10)")
+            tool_name: Name of the tool
+
+        Returns:
+            Arguments string extracted from the tool call
+        """
+        # Find the position of the first opening parenthesis after the tool name
+        paren_pos = -1
+        tool_name_pos = full_match_str.find(tool_name)
+        if tool_name_pos != -1:
+            paren_pos = full_match_str.find('(', tool_name_pos + len(tool_name))
+
+        if paren_pos == -1:
+            return ""
+
+        # Now extract the content between parentheses, handling nested ones
+        paren_count = 0
+        start_pos = paren_pos + 1  # Start after the first '('
+        for i in range(start_pos, len(full_match_str)):
+            char = full_match_str[i]
+            if char == '(':
+                paren_count += 1
+            elif char == ')':
+                if paren_count == 0:
+                    # This is the matching closing parenthesis
+                    return full_match_str[start_pos:i]
+                paren_count -= 1
+
+        # If we get here, parentheses weren't properly matched
+        # Return what we have until the end (this might happen with malformed input)
+        return full_match_str[start_pos:]
 
     @staticmethod
     def has_tool_call(text: str) -> bool:

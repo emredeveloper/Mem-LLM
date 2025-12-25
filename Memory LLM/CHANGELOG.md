@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.3.7] - 2025-12-25
+### Fixed
+- **Demo File**: Corrected undefined `translate_to_turkish` function in `18_function_calling.py` demo
+- **Tool System**: Enhanced regex patterns for safer tool name validation to prevent injection
+- **Tool Parsing**: Added validation for tool name format to prevent issues with generic names like 'tool_name'
+- **Error Handling**: Improved error messages and logging for better debugging experience
+
+### Changed
+- **Security**: Tool names now validated using stricter regex patterns (`[a-zA-Z_][a-zA-Z0-9_]*`)
+- **Robustness**: Tool calls with invalid names are now skipped instead of causing failures
+- **Logging**: Added debug logging for tool call parsing and execution
+
 ## [2.3.3] - 2025-12-19
 ### Fixed
 - **Tests**: Resolved major test failures in `test_extractor`, `test_health_check`, and `LLMClientFactory`.

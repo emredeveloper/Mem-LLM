@@ -5,7 +5,7 @@ Tool Workspace Manager (v2.1.3+)
 Manages file artifacts created by tools.
 Provides cleanup and organization for tool-generated files.
 
-Author: C. Emre Karataş
+Author: Cihat Emre Karataş
 Version: 2.1.3
 """
 

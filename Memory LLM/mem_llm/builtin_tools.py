@@ -4,7 +4,7 @@ Built-in Tools
 
 Common tools that are available by default.
 
-Author: C. Emre Karataş
+Author: Cihat Emre Karataş
 Version: 2.1.3
 """
 

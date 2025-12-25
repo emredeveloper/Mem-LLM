@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mem-llm"
-version = "2.3.3"
+version = "2.3.8"
 description = "Privacy-first, memory-enabled AI assistant with workflow engine, knowledge graph, multi-agent systems, multi-backend LLM support (Ollama, LM Studio), vector search, and analytics - 100% local and production-ready"
 readme = {file = "README.md", content-type = "text/markdown"}
-requires-python = ">=3.10"
+requires-python = ">=3.8"
 license = {text = "MIT"}
 authors = [
-    {name = "C. Emre Karataş", email = "karatasqemre@gmail.com"}
+    {name = "Cihat Emre Karataş", email = "karatasqemre@gmail.com"}
 ]
 keywords = ["llm", "ai", "memory", "agent", "multi-agent", "chatbot", "ollama", "lmstudio", "multi-backend", "local", "privacy", "vector-search", "chromadb", "response-metrics", "semantic-search", "quality-analytics", "embedding", "streaming", "function-calling", "tools", "async", "validation", "workspace", "collaboration"]
 classifiers = [

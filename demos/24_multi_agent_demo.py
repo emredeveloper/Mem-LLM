@@ -8,7 +8,7 @@ Demonstrates all Phase 1 features:
 - CommunicationHub for messaging
 - Direct messaging and broadcast channels
 
-Author: C. Emre Karataş
+Author: Cihat Emre Karataş
 Version: 2.2.0
 """
 

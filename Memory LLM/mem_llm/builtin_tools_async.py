@@ -4,7 +4,7 @@ Built-in Async Tools (v2.1.0+)
 
 Async versions of common tools for I/O-bound operations.
 
-Author: C. Emre Karataş
+Author: Cihat Emre Karataş
 Version: 2.1.1
 """
 

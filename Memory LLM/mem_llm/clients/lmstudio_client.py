@@ -16,7 +16,7 @@ Installation:
 2. Load a model
 3. Start local server (default: http://localhost:1234)
 
-Author: C. Emre Karataş
+Author: Cihat Emre Karataş
 Version: 1.3.0
 """
 
