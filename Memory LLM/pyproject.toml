@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mem-llm"
-version = "2.4.0"
+version = "2.4.1"
 description = "Privacy-first, memory-enabled AI assistant with workflow engine, knowledge graph, multi-agent systems, multi-backend LLM support (Ollama, LM Studio), vector search, and analytics - 100% local and production-ready"
 readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">=3.8"
@@ -118,11 +118,6 @@ addopts = [
     "--showlocals",          # Show local variables in tracebacks
     "-v",                    # Verbose output
     "--tb=short",            # Shorter traceback format
-    "--cov=mem_llm",         # Coverage for mem_llm package
-    "--cov-report=term-missing",  # Show missing lines in terminal
-    "--cov-report=html",     # Generate HTML coverage report
-    "--cov-report=xml",      # Generate XML coverage report (for CI)
-    "--cov-branch",          # Measure branch coverage
 ]
 markers = [
     "unit: Unit tests",

@@ -17,8 +17,8 @@ class TestLMStudioIntegration:
         """Setup test environment"""
         self.lmstudio_url = "http://localhost:1234"
         # Use the exact model ID from LM Studio API
-        # From curl response: "qwen/qwen3-4b-2507" or "google/gemma-3-4b"
-        self.model_name = "qwen/qwen3-4b-2507"  # Exact model ID from LM Studio
+        # From curl response: "google/gemma-3-4b" or another downloaded LM Studio model.
+        self.model_name = "google/gemma-3-4b"  # Exact model ID from LM Studio
 
     def test_lmstudio_client_creation(self):
         """Test creating LM Studio client"""
@@ -130,7 +130,7 @@ class TestLMStudioVsOllama:
         # Create agent with LM Studio
         try:
             agent_lmstudio = MemAgent(
-                model="qwen/qwen3-4b-2507",  # Exact model ID
+                model="google/gemma-3-4b",  # Exact model ID
                 backend="lmstudio",
                 lmstudio_url="http://localhost:1234",
                 use_sql=False,
@@ -158,7 +158,7 @@ class TestLMStudioVsOllama:
         # Test LM Studio
         try:
             agent_lmstudio = MemAgent(
-                model="qwen/qwen3-4b-2507",  # Exact model ID
+                model="google/gemma-3-4b",  # Exact model ID
                 backend="lmstudio",
                 lmstudio_url="http://localhost:1234",
                 use_sql=False,

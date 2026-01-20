@@ -26,18 +26,30 @@ API Documentation:
     - ReDoc: http://localhost:8000/redoc
 
 Author: Cihat Emre Karataş
-Version: 2.3.2
+Version: 2.4.1
 """
 
 import asyncio
 import json
 import logging
+import os
+import time
 from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
+from threading import Lock
 from typing import Any, Dict, Optional
 
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile, WebSocket, WebSocketDisconnect
+from fastapi import (
+    Depends,
+    FastAPI,
+    File,
+    Form,
+    HTTPException,
+    UploadFile,
+    WebSocket,
+    WebSocketDisconnect,
+)
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -45,6 +57,7 @@ from pydantic import BaseModel, Field
 
 # Import Mem-LLM components
 from .mem_agent import MemAgent
+from .api_auth import AUTH_DISABLED, create_api_key, require_permission, api_key_store, revoke_api_key
 
 # Note: In a real app, we'd probably have a WorkflowManager attached to the agent or global
 
@@ -53,8 +66,82 @@ from .mem_agent import MemAgent
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Store active agents for each user
-agents: Dict[str, MemAgent] = {}
+
+class AgentStore:
+    """Simple LRU + TTL in-memory agent store."""
+
+    def __init__(self, ttl_seconds: int = 3600, max_size: int = 500):
+        self.ttl_seconds = ttl_seconds
+        self.max_size = max_size
+        self._entries: Dict[str, Dict[str, Any]] = {}
+        self._lru: Dict[str, float] = {}
+        self._lock = Lock()
+
+    def _purge_expired(self) -> None:
+        if self.ttl_seconds <= 0:
+            return
+        now = time.time()
+        expired = [
+            user_id
+            for user_id, meta in self._entries.items()
+            if now - meta["last_access"] > self.ttl_seconds
+        ]
+        for user_id in expired:
+            self._entries.pop(user_id, None)
+            self._lru.pop(user_id, None)
+
+    def get(self, user_id: str) -> Optional[MemAgent]:
+        with self._lock:
+            self._purge_expired()
+            if user_id not in self._entries:
+                return None
+            meta = self._entries[user_id]
+            meta["last_access"] = time.time()
+            self._lru[user_id] = meta["last_access"]
+            return meta["agent"]
+
+    def set(self, user_id: str, agent: MemAgent) -> None:
+        with self._lock:
+            now = time.time()
+            self._entries[user_id] = {"agent": agent, "created_at": now, "last_access": now}
+            self._lru[user_id] = now
+            self._purge_expired()
+            if self.max_size > 0 and len(self._entries) > self.max_size:
+                # Remove least recently used entries
+                to_remove = sorted(self._lru.items(), key=lambda item: item[1])[
+                    : len(self._entries) - self.max_size
+                ]
+                for remove_id, _ in to_remove:
+                    self._entries.pop(remove_id, None)
+                    self._lru.pop(remove_id, None)
+
+    def delete(self, user_id: str) -> None:
+        with self._lock:
+            self._entries.pop(user_id, None)
+            self._lru.pop(user_id, None)
+
+    def values(self):
+        with self._lock:
+            self._purge_expired()
+            return [meta["agent"] for meta in self._entries.values()]
+
+    def size(self) -> int:
+        with self._lock:
+            self._purge_expired()
+            return len(self._entries)
+
+
+_fallback_store = AgentStore()
+
+
+def _get_agent_store() -> AgentStore:
+    try:
+        store = getattr(app.state, "agent_store", None)
+        if store:
+            return store
+    except NameError:
+        pass
+    return _fallback_store
 
 # Default agent configuration
 DEFAULT_CONFIG = {
@@ -78,17 +165,21 @@ def get_or_create_agent(user_id: str, config: Optional[Dict] = None) -> MemAgent
     Returns:
         MemAgent instance
     """
-    if user_id not in agents:
-        agent_config = DEFAULT_CONFIG.copy()
-        if config:
-            agent_config.update(config)
+    store = _get_agent_store()
+    existing = store.get(user_id)
+    if existing:
+        return existing
 
-        logger.info(f"Creating new agent for user: {user_id}")
-        agent = MemAgent(**agent_config)
-        agent.set_user(user_id)
-        agents[user_id] = agent
+    agent_config = DEFAULT_CONFIG.copy()
+    if config:
+        agent_config.update(config)
 
-    return agents[user_id]
+    logger.info(f"Creating new agent for user: {user_id}")
+    agent = MemAgent(**agent_config)
+    agent.set_user(user_id)
+    store.set(user_id, agent)
+
+    return agent
 
 
 # Lifespan context manager for startup/shutdown events
@@ -98,26 +189,37 @@ async def lifespan(app: FastAPI):
     logger.info("🚀 Mem-LLM API Server starting...")
     logger.info("📝 API Documentation: http://localhost:8000/docs")
     logger.info(f"🔌 WebSocket endpoint: ws://localhost:8000/ws/chat/{'{user_id}'}")
+    ttl_seconds = int(os.environ.get("MEM_LLM_AGENT_TTL_SECONDS", "3600"))
+    max_size = int(os.environ.get("MEM_LLM_AGENT_MAX_SIZE", "500"))
+    app.state.agent_store = AgentStore(ttl_seconds=ttl_seconds, max_size=max_size)
     yield
     # Shutdown
     logger.info("🛑 Mem-LLM API Server shutting down...")
-    agents.clear()
+    app.state.agent_store = AgentStore()
 
 
 # Create FastAPI app
 app = FastAPI(
     title="Mem-LLM API",
     description="REST API for Mem-LLM - Privacy-first, Memory-enabled AI Assistant (100% Local)",
-    version="2.4.0",
+    version="2.4.1",
     docs_url="/docs",
     redoc_url="/redoc",
     lifespan=lifespan,
 )
 
+def _get_allowed_origins() -> list:
+    raw = os.environ.get("MEM_LLM_ALLOW_ORIGINS", "*")
+    if raw.strip() == "*":
+        return ["*"]
+    origins = [item.strip() for item in raw.split(",")]
+    return [origin for origin in origins if origin]
+
+
 # Add CORS middleware for web frontends
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify exact origins
+    allow_origins=_get_allowed_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -192,17 +294,52 @@ class AgentConfigRequest(BaseModel):
     temperature: Optional[float] = Field(None, description="Sampling temperature")
 
 
+class ApiKeyCreateRequest(BaseModel):
+    """Admin API key creation request"""
+
+    user_id: str = Field(..., description="User identifier for the key")
+    name: Optional[str] = Field(None, description="Display name")
+    permissions: Optional[list[str]] = Field(
+        None, description="Permissions list (e.g. read/write/admin)"
+    )
+
+
+class ApiKeyCreateResponse(BaseModel):
+    """Admin API key creation response"""
+
+    api_key: str = Field(..., description="New API key (show once)")
+    user_id: str = Field(..., description="User identifier")
+    name: Optional[str] = None
+    permissions: list[str] = Field(default_factory=list)
+
+
+class ApiKeyRevokeRequest(BaseModel):
+    """Admin API key revoke request"""
+
+    api_key: str = Field(..., description="API key to revoke")
+
+
+class ApiKeyUserResponse(BaseModel):
+    """API user listing entry (no raw key)"""
+
+    user_id: str
+    name: str
+    permissions: list[str]
+    created_at: str
+    is_active: bool
+
+
 # ============================================================================
 # Health & Info Endpoints
 # ============================================================================
 
 
 @app.get("/api/v1/info", tags=["General"])
-async def api_info():
+async def api_info(user=Depends(require_permission("read"))):  # noqa: B008
     """API information endpoint"""
     return {
         "name": "Mem-LLM API",
-        "version": "2.3.2",
+        "version": "2.4.1",
         "status": "running",
         "documentation": "/docs",
         "endpoints": {
@@ -216,12 +353,12 @@ async def api_info():
 
 
 @app.get("/api/v1/health", tags=["General"])
-async def health_check():
+async def health_check(user=Depends(require_permission("read"))):  # noqa: B008
     """Health check endpoint"""
     return {
         "status": "healthy",
         "timestamp": datetime.now().isoformat(),
-        "active_users": len(agents),
+        "active_users": _get_agent_store().size(),
     }
 
 
@@ -231,7 +368,7 @@ async def health_check():
 
 
 @app.post("/api/v1/chat", response_model=ChatResponse_API, tags=["Chat"])
-async def chat(request: ChatRequest):
+async def chat(request: ChatRequest, user=Depends(require_permission("write"))):  # noqa: B008
     """
     Send a chat message and get response
 
@@ -270,7 +407,7 @@ async def chat(request: ChatRequest):
 
 
 @app.post("/api/v1/chat/stream", tags=["Chat"])
-async def chat_stream(request: ChatRequest):
+async def chat_stream(request: ChatRequest, user=Depends(require_permission("write"))):  # noqa: B008
     """
     Send a chat message and get streaming response
 
@@ -318,6 +455,17 @@ async def websocket_chat(websocket: WebSocket, user_id: str):
     Server streams: {"type": "chunk", "content": "..."} or {"type": "done"}
     """
     await websocket.accept()
+    api_key = websocket.headers.get("x-api-key") or websocket.query_params.get("api_key")
+    if not AUTH_DISABLED:
+        if not api_key:
+            await websocket.close(code=1008)
+            return
+
+        user = api_key_store.validate_key(api_key)
+        if not user:
+            await websocket.close(code=1008)
+            return
+
     logger.info(f"WebSocket connected: {user_id}")
 
     try:
@@ -326,6 +474,11 @@ async def websocket_chat(websocket: WebSocket, user_id: str):
 
         while True:
             # Receive message from client
+            if not AUTH_DISABLED and not api_key_store.check_rate_limit(api_key):
+                await websocket.send_json({"type": "error", "content": "Rate limit exceeded"})
+                await websocket.close(code=1011)
+                return
+
             data = await websocket.receive_json()
             message = data.get("message", "")
             metadata = data.get("metadata")
@@ -367,7 +520,11 @@ async def websocket_chat(websocket: WebSocket, user_id: str):
 
 
 @app.post("/api/v1/kb/add", tags=["Knowledge Base"])
-async def add_knowledge(entry: KnowledgeEntryRequest, user_id: str = "admin"):
+async def add_knowledge(
+    entry: KnowledgeEntryRequest,
+    user_id: str = "admin",
+    user=Depends(require_permission("write")),  # noqa: B008
+):
     """Add entry to knowledge base"""
     try:
         agent = get_or_create_agent(user_id)
@@ -379,7 +536,11 @@ async def add_knowledge(entry: KnowledgeEntryRequest, user_id: str = "admin"):
 
 
 @app.post("/api/v1/kb/search", tags=["Knowledge Base"])
-async def search_knowledge(search: KnowledgeSearchRequest, user_id: str = "admin"):
+async def search_knowledge(
+    search: KnowledgeSearchRequest,
+    user_id: str = "admin",
+    user=Depends(require_permission("read")),  # noqa: B008
+):
     """Search knowledge base"""
     try:
         agent = get_or_create_agent(user_id)
@@ -399,7 +560,7 @@ async def search_knowledge(search: KnowledgeSearchRequest, user_id: str = "admin
 
 
 @app.get("/api/v1/kb/categories", tags=["Knowledge Base"])
-async def get_kb_categories(user_id: str = "admin"):
+async def get_kb_categories(user_id: str = "admin", user=Depends(require_permission("read"))):  # noqa: B008
     """Get all knowledge base categories"""
     try:
         agent = get_or_create_agent(user_id)
@@ -420,7 +581,7 @@ async def get_kb_categories(user_id: str = "admin"):
 
 
 @app.get("/api/v1/users/{user_id}/profile", response_model=UserProfileResponse, tags=["Users"])
-async def get_user_profile(user_id: str):
+async def get_user_profile(user_id: str, user=Depends(require_permission("read"))):  # noqa: B008
     """Get user profile"""
     try:
         agent = get_or_create_agent(user_id)
@@ -439,7 +600,7 @@ async def get_user_profile(user_id: str):
 
 
 @app.post("/api/v1/memory/search", tags=["Memory"])
-async def search_memory(search: MemorySearchRequest):
+async def search_memory(search: MemorySearchRequest, user=Depends(require_permission("read"))):  # noqa: B008
     """Search user's memory"""
     try:
         agent = get_or_create_agent(search.user_id)
@@ -464,14 +625,15 @@ async def search_memory(search: MemorySearchRequest):
 
 
 @app.get("/api/v1/memory/stats", tags=["Memory"])
-async def get_memory_stats():
+async def get_memory_stats(user=Depends(require_permission("read"))):  # noqa: B008
     """Get memory statistics"""
     try:
         total_memories = 0
-        total_users = len(agents)
+        store = _get_agent_store()
+        total_users = store.size()
 
         # Count memories from all agents
-        for agent in agents.values():
+        for agent in store.values():
             try:
                 if hasattr(agent.memory, "get_all_users"):
                     users = agent.memory.get_all_users()
@@ -486,26 +648,27 @@ async def get_memory_stats():
         return {
             "total_users": total_users,
             "total_memories": total_memories,
-            "active_agents": len(agents),
+            "active_agents": store.size(),
         }
     except Exception as e:
         logger.error(f"Memory stats error: {e}")
         # Return empty stats instead of error
-        return {"total_users": len(agents), "total_memories": 0, "active_agents": len(agents)}
+        return {"total_users": 0, "total_memories": 0, "active_agents": 0}
 
 
 @app.delete("/api/v1/users/{user_id}/memory", tags=["Users"])
-async def clear_user_memory(user_id: str):
+async def clear_user_memory(user_id: str, user=Depends(require_permission("write"))):  # noqa: B008
     """Clear user's memory"""
     try:
-        if user_id in agents:
-            agent = agents[user_id]
+        store = _get_agent_store()
+        agent = store.get(user_id)
+        if agent:
             # Clear memory (implementation depends on memory backend)
             if hasattr(agent.memory, "clear_user"):
                 agent.memory.clear_user(user_id)
 
             # Remove agent from cache
-            del agents[user_id]
+            store.delete(user_id)
 
             return {"status": "success", "message": f"Memory cleared for user {user_id}"}
         else:
@@ -523,12 +686,14 @@ async def clear_user_memory(user_id: str):
 
 
 @app.post("/api/v1/agent/configure/{user_id}", tags=["Agent"])
-async def configure_agent(user_id: str, config: AgentConfigRequest):
+async def configure_agent(
+    user_id: str, config: AgentConfigRequest, user=Depends(require_permission("admin"))  # noqa: B008
+):
     """Configure agent settings for a user"""
     try:
         # Remove existing agent if exists
-        if user_id in agents:
-            del agents[user_id]
+        store = _get_agent_store()
+        store.delete(user_id)
 
         # Create new agent with config
         config_dict = {k: v for k, v in config.dict().items() if v is not None}
@@ -541,7 +706,7 @@ async def configure_agent(user_id: str, config: AgentConfigRequest):
 
 
 @app.get("/api/v1/agent/info/{user_id}", tags=["Agent"])
-async def get_agent_info(user_id: str):
+async def get_agent_info(user_id: str, user=Depends(require_permission("read"))):  # noqa: B008
     """Get agent information"""
     try:
         agent = get_or_create_agent(user_id)
@@ -552,12 +717,65 @@ async def get_agent_info(user_id: str):
 
 
 # ============================================================================
+# Admin API Key Management
+# ============================================================================
+
+
+@app.get("/api/v1/admin/api-keys", response_model=list[ApiKeyUserResponse], tags=["Admin"])
+async def list_api_keys(user=Depends(require_permission("admin"))):  # noqa: B008
+    """List API users (no raw keys)."""
+    users = []
+    for entry in api_key_store.list_users():
+        users.append(
+            ApiKeyUserResponse(
+                user_id=entry.user_id,
+                name=entry.name,
+                permissions=entry.permissions,
+                created_at=entry.created_at.isoformat(),
+                is_active=entry.is_active,
+            )
+        )
+    return users
+
+
+@app.post(
+    "/api/v1/admin/api-keys",
+    response_model=ApiKeyCreateResponse,
+    tags=["Admin"],
+)
+async def create_api_key_admin(
+    request: ApiKeyCreateRequest, user=Depends(require_permission("admin"))  # noqa: B008
+):
+    """Create an API key for a user (returns raw key once)."""
+    key = create_api_key(
+        user_id=request.user_id, name=request.name or "API User", permissions=request.permissions
+    )
+    return ApiKeyCreateResponse(
+        api_key=key,
+        user_id=request.user_id,
+        name=request.name or "API User",
+        permissions=request.permissions or ["read", "write"],
+    )
+
+
+@app.post("/api/v1/admin/api-keys/revoke", tags=["Admin"])
+async def revoke_api_key_admin(
+    request: ApiKeyRevokeRequest, user=Depends(require_permission("admin"))  # noqa: B008
+):
+    """Revoke an API key."""
+    success = revoke_api_key(request.api_key)
+    if not success:
+        raise HTTPException(status_code=404, detail="API key not found")
+    return {"status": "success"}
+
+
+# ============================================================================
 # Graph Endpoints (v2.3.0)
 # ============================================================================
 
 
 @app.get("/api/v1/graph/data", tags=["Graph"])
-async def get_graph_data(user_id: str):
+async def get_graph_data(user_id: str, user=Depends(require_permission("read"))):  # noqa: B008
     """Get knowledge graph data for visualization"""
     try:
         agent = get_or_create_agent(user_id)
@@ -575,7 +793,7 @@ async def get_graph_data(user_id: str):
 
 
 @app.post("/api/v1/graph/clear", tags=["Graph"])
-async def clear_graph(user_id: str):
+async def clear_graph(user_id: str, user=Depends(require_permission("write"))):  # noqa: B008
     """Clear knowledge graph for a user"""
     try:
         agent = get_or_create_agent(user_id)
@@ -593,7 +811,7 @@ async def clear_graph(user_id: str):
 
 
 @app.get("/api/v1/workflows", tags=["Workflow"])
-async def list_workflows():
+async def list_workflows(user=Depends(require_permission("read"))):  # noqa: B008
     """List available workflows"""
     # Mocking for now, or scanning a directory
     return {
@@ -613,7 +831,12 @@ async def list_workflows():
 
 
 @app.post("/api/v1/workflow/run/{workflow_id}", tags=["Workflow"])
-async def run_workflow(workflow_id: str, user_id: str, input_data: Dict[str, Any]):
+async def run_workflow(
+    workflow_id: str,
+    user_id: str,
+    input_data: Dict[str, Any],
+    user=Depends(require_permission("write")),  # noqa: B008
+):
     """Run a workflow (Blocking)"""
     # ... existing code ...
     try:
@@ -634,7 +857,12 @@ async def run_workflow(workflow_id: str, user_id: str, input_data: Dict[str, Any
 
 
 @app.get("/api/v1/workflow/stream/{workflow_id}", tags=["Workflow"])
-async def run_workflow_stream(workflow_id: str, user_id: str, topic: str = "General"):
+async def run_workflow_stream(
+    workflow_id: str,
+    user_id: str,
+    topic: str = "General",
+    user=Depends(require_permission("write")),  # noqa: B008
+):
     """Run a workflow and stream events (SSE)"""
     try:
         agent = get_or_create_agent(user_id)
@@ -704,6 +932,7 @@ def _get_workflow(workflow_id, agent):
 async def upload_file(
     file: UploadFile = File(...),  # noqa: B008
     user_id: str = Form(...),  # noqa: B008
+    user=Depends(require_permission("write")),  # noqa: B008
 ):
     """Upload a file to the knowledge base"""
     try:
@@ -756,7 +985,7 @@ if web_ui_path.exists():
         index_path = web_ui_path / "index.html"
         if index_path.exists():
             return FileResponse(str(index_path), media_type="text/html")
-        return {"message": "Mem-LLM API Server", "version": "2.3.2"}
+        return {"message": "Mem-LLM API Server", "version": "2.4.1"}
 
     @app.get("/memory")
     async def memory_page():

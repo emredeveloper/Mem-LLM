@@ -1,6 +1,9 @@
 import json
 import logging
+import re
 from typing import TYPE_CHECKING, List, Tuple
+
+from pydantic import BaseModel, ValidationError
 
 if TYPE_CHECKING:
     from ...mem_agent import MemAgent
@@ -15,6 +18,57 @@ class GraphExtractor:
 
     def __init__(self, agent: "MemAgent"):
         self.agent = agent
+
+    def _parse_triplets(self, response: str) -> List[Tuple[str, str, str]]:
+        cleaned_response = response.strip()
+        if cleaned_response.startswith("```json"):
+            cleaned_response = cleaned_response[7:-3].strip()
+        elif cleaned_response.startswith("```"):
+            cleaned_response = cleaned_response[3:-3].strip()
+
+        # Try structured JSON first
+        try:
+            parsed = json.loads(cleaned_response)
+        except json.JSONDecodeError:
+            parsed = None
+
+        class Triplet(BaseModel):
+            source: str
+            relation: str
+            target: str
+
+        if parsed is not None:
+            normalized = []
+            if isinstance(parsed, list):
+                for item in parsed:
+                    if isinstance(item, (list, tuple)) and len(item) == 3:
+                        normalized.append(
+                            {"source": str(item[0]), "relation": str(item[1]), "target": str(item[2])}
+                        )
+                    elif isinstance(item, dict):
+                        if {"source", "relation", "target"}.issubset(item.keys()):
+                            normalized.append(
+                                {
+                                    "source": str(item["source"]),
+                                    "relation": str(item["relation"]),
+                                    "target": str(item["target"]),
+                                }
+                            )
+
+            if normalized:
+                try:
+                    validated = [Triplet(**item) for item in normalized]
+                    return [[t.source, t.relation, t.target] for t in validated]
+                except ValidationError:
+                    pass
+
+        # Fallback: regex extraction
+        triplet_pattern = r'\[\s*"([^"]+)"\s*,\s*"([^"]+)"\s*,\s*"([^"]+)"\s*\]'
+        matches = re.findall(triplet_pattern, response)
+        if matches:
+            return [[m[0], m[1], m[2]] for m in matches]
+
+        return []
 
     def extract(self, text: str) -> List[Tuple[str, str, str]]:
         """
@@ -45,30 +99,9 @@ class GraphExtractor:
         messages = [{"role": "user", "content": prompt}]
         response = self.agent.llm.chat(messages=messages, temperature=0.1)
 
-        import re
-
         try:
-            # More robust parsing: find all patterns that look like ["Source", "Relation", "Target"]
-            triplet_pattern = r'\[\s*"([^"]+)"\s*,\s*"([^"]+)"\s*,\s*"([^"]+)"\s*\]'
-            matches = re.findall(triplet_pattern, response)
-
-            if matches:
-                return [list(m) for m in matches]
-
-            # Fallback for standard JSON array
-            cleaned_response = response.strip()
-            if cleaned_response.startswith("```json"):
-                cleaned_response = cleaned_response[7:-3].strip()
-            elif cleaned_response.startswith("```"):
-                cleaned_response = cleaned_response[3:-3].strip()
-
-            triplets = json.loads(cleaned_response)
-            valid_triplets = []
-            if isinstance(triplets, list):
-                for t in triplets:
-                    if isinstance(t, list) and len(t) == 3:
-                        valid_triplets.append((str(t[0]), str(t[1]), str(t[2])))
-            return valid_triplets
+            triplets = self._parse_triplets(response)
+            return triplets
 
         except Exception as e:
             logger.warning(f"Failed to parse graph extraction: {e}. Response was: {response}")

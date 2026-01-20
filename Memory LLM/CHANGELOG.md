@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.4.1] - 2026-01-20
+- **Security Defaults** — Optional API auth can be disabled for local UI demos.
+- **Workflow** — Non-blocking execution for agent steps.
+- **Graph** — Structured parsing and dedup updates for triplets.
+- **Tooling** — Allowlist/denylist policy support.
+- **UI** — Simplified auth UX for local usage.
+
 ## [2.4.0] - 2025-12-25
 ### Added
 - **Release v2.4.0** — Bumped package metadata and published to PyPI.

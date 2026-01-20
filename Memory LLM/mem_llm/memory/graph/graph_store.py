@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
 import networkx as nx
@@ -30,9 +31,37 @@ class GraphStore:
         # Check if edge exists to avoid duplicates or update metadata
         if self.graph.has_edge(source, target):
             # Update existing edge data if needed, or simple overwrite
-            pass
+            edge_data = dict(self.graph.get_edge_data(source, target) or {})
+            edge_data["count"] = edge_data.get("count", 1) + 1
+            edge_data["last_updated"] = datetime.now().isoformat()
 
-        self.graph.add_edge(source, target, relation=relation, **(metadata or {}))
+            existing_relation = edge_data.get("relation")
+            relations = set(edge_data.get("relations", []))
+            if existing_relation and existing_relation != relation:
+                relations.add(existing_relation)
+            relations.add(relation)
+            if relations:
+                edge_data["relations"] = sorted(relations)
+
+            if metadata:
+                for key, value in metadata.items():
+                    if key not in edge_data:
+                        edge_data[key] = value
+                    elif isinstance(edge_data[key], dict) and isinstance(value, dict):
+                        edge_data[key].update(value)
+                    elif isinstance(edge_data[key], list) and isinstance(value, list):
+                        merged = list(dict.fromkeys(edge_data[key] + value))
+                        edge_data[key] = merged
+
+            edge_data["relation"] = relation
+            self.graph.add_edge(source, target, **edge_data)
+            logger.debug(f"Updated triplet: {source} -[{relation}]-> {target}")
+            return
+
+        edge_metadata = metadata.copy() if metadata else {}
+        edge_metadata.setdefault("count", 1)
+        edge_metadata.setdefault("created_at", datetime.now().isoformat())
+        self.graph.add_edge(source, target, relation=relation, **edge_metadata)
         logger.debug(f"Added triplet: {source} -[{relation}]-> {target}")
 
     def search(self, query_entity: str, depth: int = 1) -> List[Tuple[str, str, str]]:

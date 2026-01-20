@@ -6,16 +6,17 @@
 
 Mem-LLM is a Python framework for building privacy-first, memory-enabled AI assistants that run 100% locally. The project combines persistent multi-user conversation history with optional knowledge bases, multiple storage backends, vector search capabilities, response quality metrics, and tight integration with [Ollama](https://ollama.ai) and [LM Studio](https://lmstudio.ai) so you can experiment locally and deploy production-ready workflows with quality monitoring and semantic understanding - completely private and offline.
 
-## 🆕 What's New in v2.4.0
+## 🆕 What's New in v2.4.1
 
-### 🔧 Maintenance & Packaging
-- ✅ **Release v2.4.0** — Bumped package metadata and published to PyPI.
-- ✅ **Author & Metadata Fixes** — Corrected author name and updated packaging metadata and descriptions.
-- ✅ **Docs Refresh** — README updated for clarity and current features.
+### ?? Maintenance & Packaging
+- ? **Release v2.4.1** ? Security defaults, workflow async, and graph validation improvements.
+- ? **API Lifecycle** ? Auth can be disabled for local UI demos; improved agent lifecycle handling.
+- ? **Docs Refresh** ? Demo folder and UI guidance updated.
 
-### 🔧 Other improvements
-- ✅ **Compatibility** — Ensured Python support for 3.8+ and improved packaging workflows.
-- ✅ **Cleanup** — Removed outdated local build artifacts from `dist/` before publishing.
+### ?? Other improvements
+- ? **Graph Quality** ? Structured parsing and dedup updates for triplets.
+- ? **Workflow** ? Non-blocking execution for agent steps.
+- ? **Tooling** ? Allowlist/denylist policy support.
 
 ## 🆕 What's New in v2.3.0 - "Neural Nexus"
 

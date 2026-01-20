@@ -37,7 +37,7 @@
         <div class="content">
             <div class="section">
                 <div class="input-group"><input type="text" id="apiUrl" value="http://localhost:8000" placeholder="API URL"></div>
-            </div>
+                </div>
             <div class="section">
                 <div class="section-title">⚡ Quick Statistics</div>
                 <div class="metrics-grid" id="quickStats"><div class="loading">Loading...</div></div>
@@ -49,6 +49,11 @@
     </div>
     <script>
         const apiUrlInput = document.getElementById('apiUrl');
+
+        function authHeaders(extra = {}) {
+            return extra;
+        }
+
         window.onload = () => { loadMetrics(); setInterval(loadMetrics, 30000); };
         function loadMetrics() {
             document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
@@ -58,7 +63,7 @@
             const apiUrl = apiUrlInput.value;
             const quickStatsDiv = document.getElementById('quickStats');
             try {
-                const response = await fetch(`${apiUrl}/api/v1/memory/stats`);
+                const response = await fetch(`${apiUrl}/api/v1/memory/stats`, { headers: authHeaders() });
                 const data = await response.json();
                 quickStatsDiv.innerHTML = `
                     <div class="metric-card"><div class="metric-icon">👥</div><div class="metric-value">${data.total_users || 0}</div><div>Total Users</div></div>

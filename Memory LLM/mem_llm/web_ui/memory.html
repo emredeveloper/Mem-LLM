@@ -324,7 +324,10 @@
         const apiUrlInput = document.getElementById('apiUrl');
         const userIdInput = document.getElementById('userId');
 
-        // Load data on page load
+        function authHeaders(extra = {}) {
+            return extra;
+        }
+
         window.onload = () => {
             loadUserData();
         };
@@ -342,7 +345,7 @@
             const statsGrid = document.getElementById('statsGrid');
 
             try {
-                const response = await fetch(`${apiUrl}/api/v1/memory/stats`);
+                const response = await fetch(`${apiUrl}/api/v1/memory/stats`, { headers: authHeaders() });
                 const data = await response.json();
 
                 statsGrid.innerHTML = `
@@ -371,7 +374,7 @@
             const profileDiv = document.getElementById('userProfile');
 
             try {
-                const response = await fetch(`${apiUrl}/api/v1/users/${userId}/profile`);
+                const response = await fetch(`${apiUrl}/api/v1/users/${userId}/profile`, { headers: authHeaders() });
                 const data = await response.json();
 
                 profileDiv.innerHTML = `
@@ -409,7 +412,7 @@
             try {
                 const response = await fetch(`${apiUrl}/api/v1/memory/search`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: authHeaders({ 'Content-Type': 'application/json' }),
                     body: JSON.stringify({
                         user_id: userId,
                         query: '',
@@ -467,7 +470,7 @@
             try {
                 const response = await fetch(`${apiUrl}/api/v1/memory/search`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: authHeaders({ 'Content-Type': 'application/json' }),
                     body: JSON.stringify({
                         user_id: userId,
                         query: query,
@@ -518,7 +521,8 @@
 
             try {
                 const response = await fetch(`${apiUrl}/api/v1/users/${userId}/memory`, {
-                    method: 'DELETE'
+                    method: 'DELETE',
+                    headers: authHeaders()
                 });
 
                 if (response.ok) {
@@ -540,7 +544,7 @@
             try {
                 const response = await fetch(`${apiUrl}/api/v1/memory/search`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: authHeaders({ 'Content-Type': 'application/json' }),
                     body: JSON.stringify({
                         user_id: userId,
                         query: '',

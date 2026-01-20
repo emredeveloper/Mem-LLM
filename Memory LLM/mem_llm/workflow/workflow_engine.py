@@ -64,15 +64,10 @@ class Step:
                 if input_data:
                     prompt = f"{prompt}\n\nContext: {input_data}"
 
-                # Execute agent chat
-                # Note: Assuming synchronous chat for now unless we use a wrapper,
-                # but let's wrap in existing loop if needed or just call blocking
-                # To be true async, MemAgent needs async methods, but we can run in executor.
-                # For now, we'll call it directly (blocking) as MemAgent is primarily sync
-                # (though it has some async tools support).
+                # Execute agent chat in a worker thread to avoid blocking the event loop.
                 agent_label = self.agent.agent_id if hasattr(self.agent, "agent_id") else "Agent"
                 logger.info(f" Agent {agent_label} thinking...")
-                result = self.agent.chat(prompt)
+                result = await asyncio.to_thread(self.agent.chat, prompt)
 
             # Case 2: Tool Execution
             elif self.tool_name:
@@ -92,7 +87,7 @@ class Step:
                         pass
 
                     logger.info(f" Calling tool {self.tool_name}")
-                    result = registry.execute(self.tool_name, **args)
+                    result = await asyncio.to_thread(registry.execute, self.tool_name, **args)
                 else:
                     raise ValueError("Tool execution requested but no registry available via agent")
 
@@ -101,7 +96,7 @@ class Step:
                 if asyncio.iscoroutinefunction(self.action):
                     result = await self.action(context)
                 else:
-                    result = self.action(context)
+                    result = await asyncio.to_thread(self.action, context)
 
             else:
                 raise ValueError(f"Invalid step configuration for {self.name}")

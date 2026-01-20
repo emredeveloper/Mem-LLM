@@ -11,7 +11,7 @@ Features:
 - User session management
 
 Author: Cihat Emre Karataş
-Version: 2.3.2
+Version: 2.4.1
 """
 
 import hashlib
@@ -31,6 +31,7 @@ from fastapi.security import APIKeyHeader, APIKeyQuery
 
 # Default API key for development (should be overridden in production)
 DEFAULT_API_KEY = os.environ.get("MEM_LLM_API_KEY", "dev-api-key-change-in-production")
+AUTH_DISABLED = os.environ.get("MEM_LLM_AUTH_DISABLED", "true").lower() in ("1", "true", "yes")
 
 # Rate limiting settings
 RATE_LIMIT_REQUESTS = int(os.environ.get("MEM_LLM_RATE_LIMIT", "60"))  # requests per minute
@@ -115,6 +116,10 @@ class APIKeyStore:
             return True
         return False
 
+    def list_users(self) -> List[APIUser]:
+        """List all API users (keys are stored hashed)."""
+        return list(self._keys.values())
+
     def generate_key(self) -> str:
         """Generate a new secure API key"""
         return secrets.token_urlsafe(32)
@@ -179,6 +184,8 @@ async def get_api_key(
     api_key_query: Optional[str] = Security(api_key_query),  # noqa: B008
 ) -> str:
     """Extract API key from header or query parameter"""
+    if AUTH_DISABLED:
+        return ""
     api_key = api_key_header or api_key_query
     if not api_key:
         raise HTTPException(
@@ -191,6 +198,8 @@ async def get_api_key(
 
 async def authenticate(api_key: str = Depends(get_api_key)) -> APIUser:  # noqa: B008
     """Authenticate request using API key"""
+    if AUTH_DISABLED:
+        return APIUser(api_key="", user_id="anonymous", name="Anonymous", permissions=["read", "write", "admin"])
     user = api_key_store.validate_key(api_key)
     if not user:
         raise HTTPException(
@@ -239,6 +248,8 @@ async def optional_authenticate(
     api_key_query: Optional[str] = Security(api_key_query),  # noqa: B008
 ) -> Optional[APIUser]:
     """Optionally authenticate - returns None if no key provided"""
+    if AUTH_DISABLED:
+        return APIUser(api_key="", user_id="anonymous", name="Anonymous", permissions=["read", "write", "admin"])
     api_key = api_key_header or api_key_query
     if not api_key:
         return None

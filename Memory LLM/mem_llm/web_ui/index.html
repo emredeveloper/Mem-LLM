@@ -400,6 +400,12 @@
             color: var(--accent);
             margin-left: 5px;
         }
+
+        .helper-text {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+        }
     </style>
 </head>
 
@@ -438,7 +444,7 @@
         <div id="chat-view" class="view active">
             <div class="chat-container" id="chatContainer">
                 <div class="welcome">
-                    <h2>Mem-LLM v2.3.2</h2>
+                    <h2>Mem-LLM v2.4.1</h2>
                     <p>Start a conversation to build your knowledge graph.</p>
                 </div>
             </div>
@@ -481,6 +487,11 @@
         let ws = null;
         let cy = null;
         let currentUserId = 'user1';
+        function authHeaders(extra = {}) {
+            return extra;
+        }
+
+        function initApiKey() {}
 
         // --- Tabs ---
         function switchTab(tab) {
@@ -616,6 +627,8 @@
             if (e.key === 'Enter') sendMessage();
         });
 
+        
+
 
         // --- File Upload ---
         async function uploadFile() {
@@ -632,6 +645,7 @@
                 try {
                     const res = await fetch('/api/v1/upload', {
                         method: 'POST',
+                        headers: authHeaders(),
                         body: formData
                     });
                     const data = await res.json();
@@ -650,7 +664,9 @@
             showToast("Loading graph data...", "info");
             console.log("🕸️ Loading knowledge graph data...");
             try {
-                const res = await fetch(`/api/v1/graph/data?user_id=${currentUserId}`);
+                const res = await fetch(`/api/v1/graph/data?user_id=${currentUserId}`, {
+                    headers: authHeaders()
+                });
                 if (!res.ok) throw new Error(`API error: ${res.status}`);
 
                 const data = await res.json();
@@ -693,7 +709,7 @@
             if (!confirm("Are you sure you want to clear the entire graph memory?")) return;
 
             try {
-                const res = await fetch(`/api/v1/graph/clear?user_id=${currentUserId}`, { method: 'POST' });
+                const res = await fetch(`/api/v1/graph/clear?user_id=${currentUserId}`, { method: 'POST', headers: authHeaders() });
                 const data = await res.json();
                 if (data.status === 'success') {
                     showToast("Graph memory cleared successfully.", "success");

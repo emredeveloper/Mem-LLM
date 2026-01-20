@@ -6,6 +6,7 @@ Orchestrates the 4-layer memory system.
 """
 
 import logging
+import os
 from typing import Any, Dict, Optional
 
 from .categorizer import AutoCategorizer
@@ -20,7 +21,14 @@ class HierarchicalMemory:
     Manages data flow across Episode, Trace, Category, and Domain layers.
     """
 
-    def __init__(self, base_memory_manager, llm_client=None):
+    def __init__(
+        self,
+        base_memory_manager,
+        llm_client=None,
+        trace_ttl_seconds: Optional[int] = None,
+        category_ttl_seconds: Optional[int] = None,
+        domain_ttl_seconds: Optional[int] = None,
+    ):
         """
         Args:
             base_memory_manager: Existing MemoryManager or SQLMemoryManager
@@ -29,11 +37,26 @@ class HierarchicalMemory:
         self.base_memory = base_memory_manager
         self.llm = llm_client
 
+        def _env_int(name: str, default: Optional[int]) -> Optional[int]:
+            if default is not None:
+                return default
+            raw = os.environ.get(name)
+            if raw is None or raw == "":
+                return None
+            try:
+                return int(raw)
+            except ValueError:
+                return None
+
+        trace_ttl = _env_int("MEM_LLM_TRACE_TTL_SECONDS", trace_ttl_seconds)
+        category_ttl = _env_int("MEM_LLM_CATEGORY_TTL_SECONDS", category_ttl_seconds)
+        domain_ttl = _env_int("MEM_LLM_DOMAIN_TTL_SECONDS", domain_ttl_seconds)
+
         # Initialize Layers
         self.episode_layer = EpisodeLayer(base_memory_manager)
-        self.trace_layer = TraceLayer()
-        self.category_layer = CategoryLayer()
-        self.domain_layer = DomainLayer()
+        self.trace_layer = TraceLayer(ttl_seconds=trace_ttl)
+        self.category_layer = CategoryLayer(ttl_seconds=category_ttl)
+        self.domain_layer = DomainLayer(ttl_seconds=domain_ttl)
 
         # Initialize Categorizer
         if llm_client:

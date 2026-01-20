@@ -160,17 +160,19 @@ def test_integration_with_mem_agent():
     print("TEST 4: Integration with MemAgent")
     print("=" * 70)
 
+    db_path = "test_integration.db"
+    agent = None
     try:
         from mem_llm import MemAgent
 
         # Create agent with SQL (WAL mode will be enabled)
-        agent = MemAgent(model="rnj-1:latest", use_sql=True, memory_dir="test_integration.db")
+        agent = MemAgent(model="rnj-1:latest", use_sql=True, memory_dir=db_path)
 
-        print("✅ MemAgent created with WAL-enabled database")
+        print("MemAgent created with WAL-enabled database")
 
         # Test basic operations
         agent.set_user("test_user")
-        print("✅ User set successfully")
+        print("User set successfully")
 
         # Check database mode
         if hasattr(agent.memory, "conn"):
@@ -180,20 +182,25 @@ def test_integration_with_mem_agent():
             print(f"   Agent database mode: {mode}")
 
             if mode.upper() == "WAL":
-                print("✅ Agent is using WAL mode!")
+                print("Agent is using WAL mode!")
 
-        # Cleanup
-        if os.path.exists("test_integration.db"):
-            os.remove("test_integration.db")
-
-        print("✅ Integration test passed!")
-        print("✅ Integration test passed!")
+        print("Integration test passed!")
+        print("Integration test passed!")
 
     except Exception as e:
         pytest.fail(f"Integration test failed: {e}")
+    finally:
+        if agent:
+            agent.close()
+        for suffix in ("", "-wal", "-shm"):
+            path = f"{db_path}{suffix}"
+            if os.path.exists(path):
+                os.remove(path)
 
 
 def main():
+
+
     """Run all tests"""
     print("\n")
     print("╔" + "=" * 68 + "╗")

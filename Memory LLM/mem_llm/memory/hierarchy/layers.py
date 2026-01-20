@@ -7,16 +7,26 @@ Defines the different layers of the hierarchical memory system.
 
 import uuid
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
 
 class BaseLayer(ABC):
     """Abstract base class for memory layers"""
 
-    def __init__(self, name: str):
+    def __init__(self, name: str, ttl_seconds: Optional[int] = None):
         self.name = name
         self.data = {}  # Simple in-memory storage for now, can be extended to DB
+        self.ttl_seconds = ttl_seconds
+
+    def _is_expired(self, timestamp: Optional[str]) -> bool:
+        if not timestamp or self.ttl_seconds is None:
+            return False
+        try:
+            created_at = datetime.fromisoformat(timestamp)
+        except ValueError:
+            return False
+        return created_at + timedelta(seconds=self.ttl_seconds) < datetime.now()
 
     @abstractmethod
     def add(self, item: Dict[str, Any], **kwargs) -> str:
@@ -40,8 +50,8 @@ class EpisodeLayer(BaseLayer):
     Wraps the existing MemoryManager or SQLMemoryManager.
     """
 
-    def __init__(self, base_memory_manager):
-        super().__init__("episode")
+    def __init__(self, base_memory_manager, ttl_seconds: Optional[int] = None):
+        super().__init__("episode", ttl_seconds=ttl_seconds)
         self.base_memory = base_memory_manager
 
     def add(self, item: Dict[str, Any], **kwargs) -> str:
@@ -89,8 +99,8 @@ class TraceLayer(BaseLayer):
     Second layer: Stores memory traces (summarized/abstracted episodes).
     """
 
-    def __init__(self):
-        super().__init__("trace")
+    def __init__(self, ttl_seconds: Optional[int] = None):
+        super().__init__("trace", ttl_seconds=ttl_seconds)
         # Structure: {user_id: [trace_items]}
         self.traces = {}
 
@@ -130,6 +140,9 @@ class TraceLayer(BaseLayer):
             return []
 
         items = self.traces[user_id]
+        if self.ttl_seconds is not None:
+            items = [i for i in items if not self._is_expired(i.get("timestamp"))]
+            self.traces[user_id] = items
 
         if category:
             items = [i for i in items if i.get("category") == category]
@@ -149,8 +162,8 @@ class CategoryLayer(BaseLayer):
     Stores aggregated insights per category.
     """
 
-    def __init__(self):
-        super().__init__("category")
+    def __init__(self, ttl_seconds: Optional[int] = None):
+        super().__init__("category", ttl_seconds=ttl_seconds)
         # Structure: {user_id: {category_name: {summary, last_updated, interaction_count}}}
         self.categories = {}
 
@@ -194,7 +207,13 @@ class CategoryLayer(BaseLayer):
         if not user_id or user_id not in self.categories:
             return []
 
-        return list(self.categories[user_id].values())
+        values = list(self.categories[user_id].values())
+        if self.ttl_seconds is None:
+            return values
+
+        filtered = [item for item in values if not self._is_expired(item.get("last_updated"))]
+        self.categories[user_id] = {item["name"]: item for item in filtered}
+        return filtered
 
     def clear(self, user_id: Optional[str] = None):
         if user_id:
@@ -209,8 +228,8 @@ class DomainLayer(BaseLayer):
     Broadest context (e.g., "Professional Life", "Hobbies").
     """
 
-    def __init__(self):
-        super().__init__("domain")
+    def __init__(self, ttl_seconds: Optional[int] = None):
+        super().__init__("domain", ttl_seconds=ttl_seconds)
         # Structure: {user_id: {domain_name: summary}}
         self.domains = {}
 
@@ -236,7 +255,13 @@ class DomainLayer(BaseLayer):
         user_id = kwargs.get("user_id")
         if not user_id or user_id not in self.domains:
             return []
-        return list(self.domains[user_id].values())
+        values = list(self.domains[user_id].values())
+        if self.ttl_seconds is None:
+            return values
+
+        filtered = [item for item in values if not self._is_expired(item.get("updated_at"))]
+        self.domains[user_id] = {item["name"]: item for item in filtered}
+        return filtered
 
     def clear(self, user_id: Optional[str] = None):
         if user_id:

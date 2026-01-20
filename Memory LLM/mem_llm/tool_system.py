@@ -19,6 +19,7 @@ Version: 2.1.1
 import asyncio
 import inspect
 import logging
+import os
 import re
 from dataclasses import dataclass, field
 from enum import Enum
@@ -298,9 +299,36 @@ def tool(
 class ToolRegistry:
     """Registry for managing available tools"""
 
-    def __init__(self):
+    def __init__(
+        self,
+        allowlist: Optional[List[str]] = None,
+        denylist: Optional[List[str]] = None,
+        allowlist_only: Optional[bool] = None,
+    ):
         self.tools: Dict[str, Tool] = {}
+        self.allowlist = set(allowlist or self._load_list_from_env("MEM_LLM_TOOL_ALLOWLIST"))
+        self.denylist = set(denylist or self._load_list_from_env("MEM_LLM_TOOL_DENYLIST"))
+        if allowlist_only is None:
+            allowlist_only = os.environ.get("MEM_LLM_TOOL_ALLOWLIST_ONLY", "").lower() in (
+                "1",
+                "true",
+                "yes",
+            )
+        self.allowlist_only = allowlist_only or bool(self.allowlist)
         self._load_builtin_tools()
+
+    def _load_list_from_env(self, env_name: str) -> List[str]:
+        raw = os.environ.get(env_name, "")
+        if not raw:
+            return []
+        return [item.strip() for item in raw.split(",") if item.strip()]
+
+    def is_allowed(self, tool_name: str) -> bool:
+        if tool_name in self.denylist:
+            return False
+        if self.allowlist_only and self.allowlist:
+            return tool_name in self.allowlist
+        return True
 
     def _load_builtin_tools(self):
         """Load built-in tools"""
@@ -378,6 +406,14 @@ class ToolRegistry:
         import time
 
         start_time = time.time()
+
+        if not self.is_allowed(tool_name):
+            return ToolCallResult(
+                tool_name=tool_name,
+                status=ToolCallStatus.ERROR,
+                error="Tool not allowed by policy",
+                execution_time=time.time() - start_time,
+            )
 
         # Get tool
         tool = self.get(tool_name)
