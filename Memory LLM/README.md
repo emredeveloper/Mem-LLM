@@ -15,11 +15,10 @@ Mem-LLM is a powerful Python library that brings persistent memory and function 
 - **Issues**: https://github.com/emredeveloper/Mem-LLM/issues
 - **Documentation**: See examples/ directory
 
-## 🆕 What's New in v2.3.8
+## 🆕 What's New in v2.4.2
 
-- ✅ **Author & Metadata Fixes** - Corrected author name across the codebase and packaging metadata (now **Cihat Emre Karataş**).
-- ✅ **Packaging & Compatibility** - Bumped package metadata to **2.3.8** and set Python requirement to **>=3.8**.
-- ✅ **README & PyPI Description** - Updated short description (used by PyPI) and cleaned up outdated changelog entries.
+- ✅ **PyPI README refresh** - Updated release notes so PyPI mirrors the current changes.
+- ✅ **Release v2.4.1 recap** - Security defaults, workflow async, graph validation, tool policy, and updated demos.
 
 ## 🆕 What's New in v2.3.0
 

@@ -26,7 +26,7 @@ API Documentation:
     - ReDoc: http://localhost:8000/redoc
 
 Author: Cihat Emre Karataş
-Version: 2.4.1
+Version: 2.4.2
 """
 
 import asyncio
@@ -202,7 +202,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Mem-LLM API",
     description="REST API for Mem-LLM - Privacy-first, Memory-enabled AI Assistant (100% Local)",
-    version="2.4.1",
+    version="2.4.2",
     docs_url="/docs",
     redoc_url="/redoc",
     lifespan=lifespan,
@@ -339,7 +339,7 @@ async def api_info(user=Depends(require_permission("read"))):  # noqa: B008
     """API information endpoint"""
     return {
         "name": "Mem-LLM API",
-        "version": "2.4.1",
+        "version": "2.4.2",
         "status": "running",
         "documentation": "/docs",
         "endpoints": {
@@ -985,7 +985,7 @@ if web_ui_path.exists():
         index_path = web_ui_path / "index.html"
         if index_path.exists():
             return FileResponse(str(index_path), media_type="text/html")
-        return {"message": "Mem-LLM API Server", "version": "2.4.1"}
+        return {"message": "Mem-LLM API Server", "version": "2.4.2"}
 
     @app.get("/memory")
     async def memory_page():

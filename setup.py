@@ -33,7 +33,7 @@ except Exception as e:
 
 setup(
     name="mem-llm",
-    version="2.4.1",
+    version="2.4.2",
     description="Mem-LLM is a Python framework for building privacy-first, memory-enabled AI assistants that run 100% locally.",
     long_description=long_description,
     long_description_content_type="text/markdown",
