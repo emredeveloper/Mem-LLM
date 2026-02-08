@@ -8,15 +8,15 @@ Mem-LLM is a Python framework for building privacy-first, memory-enabled AI assi
 
 ## 🆕 What's New in v2.4.2
 
-### ?? Maintenance & Packaging
-- ? **Release v2.4.2** ? Security defaults, workflow async, and graph validation improvements.
-- ? **API Lifecycle** ? Auth can be disabled for local UI demos; improved agent lifecycle handling.
-- ? **Docs Refresh** ? Demo folder and UI guidance updated.
+### Maintenance & Packaging
+-  **Release v2.4.2** ? Security defaults, workflow async, and graph validation improvements.
+-  **API Lifecycle** ? Auth can be disabled for local UI demos; improved agent lifecycle handling.
+-  **Docs Refresh** ? Demo folder and UI guidance updated.
 
 ### ?? Other improvements
-- ? **Graph Quality** ? Structured parsing and dedup updates for triplets.
-- ? **Workflow** ? Non-blocking execution for agent steps.
-- ? **Tooling** ? Allowlist/denylist policy support.
+-  **Graph Quality** ? Structured parsing and dedup updates for triplets.
+-  **Workflow** ? Non-blocking execution for agent steps.
+-  **Tooling** ? Allowlist/denylist policy support.
 
 ## 🆕 What's New in v2.3.0 - "Neural Nexus"
 
