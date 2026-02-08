@@ -15,10 +15,11 @@ Mem-LLM is a powerful Python library that brings persistent memory and function 
 - **Issues**: https://github.com/emredeveloper/Mem-LLM/issues
 - **Documentation**: See examples/ directory
 
-## 🆕 What's New in v2.4.2
+## 🆕 What's New in v2.4.3
 
-- ✅ **PyPI README refresh** - Updated release notes so PyPI mirrors the current changes.
-- ✅ **Release v2.4.1 recap** - Security defaults, workflow async, graph validation, tool policy, and updated demos.
+- ✅ **Core bug fixes** - Fixed memory tool-call execution, API endpoint wiring, and tool parser stability.
+- ✅ **Docker removed** - Deleted Docker artifacts and removed container deployment documentation.
+- ✅ **Backend testing hardened** - Ollama integration tests now auto-select an installed local model.
 
 ## 🆕 What's New in v2.3.0
 
@@ -36,22 +37,6 @@ Mem-LLM is a powerful Python library that brings persistent memory and function 
 - ✅ **Modern Aesthetics** - Dark mode, glassmorphism, and responsive design.
 - ✅ **New Features** - File uploads (📎) and Workflow Management tab.
 - ✅ **LM Studio Integration** - Auto-configuration for local models like `gemma-3-4b`.
-
-## What's New in v2.2.9
-
-### 🐳 Docker Support *(NEW)*
-- **Containerized Deployment** - Run Mem-LLM API server in Docker containers
-- **Docker Compose Stack** - Complete setup with Ollama integration
-- **Production Ready** - Optimized Dockerfile with health checks and persistent volumes
-- **Easy Deployment** - One command to start: `docker-compose up -d`
-
-```bash
-# Quick start with Docker
-docker-compose up -d
-
-# Access API at http://localhost:8000
-# API docs at http://localhost:8000/docs
-```
 
 ## 🆕 What's New in v2.2.0
 
@@ -211,20 +196,6 @@ ollama serve
 # 1. Download and install LM Studio: https://lmstudio.ai
 # 2. Download a model from the UI
 # 3. Start the local server (default port: 1234)
-```
-
-#### Option 3: Docker (Containerized) *(v2.2.9+)*
-```bash
-# Quick start with Docker Compose (includes Ollama)
-docker-compose up -d
-
-# API will be available at http://localhost:8000
-# API docs at http://localhost:8000/docs
-# Web UI at http://localhost:8000
-
-# Build and run manually
-docker build -t mem-llm .
-docker run -p 8000:8000 mem-llm
 ```
 
 ### Basic Usage
@@ -818,9 +789,9 @@ The `examples/` directory contains ready-to-run demonstrations:
 
 ## 📊 Project Status
 
-- **Version**: 2.2.9
+- **Version**: 2.4.3
 - **Status**: Production Ready
-- **Last Updated**: January 27, 2025
+- **Last Updated**: February 8, 2026
 - **Test Coverage**: 50+ automated tests (100% success rate)
 - **Performance**: Thread-safe operations, <1ms search latency
 - **Backends**: Ollama, LM Studio (100% Local)
@@ -844,7 +815,6 @@ The `examples/` directory contains ready-to-run demonstrations:
 - [x] ~~REST API Server~~ (v1.3.3) ✨
 - [x] ~~Web UI Dashboard~~ (v1.3.3) ✨
 - [x] ~~WebSocket Streaming~~ (v1.3.3) ✨
-- [x] ~~Docker Support~~ (v2.2.9) 🐳
 - [ ] OpenAI & Claude backends
 - [ ] Multi-modal support (images, audio)
 - [ ] Plugin system

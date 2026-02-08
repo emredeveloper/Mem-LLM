@@ -6,19 +6,14 @@
 
 Mem-LLM is a Python framework for building privacy-first, memory-enabled AI assistants that run 100% locally. The project combines persistent multi-user conversation history with optional knowledge bases, multiple storage backends, vector search capabilities, response quality metrics, and tight integration with [Ollama](https://ollama.ai) and [LM Studio](https://lmstudio.ai) so you can experiment locally and deploy production-ready workflows with quality monitoring and semantic understanding - completely private and offline.
 
-## 🆕 What's New in v2.4.2
+## What's New in v2.4.3
 
-### Maintenance & Packaging
--  **Release v2.4.2** - Security defaults, workflow async, and graph validation improvements.
--  **API Lifecycle** - Auth can be disabled for local UI demos; improved agent lifecycle handling.
--  **Docs Refresh** - Demo folder and UI guidance updated.
+### Maintenance and Reliability
+- **Core fixes** - Corrected memory tool-call execution, API endpoint wiring, and tool parser stability.
+- **Docker removal** - Removed Docker artifacts and related documentation from the project.
+- **Backend test hardening** - Ollama integration tests now auto-select an installed local model.
 
-###  Other improvements
--  **Graph Quality** - Structured parsing and dedup updates for triplets.
--  **Workflow** - Non-blocking execution for agent steps.
--  **Tooling** - Allowlist/denylist policy support.
-
-## 🆕 What's New in v2.3.0 - "Neural Nexus"
+## What's New in v2.3.0 - "Neural Nexus"
 
 ### ⚙️ Agent Workflow Engine *(NEW)*
 - ✅ **Structured Agents** - Define multi-step workflows like "Deep Research" or "Content Creation".
@@ -99,7 +94,7 @@ Mem-LLM is a Python framework for building privacy-first, memory-enabled AI assi
 
 ## Repository Layout
 - `Memory LLM/` – Core Python package (`mem_llm`), configuration examples, packaging metadata, and detailed module-level documentation.
-- `examples/` – Sample scripts that demonstrate common usage patterns.
+- `demos/` - Sample scripts that demonstrate common usage patterns.
 - `LICENSE` – MIT license for the project.
 
 > Looking for API docs or more detailed examples? Start with [`Memory LLM/README.md`](Memory%20LLM/README.md), which includes extensive usage guides, configuration options, and advanced workflows.
@@ -218,14 +213,10 @@ agent = MemAgent(
 
 For advanced configuration (SQL storage, knowledge base support, business mode, etc.), copy `config.yaml.example` from the package directory and adjust it for your environment.
 
-## Test Coverage (v2.1.1)
-- ✅ **20+ examples demonstrating all features**
-- ✅ Function Calling (3 examples - basic, memory tools, async+validation)
-- ✅ Ollama and LM Studio backends (14 tests)
-- ✅ Conversation Summarization (5 tests)
-- ✅ Data Export/Import (11 tests - JSON, CSV, SQLite, PostgreSQL, MongoDB)
-- ✅ Core MemAgent functionality (5 tests)
-- ✅ Factory pattern and auto-detection (4 tests)
+## Test Coverage (v2.4.3)
+- Unit tests for workflow, tool system, async tools, and recent system fixes.
+- API tests for REST endpoints and memory/KB flows.
+- Local integration tests for both Ollama and LM Studio backends.
 
 ## Performance
 - **Write Throughput**: 16,666+ records/sec

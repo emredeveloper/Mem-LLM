@@ -520,7 +520,6 @@ class ToolCallParser:
 
             # Validate that the tool name is a valid identifier to prevent issues like 'tool_name'
             # This prevents cases where LLM generates something like "tool_name" as a literal instead of a real tool name
-            import re
             if not re.match(r'^[a-zA-Z_][a-zA-Z0-9_]*$', tool_name):
                 logger.warning(f"Invalid tool name format: '{tool_name}'. Skipping this match: {full_match_str}")
                 continue

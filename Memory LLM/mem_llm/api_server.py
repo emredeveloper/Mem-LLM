@@ -26,7 +26,7 @@ API Documentation:
     - ReDoc: http://localhost:8000/redoc
 
 Author: Cihat Emre Karataş
-Version: 2.4.2
+Version: 2.4.3
 """
 
 import asyncio
@@ -202,7 +202,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Mem-LLM API",
     description="REST API for Mem-LLM - Privacy-first, Memory-enabled AI Assistant (100% Local)",
-    version="2.4.2",
+    version="2.4.3",
     docs_url="/docs",
     redoc_url="/redoc",
     lifespan=lifespan,
@@ -339,7 +339,7 @@ async def api_info(user=Depends(require_permission("read"))):  # noqa: B008
     """API information endpoint"""
     return {
         "name": "Mem-LLM API",
-        "version": "2.4.2",
+        "version": "2.4.3",
         "status": "running",
         "documentation": "/docs",
         "endpoints": {
@@ -528,8 +528,17 @@ async def add_knowledge(
     """Add entry to knowledge base"""
     try:
         agent = get_or_create_agent(user_id)
-        agent.add_kb_entry(category=entry.category, question=entry.question, answer=entry.answer)
-        return {"status": "success", "message": "Entry added to knowledge base"}
+        kb_id = agent.add_knowledge(
+            category=entry.category, question=entry.question, answer=entry.answer
+        )
+        if not kb_id:
+            raise HTTPException(
+                status_code=400,
+                detail="Knowledge base not available. Ensure SQL memory backend is enabled.",
+            )
+        return {"status": "success", "message": "Entry added to knowledge base", "id": kb_id}
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"KB add error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -586,13 +595,19 @@ async def get_user_profile(user_id: str, user=Depends(require_permission("read")
     try:
         agent = get_or_create_agent(user_id)
         profile = agent.get_user_profile()
+        interaction_count = 0
+        if hasattr(agent.memory, "get_recent_conversations"):
+            try:
+                interaction_count = len(agent.memory.get_recent_conversations(user_id, limit=1000))
+            except Exception:
+                interaction_count = 0
 
         return UserProfileResponse(
             user_id=user_id,
             name=profile.get("name"),
             preferences=profile.get("preferences"),
             summary=profile.get("summary"),
-            interaction_count=len(profile.get("conversations", [])),
+            interaction_count=interaction_count,
         )
     except Exception as e:
         logger.error(f"Profile error for {user_id}: {e}")
@@ -630,18 +645,14 @@ async def get_memory_stats(user=Depends(require_permission("read"))):  # noqa: B
     try:
         total_memories = 0
         store = _get_agent_store()
-        total_users = store.size()
+        total_users = 0
 
         # Count memories from all agents
         for agent in store.values():
             try:
-                if hasattr(agent.memory, "get_all_users"):
-                    users = agent.memory.get_all_users()
-                    total_users = len(users)
-                    for user_id in users:
-                        history = agent.memory.get_conversation_history(user_id=user_id)
-                        total_memories += len(history)
-                    break  # Only need one agent for DB stats
+                stats = agent.get_statistics() if hasattr(agent, "get_statistics") else {}
+                total_users = max(total_users, int(stats.get("total_users", 0) or 0))
+                total_memories = max(total_memories, int(stats.get("total_interactions", 0) or 0))
             except Exception:
                 pass
 
@@ -661,18 +672,10 @@ async def clear_user_memory(user_id: str, user=Depends(require_permission("write
     """Clear user's memory"""
     try:
         store = _get_agent_store()
-        agent = store.get(user_id)
-        if agent:
-            # Clear memory (implementation depends on memory backend)
-            if hasattr(agent.memory, "clear_user"):
-                agent.memory.clear_user(user_id)
-
-            # Remove agent from cache
-            store.delete(user_id)
-
-            return {"status": "success", "message": f"Memory cleared for user {user_id}"}
-        else:
-            raise HTTPException(status_code=404, detail="User not found")
+        agent = store.get(user_id) or get_or_create_agent(user_id)
+        clear_msg = agent.clear_user_data(user_id=user_id, confirm=True)
+        store.delete(user_id)
+        return {"status": "success", "message": clear_msg}
     except HTTPException:
         raise
     except Exception as e:
@@ -985,7 +988,7 @@ if web_ui_path.exists():
         index_path = web_ui_path / "index.html"
         if index_path.exists():
             return FileResponse(str(index_path), media_type="text/html")
-        return {"message": "Mem-LLM API Server", "version": "2.4.2"}
+        return {"message": "Mem-LLM API Server", "version": "2.4.3"}
 
     @app.get("/memory")
     async def memory_page():

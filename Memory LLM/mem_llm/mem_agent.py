@@ -659,17 +659,33 @@ class MemAgent:
                 # Handle memory-specific tools
                 if result.status.value == "success" and isinstance(result.result, str):
                     if result.result.startswith("MEMORY_SEARCH:"):
-                        keyword = result.result.split(":", 1)[1]
+                        payload = result.result.split(":", 1)[1]
+                        keyword = payload
+                        limit = 5
+                        if ":" in payload:
+                            maybe_keyword, maybe_limit = payload.rsplit(":", 1)
+                            if maybe_limit.isdigit():
+                                keyword = maybe_keyword
+                                limit = int(maybe_limit)
                         try:
-                            search_results = self.memory_manager.search_conversations(keyword)
+                            search_results = []
+                            if self.current_user:
+                                search_results = self.search_history(
+                                    keyword, user_id=self.current_user
+                                )[:limit]
+
                             if search_results:
                                 formatted = (
                                     f"Found {len(search_results)} results for '{keyword}':\n"
                                 )
                                 for idx, conv in enumerate(search_results[:5], 1):
-                                    msg_preview = conv.get("message", "N/A")[:100]
-                                    user_name = conv.get("user", "N/A")
-                                    formatted += f"{idx}. {user_name}: {msg_preview}...\n"
+                                    ts = conv.get("timestamp", "Unknown")
+                                    msg_preview = conv.get("user_message", "N/A")[:80]
+                                    bot_preview = conv.get("bot_response", "N/A")[:80]
+                                    formatted += (
+                                        f"{idx}. [{ts}] User: {msg_preview} | "
+                                        f"Bot: {bot_preview}\n"
+                                    )
                                 result.result = formatted
                             else:
                                 result.result = f"No conversations found containing '{keyword}'"
@@ -680,9 +696,18 @@ class MemAgent:
                         try:
                             user_info = f"Current user: {self.current_user or 'Not set'}"
                             if self.current_user:
-                                conv_count = len(
-                                    self.memory_manager.get_conversation_history(self.current_user)
-                                )
+                                conv_count = 0
+                                if hasattr(self.memory, "get_recent_conversations"):
+                                    conv_count = len(
+                                        self.memory.get_recent_conversations(
+                                            self.current_user, limit=1000
+                                        )
+                                    )
+                                profile = self.get_user_profile(self.current_user)
+                                if profile:
+                                    name = profile.get("name")
+                                    if name:
+                                        user_info += f"\nName: {name}"
                                 user_info += f"\nTotal conversations: {conv_count}"
                             result.result = user_info
                         except Exception as e:
@@ -691,15 +716,20 @@ class MemAgent:
                     elif result.result.startswith("MEMORY_LIST_CONVERSATIONS:"):
                         try:
                             limit = int(result.result.split(":", 1)[1])
-                            history = self.memory_manager.get_conversation_history(
-                                self.current_user or "default", limit=limit
-                            )
+                            history = []
+                            if self.current_user and hasattr(self.memory, "get_recent_conversations"):
+                                history = self.memory.get_recent_conversations(
+                                    self.current_user, limit=limit
+                                )
                             if history:
                                 formatted = f"Last {len(history)} conversations:\n"
                                 for idx, conv in enumerate(history, 1):
-                                    role = conv.get("role", "unknown")
-                                    msg = conv.get("content", "")[:80]
-                                    formatted += f"{idx}. [{role}] {msg}...\n"
+                                    user_msg = conv.get("user_message", "")[:80]
+                                    bot_msg = conv.get("bot_response", "")[:80]
+                                    formatted += (
+                                        f"{idx}. User: {user_msg}...\n"
+                                        f"   Bot: {bot_msg}...\n"
+                                    )
                                 result.result = formatted
                             else:
                                 result.result = "No conversation history found"
@@ -1673,6 +1703,17 @@ class MemAgent:
             self.logger.error(f"Knowledge adding error: {e}")
             return 0
 
+    # Backward-compatible alias used by API layer and older examples
+    def add_kb_entry(
+        self,
+        category: str,
+        question: str,
+        answer: str,
+        keywords: Optional[List[str]] = None,
+        priority: int = 0,
+    ) -> int:
+        return self.add_knowledge(category, question, answer, keywords, priority)
+
     def get_statistics(self) -> Dict[str, Any]:
         """Returns general statistics"""
         try:
@@ -1684,6 +1725,32 @@ class MemAgent:
         except Exception as e:
             self.logger.error(f"Statistics retrieval error: {e}")
             return {}
+
+    def get_info(self) -> Dict[str, Any]:
+        """Return runtime information about the agent."""
+        llm_available = False
+        try:
+            llm_available = self.llm.check_connection()
+        except Exception:
+            llm_available = False
+
+        return {
+            "model": self.model,
+            "backend": self.backend,
+            "current_user": self.current_user,
+            "usage_mode": self.usage_mode,
+            "memory_backend": (
+                "sql"
+                if ADVANCED_AVAILABLE and isinstance(self.memory, SQLMemoryManager)
+                else "json"
+            ),
+            "tools_enabled": self.enable_tools,
+            "tool_count": len(self.tool_registry.tools) if self.tool_registry else 0,
+            "security_enabled": self.enable_security,
+            "hierarchical_memory_enabled": self.hierarchical_memory is not None,
+            "graph_memory_enabled": self.graph_store is not None,
+            "llm_available": llm_available,
+        }
 
     def search_history(self, keyword: str, user_id: Optional[str] = None) -> List[Dict]:
         """Search in user history"""

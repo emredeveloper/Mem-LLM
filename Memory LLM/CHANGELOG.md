@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.4.3] - 2026-02-08
+### Fixed
+- **MemAgent Tool Flow** - Corrected memory tool-call execution to use active memory backends and added `add_kb_entry` compatibility alias.
+- **API Endpoints** - Fixed KB add, memory stats, profile interaction count, and clear-user-memory endpoint behavior.
+- **Tool Parser** - Removed local import shadowing that could trigger `UnboundLocalError` in tool call parsing.
+- **Ollama Integration Tests** - Made test model selection dynamic and stabilized user-context assertions for local environments.
+
+### Changed
+- **Docker Cleanup** - Removed Docker artifacts and related docs (`Dockerfile`, `docker-compose.yml`, `.dockerignore`).
+
 ## [2.4.2] - 2026-01-20
 - **Docs** - Refreshed PyPI README release notes for current version.
 
@@ -71,25 +81,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [2.2.9] - 2025-01-27
-
-### 🐳 Docker Support *(NEW)*
-- **Dockerfile** - Containerized deployment for Mem-LLM API server
-  - Python 3.11-slim base image
-  - Optimized layer caching with requirements-first build
-  - Health check endpoint for container monitoring
-  - Persistent data volumes for memories and database
-
-- **Docker Compose** - Complete development/production stack
-  - Mem-LLM API server container
-  - Integrated Ollama LLM service
-  - Volume persistence for data and models
-  - Optional GPU support configuration
-  - Network isolation and service dependencies
-
-- **Docker Ignore** - Optimized build context
-  - Excludes unnecessary files from Docker builds
-  - Faster build times and smaller image sizes
-  - Proper handling of Python cache and virtual environments
 
 ### 🔧 Maintenance & Improvements
 - Fixed linter errors in API authentication module
