@@ -76,3 +76,5 @@ quickstart/test_tool_execution.py
 Memory LLM/build/
 Memory LLM/dist/
 Memory LLM/*.egg-info/
+*.whl
+*.tar.gz

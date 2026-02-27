@@ -1,4 +1,4 @@
-from pathlib import Path
+﻿from pathlib import Path
 
 from setuptools import find_packages, setup
 
@@ -33,11 +33,11 @@ except Exception as e:
 
 setup(
     name="mem-llm",
-    version="2.4.4",
+    version="2.4.5",
     description="Mem-LLM is a Python framework for building privacy-first, memory-enabled AI assistants that run 100% locally.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    author="Cihat Emre Karataş",
+    author="Cihat Emre Karatas",
     packages=find_packages(where="Memory LLM"),
     package_dir={"": "Memory LLM"},
     install_requires=[
@@ -51,3 +51,4 @@ setup(
     ],
     python_requires=">=3.8",
 )
+

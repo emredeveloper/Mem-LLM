@@ -16,7 +16,7 @@ def run_backend(backend: str, model: str) -> None:
         agent = MemAgent(backend=backend, model=model, check_connection=False)
         agent.set_user("quickstart_user")
 
-        response = agent.chat("What is a black hole?", return_metrics=True)
+        response = agent.chat("What is a black holeU", return_metrics=True)
         print(f"[{backend}] Text:", response.text)
         print(f"[{backend}] Confidence:", response.confidence)
         print(f"[{backend}] Latency (ms):", round(response.latency, 1))

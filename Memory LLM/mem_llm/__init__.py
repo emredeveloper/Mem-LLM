@@ -86,8 +86,8 @@ try:
 except ImportError:
     __all_metrics__ = []
 
-__version__ = "2.4.4"
-__author__ = "Cihat Emre Karataş"
+__version__ = "2.4.5"
+__author__ = "Cihat Emre Karatas"
 
 # Multi-backend LLM support (v1.3.0+)
 __all_llm_backends__ = ["BaseLLMClient", "LLMClientFactory", "OllamaClientNew", "LMStudioClient"]

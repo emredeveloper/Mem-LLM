@@ -1,13 +1,22 @@
-# Mem-LLM Package
+﻿# Mem-LLM
 
-Mem-LLM is a local-first library for memory-enabled AI assistants with multi-backend LLM support.
+Mem-LLM is a local-first Python library for memory-enabled AI assistants with multi-backend LLM support.
 
-## Current Defaults
+## Highlights
 
-- Ollama model: `granite4:3b`
-- LM Studio model: `google/gemma-3-12b`
+- Persistent user memory (JSON or SQLite)
+- Tool calling and built-in tools
+- Multi-backend support (Ollama, LM Studio)
+- Knowledge base and conversation analytics
+- Streaming chat responses
+- REST API and Web UI
 
-## Installation
+## Default Models
+
+- Ollama: `granite4:3b`
+- LM Studio: `google/gemma-3-12b`
+
+## Install
 
 ```bash
 pip install mem-llm
@@ -20,14 +29,15 @@ pip install mem-llm[api]
 pip install mem-llm[databases]
 ```
 
-## Basic Usage
+## Quick Start
 
 ```python
 from mem_llm import MemAgent
 
 agent = MemAgent(backend="ollama", model="granite4:3b")
-agent.set_user("user_1")
-reply = agent.chat("Remember that I like Python.")
+agent.set_user("alice")
+print(agent.chat("My name is Alice."))
+print(agent.chat("What is my name?"))
 ```
 
 LM Studio:
@@ -36,39 +46,11 @@ LM Studio:
 agent = MemAgent(backend="lmstudio", model="google/gemma-3-12b")
 ```
 
-## Main Components
+## Links
 
-- `mem_llm/mem_agent.py` - main agent orchestration
-- `mem_llm/memory_manager.py` - JSON memory backend
-- `mem_llm/memory_db.py` - SQL memory backend
-- `mem_llm/tool_system.py` - tool parser, registry, execution
-- `mem_llm/api_server.py` - FastAPI server
-- `mem_llm/multi_agent/` - multi-agent primitives
-
-## Testing
-
-Run tests from workspace root:
-
-```bash
-python -m pytest "Memory LLM/tests" -q
-```
-
-LM Studio-focused run (exclude Ollama-specific tests):
-
-```bash
-python -m pytest "Memory LLM/tests" -q --ignore="Memory LLM/tests/integration/test_ollama_integration.py" -k "not ollama"
-```
-
-## Release
-
-Build artifacts:
-
-```bash
-cd "Memory LLM"
-python -m build
-```
-
-Artifacts are generated in `Memory LLM/dist/`.
+- PyPI: https://pypi.org/project/mem-llm/
+- GitHub: https://github.com/emredeveloper/Mem-LLM
+- Issues: https://github.com/emredeveloper/Mem-LLM/issues
 
 ## License
 

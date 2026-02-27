@@ -17,7 +17,7 @@ def run_backend(backend: str, model: str) -> None:
         agent.set_user("quickstart_user")
 
         agent.chat("My name is Alex.")
-        reply = agent.chat("What is my name?")
+        reply = agent.chat("What is my nameU")
         print(f"[{backend}] Bot:", reply)
     except Exception as exc:
         print(f"[{backend}] Error:", exc)

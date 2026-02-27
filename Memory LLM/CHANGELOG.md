@@ -1,5 +1,10 @@
 ﻿# Changelog
 
+## [2.4.5] - 2026-02-28
+### Fixed
+- Replaced PyPI long description with clean UTF-8 and ASCII-safe README text.
+- Normalized author metadata strings to avoid mojibake on package indexes.
+
 ## [2.4.4] - 2026-02-27
 ### Fixed
 - Resolved 12 reported defects across mem_agent.py, memory_db.py, tool_system.py, conversation_analytics.py, memory_tools.py, prompt_security.py, and multi-agent registry.
@@ -1012,5 +1017,6 @@ response = agent.chat("Hello!")  # Security checks applied automatically
 - ğŸ¤– Memory-enabled AI assistant
 - ğŸ’¾ JSON memory management
 - ğŸ”Œ Ollama integration
+
 
 
