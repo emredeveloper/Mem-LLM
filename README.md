@@ -6,7 +6,7 @@
 
 Mem-LLM is a privacy-first Python framework for building memory-enabled AI assistants that run locally.
 
-## What's New in v2.4.4
+## What's New in v2.4.5
 
 - Fixed critical memory, tool parsing, and backend compatibility issues.
 - Improved SQL ordering and thread-safety behavior.
@@ -57,8 +57,8 @@ print(agent.chat("Summarize Python in one sentence."))
 ## Repository Layout
 
 - `Memory LLM/` - main package source and release files
-- `demos/` - usage examples
-- `quickstart/` - quick scripts
+- `quickstart/` - step-by-step usage examples & tutorials
+
 
 ## Links
 
