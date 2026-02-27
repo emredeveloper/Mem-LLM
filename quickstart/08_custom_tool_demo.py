@@ -13,7 +13,7 @@ def greet(name: str) -> str:
 
 BACKENDS = (
     ("ollama", os.getenv("OLLAMA_MODEL", "granite4:3b")),
-    ("lmstudio", os.getenv("LMSTUDIO_MODEL", "google/gemma-3-4b")),
+    ("lmstudio", os.getenv("LMSTUDIO_MODEL", "google/gemma-3-12b")),
 )
 
 

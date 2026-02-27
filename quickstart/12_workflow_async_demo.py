@@ -3,7 +3,11 @@
 from mem_llm.mem_agent import MemAgent
 from mem_llm.workflow import Step, Workflow
 
-from demo_config import BACKEND, BASE_URL, MODEL
+import os
+
+BACKEND = os.getenv("BACKEND", "ollama")
+MODEL = os.getenv("MODEL", "granite4:3b")
+BASE_URL = os.getenv("BASE_URL", "http://localhost:11434")
 
 
 def main() -> None:

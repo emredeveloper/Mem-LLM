@@ -42,6 +42,7 @@ from .llm_client_factory import LLMClientFactory
 from .memory_manager import MemoryManager
 from .response_metrics import ChatResponse, ResponseMetricsAnalyzer, calculate_confidence
 from .tool_system import ToolCallParser, ToolRegistry, format_tools_for_prompt
+from .memory_tools import ToolExecutor
 
 # Advanced features (optional)
 ADVANCED_AVAILABLE = False
@@ -54,8 +55,7 @@ try:
     from .knowledge_loader import KnowledgeLoader
     from .memory.hierarchy import HierarchicalMemory
     from .memory_db import SQLMemoryManager
-    from .memory_tools import ToolExecutor
-
+    
     ADVANCED_AVAILABLE = True
 
     # New features v2.3.0 - Managed separately to allow partial failures

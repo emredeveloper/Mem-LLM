@@ -2,7 +2,9 @@
 
 from mem_llm.tool_system import ToolRegistry, tool
 
-from demo_config import TOOL_ALLOWLIST, TOOL_ALLOWLIST_ONLY, TOOL_DENYLIST
+TOOL_ALLOWLIST = ["safe_upper"]
+TOOL_DENYLIST = ["unsafe_lower"]
+TOOL_ALLOWLIST_ONLY = True
 
 
 @tool(name="safe_upper", description="Uppercase a string")
