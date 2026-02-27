@@ -1,4 +1,4 @@
-"""
+﻿"""
 Mem-LLM REST API Server
 ========================
 
@@ -25,7 +25,7 @@ API Documentation:
     - Swagger UI: http://localhost:8000/docs
     - ReDoc: http://localhost:8000/redoc
 
-Author: Cihat Emre Karataş
+Author: Cihat Emre KarataÅŸ
 Version: 2.4.3
 """
 
@@ -145,7 +145,7 @@ def _get_agent_store() -> AgentStore:
 
 # Default agent configuration
 DEFAULT_CONFIG = {
-    "model": "rnj-1:latest",
+    "model": "granite4:3b",
     "backend": "ollama",
     "base_url": "http://localhost:11434",
     "use_sql": True,
@@ -186,15 +186,15 @@ def get_or_create_agent(user_id: str, config: Optional[Dict] = None) -> MemAgent
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
-    logger.info("🚀 Mem-LLM API Server starting...")
-    logger.info("📝 API Documentation: http://localhost:8000/docs")
-    logger.info(f"🔌 WebSocket endpoint: ws://localhost:8000/ws/chat/{'{user_id}'}")
+    logger.info("ğŸš€ Mem-LLM API Server starting...")
+    logger.info("ğŸ“ API Documentation: http://localhost:8000/docs")
+    logger.info(f"ğŸ”Œ WebSocket endpoint: ws://localhost:8000/ws/chat/{'{user_id}'}")
     ttl_seconds = int(os.environ.get("MEM_LLM_AGENT_TTL_SECONDS", "3600"))
     max_size = int(os.environ.get("MEM_LLM_AGENT_MAX_SIZE", "500"))
     app.state.agent_store = AgentStore(ttl_seconds=ttl_seconds, max_size=max_size)
     yield
     # Shutdown
-    logger.info("🛑 Mem-LLM API Server shutting down...")
+    logger.info("ğŸ›‘ Mem-LLM API Server shutting down...")
     app.state.agent_store = AgentStore()
 
 
@@ -969,10 +969,10 @@ if __name__ == "__main__":
     import uvicorn
 
     print("\n" + "=" * 60)
-    print("  🚀 Starting Mem-LLM API Server")
+    print("  ğŸš€ Starting Mem-LLM API Server")
     print("=" * 60)
-    print("\n📝 API Documentation: http://localhost:8000/docs")
-    print("🔌 WebSocket endpoint: ws://localhost:8000/ws/chat/{user_id}")
+    print("\nğŸ“ API Documentation: http://localhost:8000/docs")
+    print("ğŸ”Œ WebSocket endpoint: ws://localhost:8000/ws/chat/{user_id}")
     print("\nPress CTRL+C to stop the server\n")
 
     uvicorn.run("mem_llm.api_server:app", host="0.0.0.0", port=8000, reload=True, log_level="info")
@@ -1005,3 +1005,4 @@ if web_ui_path.exists():
         if metrics_path.exists():
             return FileResponse(str(metrics_path), media_type="text/html")
         return {"error": "Page not found"}
+

@@ -112,13 +112,13 @@ Use clear, descriptive commit messages:
 
 ```
 mem_llm/
-├── mem_agent.py          # Main agent class
-├── clients/              # LLM backend clients
-├── memory/               # Memory systems
-├── multi_agent/          # Multi-agent framework
-├── tool_system.py        # Function calling
-├── api_server.py         # REST API
-└── web_ui/               # Web interface
+ mem_agent.py          # Main agent class
+ clients/              # LLM backend clients
+ memory/               # Memory systems
+ multi_agent/          # Multi-agent framework
+ tool_system.py        # Function calling
+ api_server.py         # REST API
+ web_ui/               # Web interface
 ```
 
 ## Testing Guidelines
@@ -134,7 +134,7 @@ mem_llm/
 - Add docstrings to new functions/classes
 - Update CHANGELOG.md for releases
 
-## Questions?
+## Questions
 
 - Open an issue for questions
 - Email: karatasqemre@gmail.com

@@ -12,7 +12,7 @@ Features:
 - Tool result formatting
 - Built-in common tools
 
-Author: Cihat Emre Karataş
+Author: Cihat Emre Karata
 Version: 2.1.1
 """
 
@@ -420,7 +420,9 @@ class ToolRegistry:
         if not tool:
             # Log available tools for debugging
             available_tools = list(self.tools.keys())
-            logger.warning(f"Tool '{tool_name}' not found in call. Available tools: {available_tools}. Full match: {match.group(0) if 'match' in locals() else 'N/A'}")
+            logger.warning(
+                f"Tool '{tool_name}' not found in call. Available tools: {available_tools}."
+            )
             return ToolCallResult(
                 tool_name=tool_name,
                 status=ToolCallStatus.NOT_FOUND,
@@ -498,7 +500,7 @@ class ToolCallParser:
                 logger.debug(f"Pattern '{pattern[:30]}...' found {len(pattern_matches)} matches")
                 if pattern_matches:
                     logger.info(
-                        f"🔍 Detected natural language tool call using pattern: {pattern[:50]}..."
+                        f" Detected natural language tool call using pattern: {pattern[:50]}..."
                     )
                     break
 
@@ -649,12 +651,20 @@ class ToolCallParser:
     @staticmethod
     def has_tool_call(text: str) -> bool:
         """Check if text contains a tool call"""
-        return bool(re.search(ToolCallParser.TOOL_CALL_PATTERN, text))
+        if re.search(ToolCallParser.TOOL_CALL_PATTERN, text):
+            return True
+        for pattern in ToolCallParser.NATURAL_PATTERNS:
+            if re.search(pattern, text, re.IGNORECASE | re.MULTILINE):
+                return True
+        return False
 
     @staticmethod
     def remove_tool_calls(text: str) -> str:
         """Remove tool call syntax from text, keeping only natural language"""
-        return re.sub(ToolCallParser.TOOL_CALL_PATTERN, "", text).strip()
+        cleaned = re.sub(ToolCallParser.TOOL_CALL_PATTERN, "", text)
+        for pattern in ToolCallParser.NATURAL_PATTERNS:
+            cleaned = re.sub(pattern, "", cleaned, flags=re.IGNORECASE | re.MULTILINE)
+        return cleaned.strip()
 
 
 def format_tools_for_prompt(tools: List[Tool]) -> str:
@@ -682,26 +692,26 @@ def format_tools_for_prompt(tools: List[Tool]) -> str:
         lines.append("")
 
     lines.append("=" * 80)
-    lines.append("⚡ TOOL USAGE INSTRUCTIONS (v2.1.3+):")
+    lines.append(" TOOL USAGE INSTRUCTIONS (v2.1.3+):")
     lines.append("-" * 80)
-    lines.append("✅ PREFERRED FORMAT (use this!):")
+    lines.append(" PREFERRED FORMAT (use this!):")
     lines.append('  TOOL_CALL: tool_name(param1="value1", param2="value2")')
     lines.append("")
-    lines.append("📝 EXAMPLES:")
+    lines.append(" EXAMPLES:")
     lines.append('  TOOL_CALL: calculate(expression="(25 * 4) + 10")')
     lines.append('  TOOL_CALL: count_words(text="Hello world from AI")')
     lines.append('  TOOL_CALL: write_file(filepath="test.txt", content="Hello!")')
     lines.append("  TOOL_CALL: get_current_time()")
     lines.append("")
-    lines.append("🔥 CRITICAL RULES:")
+    lines.append(" CRITICAL RULES:")
     lines.append("  1. USE THE EXACT FORMAT ABOVE - Don't just describe, actually CALL!")
     lines.append('  2. Always use named parameters: param="value"')
     lines.append("  3. Use double quotes for string values")
     lines.append("  4. One tool call per line")
     lines.append("  5. After execution, tool results appear and you continue responding")
     lines.append("")
-    lines.append("❌ WRONG: The tool 'calculate' can solve this...")
-    lines.append('✅ RIGHT: TOOL_CALL: calculate(expression="5 + 3")')
+    lines.append(" WRONG: The tool 'calculate' can solve this...")
+    lines.append(' RIGHT: TOOL_CALL: calculate(expression="5 + 3")')
     lines.append("=" * 80)
     lines.append("")
 

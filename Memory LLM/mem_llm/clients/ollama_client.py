@@ -1,11 +1,11 @@
-"""
+﻿"""
 Ollama LLM Client
 =================
 
 Client for local Ollama service.
 Supports all Ollama models (Llama3, Granite, Qwen3, DeepSeek, etc.)
 
-Author: C. Emre Karataş
+Author: C. Emre KarataÅŸ
 Version: 1.3.0
 """
 
@@ -30,7 +30,7 @@ class OllamaClient(BaseLLMClient):
     """
 
     def __init__(
-        self, model: str = "rnj-1:latest", base_url: str = "http://localhost:11434", **kwargs
+        self, model: str = "granite4:3b", base_url: str = "http://localhost:11434", **kwargs
     ):
         """
         Initialize Ollama client
@@ -357,3 +357,4 @@ Use past interactions intelligently."""
         messages.append({"role": "user", "content": user_message})
 
         return self.chat(messages, temperature=0.7)
+

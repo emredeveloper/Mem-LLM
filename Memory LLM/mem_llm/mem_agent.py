@@ -1,17 +1,17 @@
-"""
+﻿"""
 Mem-Agent: Unified Powerful System
 ==================================
 
 A powerful Mem-Agent that combines all features in a single system.
 
 Features:
-- ✅ SQL and JSON memory support
-- ✅ Prompt templates system
-- ✅ Knowledge base integration
-- ✅ User tools system
-- ✅ Configuration management
-- ✅ Advanced logging
-- ✅ Production-ready structure
+-  SQL and JSON memory support
+-  Prompt templates system
+-  Knowledge base integration
+-  User tools system
+-  Configuration management
+-  Advanced logging
+-  Production-ready structure
 
 Usage:
 ```python
@@ -64,10 +64,10 @@ try:
 
         GRAPH_AVAILABLE = True
     except ImportError as e:
-        print(f"⚠️  Graph features not available (missing dependency): {e}")
+        print(f"Warning: Graph features not available (missing dependency): {e}")
 
 except ImportError as e:
-    print(f"⚠️  Advanced features not available (install additional packages): {e}")
+    print(f"Warning: Advanced features not available (install additional packages): {e}")
 
 
 class MemAgent:
@@ -79,7 +79,7 @@ class MemAgent:
 
     def __init__(
         self,
-        model: str = "rnj-1:latest",
+        model: str = "granite4:3b",
         backend: str = "ollama",
         config_file: Optional[str] = None,
         use_sql: bool = True,
@@ -128,7 +128,7 @@ class MemAgent:
             agent = MemAgent()
 
             # LM Studio
-            agent = MemAgent(backend='lmstudio', model='llama-3-8b')
+            agent = MemAgent(backend='lmstudio', model='google/gemma-3-12b')
 
             # Using Preset
             agent = MemAgent(preset='code_assistant')
@@ -145,7 +145,7 @@ class MemAgent:
 
                 presets = ConfigPresets()
                 self.preset_config = presets.get_preset(preset)
-                self.logger.info(f"📋 Loaded configuration preset: {preset}")
+                self.logger.info(f" Loaded configuration preset: {preset}")
 
                 # Apply preset settings if not explicitly provided
                 if "temperature" in self.preset_config and "temperature" not in llm_kwargs:
@@ -156,7 +156,7 @@ class MemAgent:
 
                 # Note: System prompt and tools are handled later
             except Exception as e:
-                self.logger.warning(f"⚠️  Failed to load preset '{preset}': {e}")
+                self.logger.warning(f"  Failed to load preset '{preset}': {e}")
 
         # Security features (v1.1.0+)
         self.enable_security = enable_security
@@ -169,9 +169,9 @@ class MemAgent:
 
                 self.security_detector = PromptInjectionDetector()
                 self.security_sanitizer = InputSanitizer()
-                self.logger.info("🔒 Security features enabled (prompt injection protection)")
+                self.logger.info(" Security features enabled (prompt injection protection)")
             except ImportError:
-                self.logger.warning("⚠️  Security features requested but not available")
+                self.logger.warning("  Security features requested but not available")
 
         # Load configuration
         self.config = None
@@ -179,7 +179,13 @@ class MemAgent:
             try:
                 self.config = get_config(config_file)
             except Exception:
-                print("⚠️  Config file could not be loaded, using default settings")
+                print("Warning: Config file could not be loaded, using default settings")
+                try:
+                    from .config_manager import ConfigManager
+
+                    self.config = ConfigManager(config_file)
+                except Exception:
+                    self.config = None
 
         # Determine usage mode
         self.usage_mode = "business"  # default
@@ -217,7 +223,7 @@ class MemAgent:
                 )
 
             builtin_count = len(self.tool_registry.tools)
-            self.logger.info(f"🛠️  Tool system enabled ({builtin_count} tools available)")
+            self.logger.info(f"  Tool system enabled ({builtin_count} tools available)")
 
         # Memory system
         if use_sql and ADVANCED_AVAILABLE:
@@ -279,9 +285,12 @@ class MemAgent:
         self.use_sql = use_sql  # Store SQL usage flag
 
         # Default model for LM Studio (v2.3.0)
-        if self.backend == "lmstudio" and self.model == "rnj-1:latest":
-            self.model = "google/gemma-3-4b"
-            self.logger.info(f"🔄 Switched to default LM Studio model: {self.model}")
+        if self.backend == "lmstudio" and self.model in [
+            "granite4:3b",
+            "google/gemma-3-12b",
+        ]:
+            self.model = "google/gemma-3-12b"
+            self.logger.info(f" Switched to default LM Studio model: {self.model}")
 
         # Initialize LLM client (v1.3.0: Multi-backend support)
         # Prepare backend configuration
@@ -298,13 +307,13 @@ class MemAgent:
         # Add api_key for cloud backends
         # Auto-detect backend if requested
         if auto_detect_backend:
-            self.logger.info("🔍 Auto-detecting available LLM backend...")
+            self.logger.info(" Auto-detecting available LLM backend...")
             self.llm = LLMClientFactory.auto_detect()
             if self.llm:
                 detected_backend = self.llm.__class__.__name__
-                self.logger.info(f"✅ Detected and using: {detected_backend}")
+                self.logger.info(f" Detected and using: {detected_backend}")
             else:
-                self.logger.error("❌ No LLM backend available.")
+                self.logger.error(" No LLM backend available.")
                 raise RuntimeError(
                     "No LLM backend detected. Please start a local LLM service "
                     "(Ollama or LM Studio)."
@@ -314,9 +323,9 @@ class MemAgent:
             try:
                 # Use self.model which might have been updated (e.g. LM Studio default)
                 self.llm = LLMClientFactory.create(backend=backend, model=self.model, **llm_config)
-                self.logger.info(f"✅ Initialized {backend} backend with model: {self.model}")
+                self.logger.info(f" Initialized {backend} backend with model: {self.model}")
             except Exception as e:
-                self.logger.error(f"❌ Failed to initialize {backend} backend: {e}")
+                self.logger.error(f" Failed to initialize {backend} backend: {e}")
                 raise
 
         # Optional connection check on startup
@@ -324,7 +333,7 @@ class MemAgent:
             backend_name = backend if not auto_detect_backend else "LLM service"
             self.logger.info(f"Checking {backend_name} connection...")
             if not self.llm.check_connection():
-                error_msg = f"❌ ERROR: Cannot connect to {backend_name}!\n"
+                error_msg = f" ERROR: Cannot connect to {backend_name}!\n"
 
                 if backend == "ollama":
                     error_msg += (
@@ -353,7 +362,7 @@ class MemAgent:
                 available_models = self.llm.list_models()
                 if available_models and self.model not in available_models:
                     error_msg = (
-                        f"❌ ERROR: Model '{self.model}' not found in {backend}!\n"
+                        f" ERROR: Model '{self.model}' not found in {backend}!\n"
                         f"   \n"
                         f"   Available models: {', '.join(available_models[:5])}\n"
                         f"   Total: {len(available_models)} models available\n"
@@ -366,7 +375,7 @@ class MemAgent:
                 # Some backends may not support list_models, skip check
                 pass
 
-            self.logger.info(f"✅ {backend_name} connection verified, model '{self.model}' ready")
+            self.logger.info(f" {backend_name} connection verified, model '{self.model}' ready")
 
         self.logger.info(f"LLM client ready: {self.model} on {backend}")
 
@@ -374,7 +383,7 @@ class MemAgent:
         if ADVANCED_AVAILABLE:
             self._setup_advanced_features(load_knowledge_base)
         else:
-            print("⚠️  Load additional packages for advanced features")
+            print("Warning: Load additional packages for advanced features")
             # Build basic prompt even without advanced features
             self._build_dynamic_system_prompt()
 
@@ -384,7 +393,7 @@ class MemAgent:
         # Initialize Hierarchical Memory if enabled (after memory and LLM are ready)
         if self.enable_hierarchical_memory and ADVANCED_AVAILABLE:
             self.hierarchical_memory = HierarchicalMemory(self.memory, self.llm)
-            self.logger.info("🧠 Hierarchical Memory System enabled")
+            self.logger.info(" Hierarchical Memory System enabled")
         else:
             self.hierarchical_memory = None
 
@@ -412,7 +421,7 @@ class MemAgent:
 
             self.graph_store = GraphStore(persistence_path=graph_path)
             self.graph_extractor = GraphExtractor(self)
-            self.logger.info(f"🕸️ Graph Memory enabled (path: {graph_path})")
+            self.logger.info(f" Graph Memory enabled (path: {graph_path})")
 
         self.logger.info("MemAgent successfully initialized")
 
@@ -484,7 +493,7 @@ class MemAgent:
                         self.has_knowledge_base = True  # KB loaded!
                 except Exception as e:
                     self.logger.error(f"Knowledge base loading error: {e}")
-                self.has_knowledge_base = False
+                    self.has_knowledge_base = False
 
         # Build dynamic system prompt based on active features
         self._build_dynamic_system_prompt()
@@ -506,7 +515,7 @@ class MemAgent:
                 base_prompt += f"\n\n{tools_prompt}"
 
             self.current_system_prompt = base_prompt
-            self.logger.info("📋 Using preset system prompt")
+            self.logger.info(" Using preset system prompt")
             return
 
         if not ADVANCED_AVAILABLE:
@@ -637,7 +646,7 @@ class MemAgent:
             if not tool_calls:
                 break
 
-            self.logger.info(f"🔧 Detected {len(tool_calls)} tool call(s)")
+            self.logger.info(f" Detected {len(tool_calls)} tool call(s)")
 
             # Execute each tool
             tool_results = []
@@ -737,10 +746,10 @@ class MemAgent:
                             result.result = f"Conversation list error: {e}"
 
                 if result.status.value == "success":  # Compare with enum value
-                    self.logger.info(f"  ✅ Success: {result.result}")
+                    self.logger.info(f"   Success: {result.result}")
                     tool_results.append(f"Tool '{tool_name}' returned: {result.result}")
                 else:
-                    self.logger.warning(f"  ❌ Error: {result.error}")
+                    self.logger.warning(f"   Error: {result.error}")
                     tool_results.append(f"Tool '{tool_name}' failed with error: {result.error}")
 
             # Remove tool call syntax from response
@@ -839,17 +848,17 @@ class MemAgent:
 
             if risk_level in ["high", "critical"]:
                 self.logger.warning(
-                    f"🚨 Blocked {risk_level} risk input from {user_id}: "
+                    f" Blocked {risk_level} risk input from {user_id}: "
                     f"{len(patterns)} patterns detected"
                 )
                 return (
-                    "⚠️ Your message was blocked due to security concerns. "
+                    " Your message was blocked due to security concerns. "
                     "Please rephrase your request."
                 )
 
             if is_suspicious:
                 self.logger.info(
-                    f"⚠️ Suspicious input from {user_id} (risk: {risk_level}): "
+                    f" Suspicious input from {user_id} (risk: {risk_level}): "
                     f"{len(patterns)} patterns"
                 )
 
@@ -900,13 +909,13 @@ class MemAgent:
                     if kb_results:
                         kb_results_count = len(kb_results)
                         used_kb = True
-                        kb_context = "\n\n📚 RELEVANT KNOWLEDGE BASE:\n"
+                        kb_context = "\n\n RELEVANT KNOWLEDGE BASE:\n"
                         for i, result in enumerate(kb_results, 1):
                             kb_context += (
                                 f"{i}. Q: {result['question']}\n   A: {result['answer']}\n"
                             )
                         kb_context += (
-                            "\n⚠️ USE THIS INFORMATION TO ANSWER! Be brief but accurate.\n"
+                            "\n USE THIS INFORMATION TO ANSWER! Be brief but accurate.\n"
                         )
                 except Exception as e:
                     self.logger.error(f"Knowledge base search error: {e}")
@@ -932,6 +941,10 @@ class MemAgent:
 
                 if recent_convs:
                     used_memory = True
+
+                # SQL backend returns newest-first; reverse to build oldest-first context.
+                if ADVANCED_AVAILABLE and isinstance(self.memory, SQLMemoryManager):
+                    recent_convs = list(reversed(recent_convs))
 
                 # Add conversations in chronological order (oldest first)
                 for conv in recent_convs:
@@ -959,9 +972,9 @@ class MemAgent:
                 messages=messages,
                 temperature=temperature,
                 max_tokens=(
-                    self.config.get("llm.max_tokens", 2000)
+                    self.config.get("llm.max_tokens", 500)
                     if hasattr(self, "config") and self.config
-                    else 2000
+                    else 500
                 ),  # Enough tokens for thinking models
             )
 
@@ -979,7 +992,7 @@ class MemAgent:
                     },
                     {"role": "user", "content": message},
                 ]
-                response = self.llm.chat(simple_messages, temperature=0.7, max_tokens=2000)
+                response = self.llm.chat(simple_messages, temperature=0.7, max_tokens=500)
 
                 # If still empty, provide fallback
                 if not response or response.strip() == "":
@@ -1119,7 +1132,7 @@ class MemAgent:
         Example:
             >>> agent = MemAgent()
             >>> agent.set_user("alice")
-            >>> for chunk in agent.chat_stream("Python nedir?"):
+            >>> for chunk in agent.chat_stream("What is Python?"):
             ...     print(chunk, end='', flush=True)
             Python bir programlama dilidir...
         """
@@ -1146,9 +1159,9 @@ class MemAgent:
             is_suspicious, patterns = self.security_detector.detect(message)
 
             if risk_level in ["high", "critical"]:
-                self.logger.warning(f"🚨 Blocked {risk_level} risk input from {user_id}")
+                self.logger.warning(f" Blocked {risk_level} risk input from {user_id}")
                 yield (
-                    "⚠️ Your message was blocked due to security concerns. "
+                    " Your message was blocked due to security concerns. "
                     "Please rephrase your request."
                 )
                 return
@@ -1179,13 +1192,13 @@ class MemAgent:
                     if kb_results:
                         kb_results_count = len(kb_results)
                         used_kb = True
-                        kb_context = "\n\n📚 RELEVANT KNOWLEDGE BASE:\n"
+                        kb_context = "\n\n RELEVANT KNOWLEDGE BASE:\n"
                         for i, result in enumerate(kb_results, 1):
                             kb_context += (
                                 f"{i}. Q: {result['question']}\n   A: {result['answer']}\n"
                             )
                         kb_context += (
-                            "\n⚠️ USE THIS INFORMATION TO ANSWER! Be brief but accurate.\n"
+                            "\n USE THIS INFORMATION TO ANSWER! Be brief but accurate.\n"
                         )
                 except Exception as e:
                     self.logger.error(f"Knowledge base search error: {e}")
@@ -1212,6 +1225,10 @@ class MemAgent:
                 if recent_convs:
                     used_memory = True
 
+                # SQL backend returns newest-first; reverse to build oldest-first context.
+                if ADVANCED_AVAILABLE and isinstance(self.memory, SQLMemoryManager):
+                    recent_convs = list(reversed(recent_convs))
+
                 # Add conversations in chronological order
                 for conv in recent_convs:
                     messages.append({"role": "user", "content": conv.get("user_message", "")})
@@ -1233,9 +1250,9 @@ class MemAgent:
             else 0.2
         )
         max_tokens = (
-            self.config.get("llm.max_tokens", 2000)
+            self.config.get("llm.max_tokens", 500)
             if hasattr(self, "config") and self.config
-            else 2000
+            else 500
         )
 
         # Collect full response for saving
@@ -1252,8 +1269,16 @@ class MemAgent:
         except Exception as e:
             error_msg = f"Streaming error: {str(e)}"
             self.logger.error(error_msg)
-            yield f"\n\n⚠️ {error_msg}"
+            yield f"\n\n {error_msg}"
             return
+
+        # Execute tool calls in streaming mode (post-processing)
+        final_response = full_response
+        if self.enable_tools and self.tool_registry and ToolCallParser.has_tool_call(full_response):
+            processed_response = self._execute_tool_calls(full_response)
+            if processed_response != full_response:
+                final_response = processed_response
+                yield f"\n\n{processed_response}"
 
         # Calculate latency
         latency = (time.time() - start_time) * 1000
@@ -1270,7 +1295,7 @@ class MemAgent:
             kb_results_count=kb_results_count,
             temperature=temperature,
             used_memory=used_memory,
-            response_length=len(full_response),
+            response_length=len(final_response),
         )
 
         # Build enriched metadata
@@ -1285,7 +1310,7 @@ class MemAgent:
                 "kb_results_count": kb_results_count,
                 "used_memory": used_memory,
                 "used_kb": used_kb,
-                "response_length": len(full_response),
+                "response_length": len(final_response),
                 "model": self.model,
                 "temperature": temperature,
                 "streaming": True,
@@ -1298,15 +1323,15 @@ class MemAgent:
                 self.memory.add_interaction(
                     user_id=user_id,
                     user_message=message,
-                    bot_response=full_response,
+                    bot_response=final_response,
                     metadata=enriched_metadata,
                 )
 
                 # Extract and save user info to profile
-                self._update_user_profile(user_id, message, full_response)
+                self._update_user_profile(user_id, message, final_response)
 
                 # Update graph memory (v2.3.0)
-                self._update_graph_memory(message, full_response)
+                self._update_graph_memory(message, final_response)
 
                 # Update summary (JSON mode)
                 if not self.use_sql and hasattr(self.memory, "conversations"):
@@ -1319,7 +1344,7 @@ class MemAgent:
         # Track metrics if enabled
         if self.track_metrics:
             chat_response = ChatResponse(
-                text=full_response,
+                text=final_response,
                 confidence=confidence,
                 source=response_source,
                 latency=latency,
@@ -1348,10 +1373,10 @@ class MemAgent:
             "my name is" in msg_lower
             or "i am" in msg_lower
             or "i'm" in msg_lower
-            or "adım" in msg_lower
+            or "adm" in msg_lower
             or "ismim" in msg_lower
         ):
-            for phrase in ["my name is ", "i am ", "i'm ", "adım ", "ismim ", "benim adım "]:
+            for phrase in ["my name is ", "i am ", "i'm ", "adm ", "ismim ", "benim adm "]:
                 if phrase in msg_lower:
                     name_part = message[msg_lower.index(phrase) + len(phrase) :].strip()
                     name = name_part.split()[0] if name_part else None
@@ -1363,8 +1388,8 @@ class MemAgent:
         if (
             "favorite food" in msg_lower
             or "favourite food" in msg_lower
-            or "sevdiğim yemek" in msg_lower
-            or "en sevdiğim" in msg_lower
+            or "sevdiim yemek" in msg_lower
+            or "en sevdiim" in msg_lower
         ):
             if "is" in msg_lower or ":" in msg_lower:
                 food = (
@@ -1380,16 +1405,16 @@ class MemAgent:
         if (
             "i live in" in msg_lower
             or "i'm from" in msg_lower
-            or "yaşıyorum" in msg_lower
-            or "yaşadığım" in msg_lower
+            or "yayorum" in msg_lower
+            or "yaadm" in msg_lower
         ):
             for phrase in [
                 "i live in ",
                 "i'm from ",
                 "from ",
-                "yaşıyorum",
-                "yaşadığım yer",
-                "yaşadığım şehir",
+                "yayorum",
+                "yaadm yer",
+                "yaadm ehir",
             ]:
                 if phrase in msg_lower:
                     loc = message[msg_lower.index(phrase) + len(phrase) :].strip()
@@ -1481,7 +1506,7 @@ class MemAgent:
             triplets = self.graph_extractor.extract(text)
 
             if triplets:
-                self.logger.info(f"🕸️ Found {len(triplets)} graph triplets to save")
+                self.logger.info(f" Found {len(triplets)} graph triplets to save")
                 for source, relation, target in triplets:
                     self.graph_store.add_triplet(source, relation, target)
 
@@ -1934,7 +1959,7 @@ class MemAgent:
             return json.dumps(summary, ensure_ascii=False, indent=2)
         elif format == "summary":
             lines = [
-                "📊 RESPONSE METRICS SUMMARY",
+                " RESPONSE METRICS SUMMARY",
                 "=" * 60,
                 f"Total Responses:      {summary['total_responses']}",
                 f"Avg Latency:          {summary['avg_latency_ms']:.1f} ms",
@@ -1966,3 +1991,5 @@ class MemAgent:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
+
+

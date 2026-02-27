@@ -1,4 +1,4 @@
-"""
+﻿"""
 LLM Client - Local model integration with Ollama
 Works with Granite4:tiny-h model
 """
@@ -228,3 +228,5 @@ Use past interactions intelligently."""
         messages.append({"role": "user", "content": user_message})
 
         return self.chat(messages, temperature=0.7)
+
+

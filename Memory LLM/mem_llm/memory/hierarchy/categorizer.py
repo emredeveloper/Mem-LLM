@@ -1,4 +1,4 @@
-"""
+﻿"""
 Auto Categorizer
 ================
 
@@ -82,3 +82,4 @@ category_name|domain_name"""
 
         except Exception:
             return "general", "general"
+

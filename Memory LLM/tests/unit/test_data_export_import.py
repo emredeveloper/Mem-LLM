@@ -1,4 +1,4 @@
-"""
+﻿"""
 Test Suite for Data Export/Import System
 Tests JSON, CSV, SQLite, PostgreSQL, and MongoDB support
 """
@@ -8,8 +8,8 @@ import json
 import os
 import shutil
 import sqlite3
-import tempfile
 import unittest
+import uuid
 from pathlib import Path
 
 # Add parent directory to path
@@ -23,8 +23,11 @@ class TestDataExportImport(unittest.TestCase):
 
     def setUp(self):
         """Set up test environment"""
-        # Create temporary directory
-        self.test_dir = tempfile.mkdtemp()
+        # Create isolated test directory
+        root = Path(__file__).resolve().parents[1] / ".tmp"
+        root.mkdir(parents=True, exist_ok=True)
+        self.test_dir = str(root / f"data_export_{uuid.uuid4().hex[:8]}")
+        os.makedirs(self.test_dir, exist_ok=True)
 
         # Create memory manager with test data
         self.memory = MemoryManager(memory_dir=self.test_dir)
@@ -46,7 +49,7 @@ class TestDataExportImport(unittest.TestCase):
 
     def test_export_to_json(self):
         """Test JSON export"""
-        print("\n🧪 TEST 1: JSON Export")
+        print("\n TEST 1: JSON Export")
 
         exporter = DataExporter(self.memory)
         output_file = os.path.join(self.test_dir, "export.json")
@@ -66,12 +69,12 @@ class TestDataExportImport(unittest.TestCase):
         self.assertEqual(len(data["conversations"]), 3)
         self.assertIn("export_date", data)
 
-        print(f"   ✅ Exported {result['conversations']} conversations")
-        print(f"   ✅ File size: {result['size_bytes']} bytes")
+        print(f"    Exported {result['conversations']} conversations")
+        print(f"    File size: {result['size_bytes']} bytes")
 
     def test_import_from_json(self):
         """Test JSON import"""
-        print("\n🧪 TEST 2: JSON Import")
+        print("\n TEST 2: JSON Import")
 
         # Export first
         exporter = DataExporter(self.memory)
@@ -93,12 +96,12 @@ class TestDataExportImport(unittest.TestCase):
         conversations = new_memory.get_recent_conversations("imported_user", 10)
         self.assertEqual(len(conversations), 3)
 
-        print(f"   ✅ Imported {result['conversations']} conversations")
-        print("   ✅ Data integrity: OK")
+        print(f"    Imported {result['conversations']} conversations")
+        print("    Data integrity: OK")
 
     def test_export_to_csv(self):
         """Test CSV export"""
-        print("\n🧪 TEST 3: CSV Export")
+        print("\n TEST 3: CSV Export")
 
         exporter = DataExporter(self.memory)
         output_file = os.path.join(self.test_dir, "export.csv")
@@ -119,12 +122,12 @@ class TestDataExportImport(unittest.TestCase):
         self.assertIn("timestamp", rows[0])
         self.assertIn("user_message", rows[0])
 
-        print(f"   ✅ Exported {result['conversations']} conversations to CSV")
-        print(f"   ✅ File size: {result['size_bytes']} bytes")
+        print(f"    Exported {result['conversations']} conversations to CSV")
+        print(f"    File size: {result['size_bytes']} bytes")
 
     def test_import_from_csv(self):
         """Test CSV import"""
-        print("\n🧪 TEST 4: CSV Import")
+        print("\n TEST 4: CSV Import")
 
         # Export first
         exporter = DataExporter(self.memory)
@@ -146,11 +149,11 @@ class TestDataExportImport(unittest.TestCase):
         conversations = new_memory.get_recent_conversations("csv_user", 10)
         self.assertEqual(len(conversations), 3)
 
-        print(f"   ✅ Imported {result['conversations']} conversations from CSV")
+        print(f"    Imported {result['conversations']} conversations from CSV")
 
     def test_export_to_sqlite(self):
         """Test SQLite export"""
-        print("\n🧪 TEST 5: SQLite Export")
+        print("\n TEST 5: SQLite Export")
 
         exporter = DataExporter(self.memory)
         db_file = os.path.join(self.test_dir, "export.db")
@@ -171,12 +174,12 @@ class TestDataExportImport(unittest.TestCase):
 
         self.assertEqual(count, 3)
 
-        print(f"   ✅ Exported {result['conversations']} conversations to SQLite")
-        print(f"   ✅ Database size: {result['size_bytes']} bytes")
+        print(f"    Exported {result['conversations']} conversations to SQLite")
+        print(f"    Database size: {result['size_bytes']} bytes")
 
     def test_import_from_sqlite(self):
         """Test SQLite import"""
-        print("\n🧪 TEST 6: SQLite Import")
+        print("\n TEST 6: SQLite Import")
 
         # Export first
         exporter = DataExporter(self.memory)
@@ -198,11 +201,11 @@ class TestDataExportImport(unittest.TestCase):
         conversations = new_memory.get_recent_conversations(self.user_id, 10)
         self.assertEqual(len(conversations), 3)
 
-        print(f"   ✅ Imported {result['conversations']} conversations from SQLite")
+        print(f"    Imported {result['conversations']} conversations from SQLite")
 
     def test_json_roundtrip(self):
         """Test complete JSON export-import cycle"""
-        print("\n🧪 TEST 7: JSON Roundtrip (Export → Import)")
+        print("\n TEST 7: JSON Roundtrip (Export  Import)")
 
         # Export
         exporter = DataExporter(self.memory)
@@ -228,12 +231,12 @@ class TestDataExportImport(unittest.TestCase):
             self.assertEqual(orig["user_message"], imp["user_message"])
             self.assertEqual(orig["bot_response"], imp["bot_response"])
 
-        print(f"   ✅ Roundtrip successful: {len(original)} conversations")
-        print("   ✅ Data integrity: 100%")
+        print(f"    Roundtrip successful: {len(original)} conversations")
+        print("    Data integrity: 100%")
 
     def test_sql_memory_export(self):
         """Test export with SQLMemoryManager"""
-        print("\n🧪 TEST 8: SQL Memory Manager Export")
+        print("\n TEST 8: SQL Memory Manager Export")
 
         # Create SQL memory manager
         db_path = os.path.join(self.test_dir, "sql_test.db")
@@ -257,11 +260,11 @@ class TestDataExportImport(unittest.TestCase):
         self.assertTrue(result["success"])
         self.assertEqual(result["conversations"], 3)
 
-        print(f"   ✅ SQL memory export: {result['conversations']} conversations")
+        print(f"    SQL memory export: {result['conversations']} conversations")
 
     def test_error_handling(self):
         """Test error handling"""
-        print("\n🧪 TEST 9: Error Handling")
+        print("\n TEST 9: Error Handling")
 
         exporter = DataExporter(self.memory)
         importer = DataImporter(self.memory)
@@ -269,14 +272,14 @@ class TestDataExportImport(unittest.TestCase):
         # Test import from non-existent file
         result = importer.import_from_json("/non/existent/file.json")
         self.assertFalse(result["success"])
-        print("   ✅ Missing import file handled")
+        print("    Missing import file handled")
 
         # Test import from invalid SQLite file
         result = importer.import_from_sqlite("/fake/database.db", self.user_id)
         self.assertFalse(result["success"])
-        print("   ✅ Invalid database handled")
+        print("    Invalid database handled")
 
-        print("   ✅ Error handling works correctly")
+        print("    Error handling works correctly")
 
 
 class TestMultiDatabaseSupport(unittest.TestCase):
@@ -284,7 +287,10 @@ class TestMultiDatabaseSupport(unittest.TestCase):
 
     def setUp(self):
         """Set up test environment"""
-        self.test_dir = tempfile.mkdtemp()
+        root = Path(__file__).resolve().parents[1] / ".tmp"
+        root.mkdir(parents=True, exist_ok=True)
+        self.test_dir = str(root / f"multi_db_{uuid.uuid4().hex[:8]}")
+        os.makedirs(self.test_dir, exist_ok=True)
         self.memory = MemoryManager(memory_dir=self.test_dir)
         self.user_id = "db_test_user"
 
@@ -300,12 +306,12 @@ class TestMultiDatabaseSupport(unittest.TestCase):
 
     def test_postgresql_support(self):
         """Test PostgreSQL export (if psycopg2 available)"""
-        print("\n🧪 TEST 10: PostgreSQL Support")
+        print("\n TEST 10: PostgreSQL Support")
 
         try:
             import psycopg2
 
-            print("   ℹ️  psycopg2 installed - testing PostgreSQL")
+            print("     psycopg2 installed - testing PostgreSQL")
 
             exporter = DataExporter(self.memory)
 
@@ -316,20 +322,20 @@ class TestMultiDatabaseSupport(unittest.TestCase):
             )
 
             self.assertIn("success", result)
-            print("   ✅ PostgreSQL export method available")
+            print("    PostgreSQL export method available")
 
         except ImportError:
-            print("   ⚠️  psycopg2 not installed - skipping PostgreSQL test")
-            print("   💡 Install: pip install psycopg2-binary")
+            print("     psycopg2 not installed - skipping PostgreSQL test")
+            print("    Install: pip install psycopg2-binary")
 
     def test_mongodb_support(self):
         """Test MongoDB export (if pymongo available)"""
-        print("\n🧪 TEST 11: MongoDB Support")
+        print("\n TEST 11: MongoDB Support")
 
         try:
             import pymongo
 
-            print("   ℹ️  pymongo installed - testing MongoDB")
+            print("     pymongo installed - testing MongoDB")
 
             exporter = DataExporter(self.memory)
 
@@ -338,11 +344,11 @@ class TestMultiDatabaseSupport(unittest.TestCase):
             result = exporter.export_to_mongodb(self.user_id, "mongodb://invalid:27017/")
 
             self.assertIn("success", result)
-            print("   ✅ MongoDB export method available")
+            print("    MongoDB export method available")
 
         except ImportError:
-            print("   ⚠️  pymongo not installed - skipping MongoDB test")
-            print("   💡 Install: pip install pymongo")
+            print("     pymongo not installed - skipping MongoDB test")
+            print("    Install: pip install pymongo")
 
 
 def run_tests():
@@ -373,9 +379,9 @@ def run_tests():
     print(f"Errors: {len(result.errors)}")
 
     if result.wasSuccessful():
-        print("\n✅ ALL TESTS PASSED!")
+        print("\n ALL TESTS PASSED!")
     else:
-        print("\n❌ SOME TESTS FAILED")
+        print("\n SOME TESTS FAILED")
 
     print("=" * 70 + "\n")
 
@@ -385,3 +391,4 @@ def run_tests():
 if __name__ == "__main__":
     success = run_tests()
     exit(0 if success else 1)
+

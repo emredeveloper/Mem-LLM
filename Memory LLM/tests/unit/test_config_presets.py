@@ -1,13 +1,24 @@
 import pytest
+import shutil
+import uuid
+from pathlib import Path
 
 from mem_llm.config_presets import ConfigPresets
 
 
 class TestConfigPresets:
     @pytest.fixture
-    def presets(self, tmp_path):
-        # Use a temporary directory for custom presets
-        return ConfigPresets(custom_presets_dir=str(tmp_path))
+    def preset_dir(self):
+        root = Path(__file__).resolve().parents[1] / ".tmp"
+        root.mkdir(parents=True, exist_ok=True)
+        d = root / f"presets_{uuid.uuid4().hex[:8]}"
+        d.mkdir(parents=True, exist_ok=True)
+        yield d
+        shutil.rmtree(d, ignore_errors=True)
+
+    @pytest.fixture
+    def presets(self, preset_dir):
+        return ConfigPresets(custom_presets_dir=str(preset_dir))
 
     def test_list_builtin_presets(self, presets):
         """Test listing built-in presets"""
@@ -31,43 +42,43 @@ class TestConfigPresets:
         with pytest.raises(ValueError):
             presets.get_preset("non_existent_preset_123")
 
-    def test_save_custom_preset_yaml(self, presets, tmp_path):
+    def test_save_custom_preset_yaml(self, presets, preset_dir):
         """Test saving custom preset in YAML format"""
         config = {"temperature": 0.8, "max_tokens": 100, "system_prompt": "Custom prompt"}
 
         presets.save_custom_preset("my_custom_preset", config, format="yaml")
 
         # Check file exists
-        assert (tmp_path / "my_custom_preset.yaml").exists()
+        assert (preset_dir / "my_custom_preset.yaml").exists()
 
         # Check loading
         loaded = presets.get_preset("my_custom_preset")
         assert loaded["temperature"] == 0.8
         assert loaded["system_prompt"] == "Custom prompt"
 
-    def test_save_custom_preset_json(self, presets, tmp_path):
+    def test_save_custom_preset_json(self, presets, preset_dir):
         """Test saving custom preset in JSON format"""
         config = {"temperature": 0.5, "max_tokens": 200}
 
         presets.save_custom_preset("json_preset", config, format="json")
 
         # Check file exists
-        assert (tmp_path / "json_preset.json").exists()
+        assert (preset_dir / "json_preset.json").exists()
 
         # Check loading
         loaded = presets.get_preset("json_preset")
         assert loaded["temperature"] == 0.5
 
-    def test_delete_custom_preset(self, presets, tmp_path):
+    def test_delete_custom_preset(self, presets, preset_dir):
         """Test deleting custom preset"""
         config = {"test": True}
         presets.save_custom_preset("to_delete", config)
 
-        assert (tmp_path / "to_delete.yaml").exists()
+        assert (preset_dir / "to_delete.yaml").exists()
 
         presets.delete_custom_preset("to_delete")
 
-        assert not (tmp_path / "to_delete.yaml").exists()
+        assert not (preset_dir / "to_delete.yaml").exists()
 
     def test_cannot_override_builtin(self, presets):
         """Test that built-in presets cannot be overridden"""

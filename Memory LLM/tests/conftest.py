@@ -1,8 +1,8 @@
-"""
+﻿"""
 Shared pytest fixtures and configuration for all tests.
 """
 import shutil
-import tempfile
+import uuid
 from pathlib import Path
 
 import pytest
@@ -10,9 +10,12 @@ import pytest
 
 @pytest.fixture
 def temp_memory_dir():
-    """Create a temporary directory for memory storage."""
-    temp_dir = tempfile.mkdtemp()
-    yield temp_dir
+    """Create an isolated test directory for memory storage."""
+    root = Path(__file__).resolve().parent / ".tmp"
+    root.mkdir(parents=True, exist_ok=True)
+    temp_dir = root / f"mem_{uuid.uuid4().hex[:8]}"
+    temp_dir.mkdir(parents=True, exist_ok=True)
+    yield str(temp_dir)
     shutil.rmtree(temp_dir, ignore_errors=True)
 
 
@@ -67,3 +70,4 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "api: API tests")
     config.addinivalue_line("markers", "e2e: End-to-end tests")
     config.addinivalue_line("markers", "slow: Slow running tests")
+

@@ -1,4 +1,4 @@
-"""
+﻿"""
 Advanced Test Coverage for Mem-LLM
 ==================================
 Tests for:
@@ -15,7 +15,7 @@ import json
 import os
 import random
 import sys
-import tempfile
+import uuid
 import threading
 import time
 import unittest
@@ -32,7 +32,10 @@ class TestMemoryCorruption(unittest.TestCase):
 
     def setUp(self):
         """Setup test environment"""
-        self.temp_dir = tempfile.mkdtemp()
+        root = Path(__file__).resolve().parents[1] / ".tmp"
+        root.mkdir(parents=True, exist_ok=True)
+        self.temp_dir = str(root / f"advanced_{uuid.uuid4().hex[:8]}")
+        os.makedirs(self.temp_dir, exist_ok=True)
         self.db_path = os.path.join(self.temp_dir, "test_corruption.db")
 
     def tearDown(self):
@@ -44,11 +47,11 @@ class TestMemoryCorruption(unittest.TestCase):
 
     def test_corrupted_json_memory(self):
         """Test handling of corrupted JSON memory files"""
-        print("\n🧪 Testing corrupted JSON memory handling...")
+        print("\nğŸ§ª Testing corrupted JSON memory handling...")
 
         # Create agent with JSON memory
         memory_dir = os.path.join(self.temp_dir, "json_mem")
-        agent = MemAgent(model="granite4:3b", use_sql=False, memory_dir=memory_dir)
+        agent = MemAgent(model="ministral-3:14b", use_sql=False, memory_dir=memory_dir)
         agent.set_user("test_user")
 
         # Add some data
@@ -69,13 +72,13 @@ class TestMemoryCorruption(unittest.TestCase):
         try:
             agent.memory.load_memory("test_user")
             # Should not crash, should create new memory
-            print("   ✅ Handled corrupted JSON gracefully")
+            print("   âœ… Handled corrupted JSON gracefully")
         except json.JSONDecodeError:
             self.fail("Should handle corrupted JSON without crashing")
 
     def test_database_integrity_after_crash(self):
         """Test database integrity after simulated crash"""
-        print("\n🧪 Testing database integrity after crash simulation...")
+        print("\nğŸ§ª Testing database integrity after crash simulation...")
 
         db = SQLMemoryManager(self.db_path)
 
@@ -100,11 +103,11 @@ class TestMemoryCorruption(unittest.TestCase):
 
         # With WAL mode, we should recover most/all data
         self.assertGreater(count, 0, "Should recover data after crash")
-        print(f"   ✅ Recovered {count}/50 records after crash")
+        print(f"   âœ… Recovered {count}/50 records after crash")
 
     def test_invalid_data_insertion(self):
         """Test handling of invalid data types"""
-        print("\n🧪 Testing invalid data insertion...")
+        print("\nğŸ§ª Testing invalid data insertion...")
 
         db = SQLMemoryManager(self.db_path)
 
@@ -115,15 +118,15 @@ class TestMemoryCorruption(unittest.TestCase):
             )
             self.fail("Should reject None message")
         except Exception:
-            print("   ✅ Correctly rejected None message")
+            print("   âœ… Correctly rejected None message")
 
         # Try very long strings
         try:
             huge_message = "x" * 1_000_000  # 1MB message
             db.add_interaction(user_id="user1", user_message=huge_message, bot_response="OK")
-            print("   ✅ Handled very long message")
+            print("   âœ… Handled very long message")
         except Exception as e:
-            print(f"   ⚠️  Failed on large message: {e}")
+            print(f"   âš ï¸  Failed on large message: {e}")
 
 
 @unittest.skip("Windows file locking issues in CI/CD")
@@ -132,7 +135,10 @@ class TestConcurrentAccess(unittest.TestCase):
 
     def setUp(self):
         """Setup test environment"""
-        self.temp_dir = tempfile.mkdtemp()
+        root = Path(__file__).resolve().parents[1] / ".tmp"
+        root.mkdir(parents=True, exist_ok=True)
+        self.temp_dir = str(root / f"advanced_{uuid.uuid4().hex[:8]}")
+        os.makedirs(self.temp_dir, exist_ok=True)
         self.db_path = os.path.join(self.temp_dir, "test_concurrent.db")
         self.errors = []
 
@@ -145,7 +151,7 @@ class TestConcurrentAccess(unittest.TestCase):
 
     def test_concurrent_writes(self):
         """Test multiple threads writing simultaneously"""
-        print("\n🧪 Testing concurrent writes (10 threads)...")
+        print("\nğŸ§ª Testing concurrent writes (10 threads)...")
 
         db = SQLMemoryManager(self.db_path)
         threads = []
@@ -180,7 +186,7 @@ class TestConcurrentAccess(unittest.TestCase):
 
         # Check for errors
         if self.errors:
-            print(f"   ❌ Errors occurred: {self.errors}")
+            print(f"   âŒ Errors occurred: {self.errors}")
             self.fail(f"Concurrent writes failed: {self.errors}")
 
         # Verify data integrity
@@ -191,12 +197,12 @@ class TestConcurrentAccess(unittest.TestCase):
         expected = num_threads * writes_per_thread
         self.assertEqual(total_count, expected, f"Expected {expected} records, got {total_count}")
 
-        print(f"   ✅ {total_count} concurrent writes in {elapsed:.2f}s")
-        print("   ✅ No race conditions detected")
+        print(f"   âœ… {total_count} concurrent writes in {elapsed:.2f}s")
+        print("   âœ… No race conditions detected")
 
     def test_concurrent_read_write(self):
         """Test simultaneous reads and writes"""
-        print("\n🧪 Testing concurrent reads and writes...")
+        print("\nğŸ§ª Testing concurrent reads and writes...")
 
         db = SQLMemoryManager(self.db_path)
 
@@ -253,18 +259,18 @@ class TestConcurrentAccess(unittest.TestCase):
 
         # Check results
         if self.errors:
-            print(f"   ❌ Errors: {self.errors}")
+            print(f"   âŒ Errors: {self.errors}")
             self.fail(f"Concurrent read/write failed: {self.errors}")
 
-        print(f"   ✅ {len(read_counts)} reads completed")
-        print(f"   ✅ {sum(write_counts)} writes completed")
-        print("   ✅ No blocking or deadlocks detected")
+        print(f"   âœ… {len(read_counts)} reads completed")
+        print(f"   âœ… {sum(write_counts)} writes completed")
+        print("   âœ… No blocking or deadlocks detected")
 
     def test_multi_user_isolation(self):
         """Test that user data is properly isolated"""
-        print("\n🧪 Testing multi-user data isolation...")
+        print("\nğŸ§ª Testing multi-user data isolation...")
 
-        agent = MemAgent(model="granite4:3b", use_sql=True, memory_dir=self.db_path)
+        agent = MemAgent(model="ministral-3:14b", use_sql=True, memory_dir=self.db_path)
 
         users = ["alice", "bob", "charlie", "david", "eve"]
 
@@ -286,7 +292,7 @@ class TestConcurrentAccess(unittest.TestCase):
                     user, conv["user_message"].lower(), f"User {user} saw other user's data"
                 )
 
-        print(f"   ✅ {len(users)} users properly isolated")
+        print(f"   âœ… {len(users)} users properly isolated")
 
 
 @unittest.skip("Windows file locking issues in CI/CD")
@@ -295,7 +301,10 @@ class TestLongConversationHistory(unittest.TestCase):
 
     def setUp(self):
         """Setup test environment"""
-        self.temp_dir = tempfile.mkdtemp()
+        root = Path(__file__).resolve().parents[1] / ".tmp"
+        root.mkdir(parents=True, exist_ok=True)
+        self.temp_dir = str(root / f"advanced_{uuid.uuid4().hex[:8]}")
+        os.makedirs(self.temp_dir, exist_ok=True)
         self.db_path = os.path.join(self.temp_dir, "test_long_history.db")
 
     def tearDown(self):
@@ -307,7 +316,7 @@ class TestLongConversationHistory(unittest.TestCase):
 
     def test_1000_message_history(self):
         """Test performance with 1000 messages"""
-        print("\n🧪 Testing 1000-message conversation history...")
+        print("\nğŸ§ª Testing 1000-message conversation history...")
 
         db = SQLMemoryManager(self.db_path)
 
@@ -326,17 +335,17 @@ class TestLongConversationHistory(unittest.TestCase):
         recent = db.get_recent_conversations("power_user", limit=50)
         read_time = time.time() - start_time
 
-        print(f"   ✅ Wrote 1000 messages in {write_time:.2f}s ({1000/write_time:.0f} msg/s)")
-        print(f"   ✅ Retrieved 50 messages in {read_time*1000:.2f}ms")
+        print(f"   âœ… Wrote 1000 messages in {write_time:.2f}s ({1000/write_time:.0f} msg/s)")
+        print(f"   âœ… Retrieved 50 messages in {read_time*1000:.2f}ms")
 
         self.assertEqual(len(recent), 50, "Should retrieve exactly 50 messages")
         self.assertLess(read_time, 0.5, "Read should be fast (<500ms)")
 
     def test_memory_context_overflow(self):
         """Test handling when context window is exceeded"""
-        print("\n🧪 Testing context window overflow handling...")
+        print("\nğŸ§ª Testing context window overflow handling...")
 
-        agent = MemAgent(model="granite4:3b", use_sql=True, memory_dir=self.db_path)
+        agent = MemAgent(model="ministral-3:14b", use_sql=True, memory_dir=self.db_path)
         agent.set_user("verbose_user")
 
         # Add many long messages
@@ -351,15 +360,15 @@ class TestLongConversationHistory(unittest.TestCase):
             recent = agent.memory.get_recent_conversations("verbose_user", limit=50)
             total_length = sum(len(c["user_message"]) + len(c["bot_response"]) for c in recent)
 
-            print(f"   ✅ Context size: {total_length:,} characters")
-            print("   ✅ No overflow crash with large history")
+            print(f"   âœ… Context size: {total_length:,} characters")
+            print("   âœ… No overflow crash with large history")
 
         except Exception as e:
             self.fail(f"Should handle large context gracefully: {e}")
 
     def test_search_performance_large_dataset(self):
         """Test search performance with large dataset"""
-        print("\n🧪 Testing search on large dataset...")
+        print("\nğŸ§ª Testing search on large dataset...")
 
         db = SQLMemoryManager(self.db_path)
 
@@ -378,8 +387,8 @@ class TestLongConversationHistory(unittest.TestCase):
         results = db.search_conversations("search_user", "bug")
         search_time = time.time() - start_time
 
-        print(f"   ✅ Searched 500 conversations in {search_time*1000:.2f}ms")
-        print(f"   ✅ Found {len(results)} matching conversations")
+        print(f"   âœ… Searched 500 conversations in {search_time*1000:.2f}ms")
+        print(f"   âœ… Found {len(results)} matching conversations")
 
         self.assertLess(search_time, 0.5, "Search should be fast (<500ms)")
         self.assertGreater(len(results), 0, "Should find matching results")
@@ -388,9 +397,9 @@ class TestLongConversationHistory(unittest.TestCase):
 def run_advanced_tests():
     """Run all advanced tests"""
     print("\n")
-    print("╔" + "=" * 68 + "╗")
-    print("║" + " " * 15 + "ADVANCED TEST COVERAGE SUITE" + " " * 25 + "║")
-    print("╚" + "=" * 68 + "╝")
+    print("â•”" + "=" * 68 + "â•—")
+    print("â•‘" + " " * 15 + "ADVANCED TEST COVERAGE SUITE" + " " * 25 + "â•‘")
+    print("â•š" + "=" * 68 + "â•")
 
     # Create test suite
     suite = unittest.TestSuite()
@@ -415,10 +424,10 @@ def run_advanced_tests():
     print("=" * 70)
 
     if result.wasSuccessful():
-        print("\n🎉 All advanced tests passed!")
+        print("\nğŸ‰ All advanced tests passed!")
         return 0
     else:
-        print("\n⚠️  Some tests failed. Please review above.")
+        print("\nâš ï¸  Some tests failed. Please review above.")
         return 1
 
 
@@ -426,3 +435,7 @@ if __name__ == "__main__":
     import sys
 
     sys.exit(run_advanced_tests())
+
+
+
+

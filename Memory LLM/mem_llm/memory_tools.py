@@ -75,7 +75,12 @@ class MemoryTools:
     def _search_memories(self, user_id: str, keyword: str, limit: int = 5) -> str:
         """Search in conversations"""
         try:
-            results = self.memory.search_conversations(user_id, keyword)
+            if hasattr(self.memory, "search_conversations"):
+                results = self.memory.search_conversations(user_id, keyword)
+            elif hasattr(self.memory, "search_memory"):
+                results = self.memory.search_memory(user_id, keyword)
+            else:
+                return "âŒ Search is not supported by this memory backend."
 
             if not results:
                 return f"❌ No results found for keyword '{keyword}' for user {user_id}."

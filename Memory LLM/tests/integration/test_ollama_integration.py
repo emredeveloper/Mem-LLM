@@ -1,4 +1,4 @@
-"""
+﻿"""
 Integration tests for Ollama backend.
 """
 import os
@@ -17,7 +17,7 @@ def _select_ollama_test_model(base_url: str = "http://localhost:11434") -> str:
     2. First non-embedding model from local model list
     3. First available model
     """
-    probe_client = OllamaClient(model="rnj-1:latest", base_url=base_url)
+    probe_client = OllamaClient(model="ministral-3:14b", base_url=base_url)
     if not probe_client.check_connection():
         pytest.skip(f"Ollama not available at {base_url}")
 
@@ -119,7 +119,7 @@ class TestOllamaIntegration:
             agent.set_user("test_ollama_tools_user")
 
             # Test with a simple tool call
-            response = agent.chat("What is 2 + 2?")
+            response = agent.chat("What is 2 + 2U")
             assert response is not None
             assert len(response) > 0
             # Accept either numeric or word form.
@@ -157,7 +157,7 @@ class TestOllamaIntegration:
             # Set custom system prompt
             agent.system_prompt = "You are a helpful math tutor. Always explain your reasoning."
 
-            response = agent.chat("What is 5 + 3?")
+            response = agent.chat("What is 5 + 3U")
             assert response is not None
             assert len(response) > 0
         except Exception as e:
@@ -242,3 +242,5 @@ class TestOllamaPerformance:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "-s"])
+
+

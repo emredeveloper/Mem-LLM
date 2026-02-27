@@ -1,4 +1,4 @@
-"""
+﻿"""
 SQL Database Memory Management
 Stores memory data using SQLite - Production-ready
 """
@@ -134,7 +134,7 @@ class SQLMemoryManager:
         """
         )
 
-        # İndeksler - Performans için
+        # ndeksler - Performans iin
         cursor.execute(
             """
             CREATE INDEX IF NOT EXISTS idx_user_timestamp
@@ -149,7 +149,7 @@ class SQLMemoryManager:
         """
         )
 
-        # Senaryo şablonları tablosu
+        # Senaryo ablonlar tablosu
         cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS scenario_templates (
@@ -164,7 +164,7 @@ class SQLMemoryManager:
         """
         )
 
-        # Problem/FAQ veritabanı
+        # Problem/FAQ veritaban
         cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS knowledge_base (
@@ -313,20 +313,21 @@ class SQLMemoryManager:
         Returns:
             Matching conversations
         """
-        cursor = self.conn.cursor()
-        cursor.execute(
-            """
-            SELECT timestamp, user_message, bot_response, metadata, resolved
-            FROM conversations
-            WHERE user_id = ?
-            AND (user_message LIKE ? OR bot_response LIKE ? OR metadata LIKE ?)
-            ORDER BY timestamp DESC
-        """,
-            (user_id, f"%{keyword}%", f"%{keyword}%", f"%{keyword}%"),
-        )
+        with self._lock:
+            cursor = self.conn.cursor()
+            cursor.execute(
+                """
+                SELECT timestamp, user_message, bot_response, metadata, resolved
+                FROM conversations
+                WHERE user_id = ?
+                AND (user_message LIKE ? OR bot_response LIKE ? OR metadata LIKE ?)
+                ORDER BY timestamp DESC
+            """,
+                (user_id, f"%{keyword}%", f"%{keyword}%", f"%{keyword}%"),
+            )
 
-        rows = cursor.fetchall()
-        return [dict(row) for row in rows]
+            rows = cursor.fetchall()
+            return [dict(row) for row in rows]
 
     def get_user_profile(self, user_id: str) -> Optional[Dict]:
         """
@@ -468,12 +469,12 @@ class SQLMemoryManager:
             "ne",
             "kadar",
             "nedir",
-            "nasıl",
-            "için",
-            "mı",
+            "nasl",
+            "iin",
+            "m",
             "mi",
             "mu",
-            "mü",
+            "m",
             "what",
             "how",
             "when",
@@ -690,7 +691,7 @@ class SQLMemoryManager:
         self.conn.commit()
 
     def close(self) -> None:
-        """Veritabanı bağlantısını kapatır"""
+        """Close database connection"""
         if self.conn:
             self.conn.close()
 
@@ -699,3 +700,4 @@ class SQLMemoryManager:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
+

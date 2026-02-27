@@ -1,4 +1,4 @@
-"""
+﻿"""
 Backward Compatibility Test for v1.1.0
 ======================================
 Ensures existing v1.0.x code continues to work
@@ -25,15 +25,15 @@ def test_v1_0_code_compatibility():
 
         _ = [MemAgent, MemoryManager, OllamaClient]
 
-        print("   ✅ Core imports work")
+        print("   âœ… Core imports work")
     except Exception as e:
         pytest.fail(f"Import failed: {e}")
 
     # Test 2: Basic agent creation (v1.0.x style - no enable_security parameter)
     print("\n2. Testing v1.0.x agent creation (no security parameter)...")
     try:
-        agent = MemAgent(model="rnj-1:latest", use_sql=False)
-        print("   ✅ Agent created without enable_security parameter")
+        agent = MemAgent(model="ministral-3:14b", use_sql=False)
+        print("   âœ… Agent created without enable_security parameter")
     except Exception as e:
         pytest.fail(f"Agent creation failed: {e}")
 
@@ -42,19 +42,19 @@ def test_v1_0_code_compatibility():
     try:
         agent.set_user("test_user")
         # Note: We won't actually call chat as it requires Ollama
-        print("   ✅ set_user() works")
+        print("   âœ… set_user() works")
     except Exception as e:
         pytest.fail(f"Operation failed: {e}")
 
     # Test 4: Verify security is disabled by default
     print("\n4. Testing security is disabled by default...")
     if hasattr(agent, "enable_security") and not agent.enable_security:
-        print("   ✅ Security disabled by default (backward compatible)")
+        print("   âœ… Security disabled by default (backward compatible)")
     else:
-        print("   ⚠️  Security state unexpected")
+        print("   âš ï¸  Security state unexpected")
 
     print("\n" + "=" * 70)
-    print("✅ ALL v1.0.x CODE WORKS WITHOUT MODIFICATION")
+    print("âœ… ALL v1.0.x CODE WORKS WITHOUT MODIFICATION")
     print("=" * 70)
 
 
@@ -71,9 +71,9 @@ def test_v1_1_new_features():
 
         _ = [InputSanitizer, PromptInjectionDetector, SecurePromptBuilder]
 
-        print("   ✅ Security classes imported")
+        print("   âœ… Security classes imported")
     except ImportError as e:
-        print(f"   ⚠️  Security imports not available: {e}")
+        print(f"   âš ï¸  Security imports not available: {e}")
 
     # Test 2: New logging imports
     print("\n2. Testing new logging imports...")
@@ -82,9 +82,9 @@ def test_v1_1_new_features():
 
         _ = [MemLLMLogger, get_logger]
 
-        print("   ✅ Logging classes imported")
+        print("   âœ… Logging classes imported")
     except ImportError as e:
-        print(f"   ⚠️  Logging imports not available: {e}")
+        print(f"   âš ï¸  Logging imports not available: {e}")
 
     # Test 3: New retry handler imports
     print("\n3. Testing new retry handler imports...")
@@ -93,26 +93,26 @@ def test_v1_1_new_features():
 
         _ = [SafeExecutor, exponential_backoff_retry]
 
-        print("   ✅ Retry handler imported")
+        print("   âœ… Retry handler imported")
     except ImportError as e:
-        print(f"   ⚠️  Retry handler imports not available: {e}")
+        print(f"   âš ï¸  Retry handler imports not available: {e}")
 
     # Test 4: Opt-in security
     print("\n4. Testing opt-in security feature...")
     try:
         from mem_llm import MemAgent
 
-        agent_secure = MemAgent(model="rnj-1:latest", use_sql=False, enable_security=True)
+        agent_secure = MemAgent(model="ministral-3:14b", use_sql=False, enable_security=True)
 
         if hasattr(agent_secure, "enable_security") and agent_secure.enable_security:
-            print("   ✅ Security enabled via opt-in parameter")
+            print("   âœ… Security enabled via opt-in parameter")
         else:
-            print("   ⚠️  Security not properly enabled")
+            print("   âš ï¸  Security not properly enabled")
     except Exception as e:
-        print(f"   ⚠️  Opt-in security test: {e}")
+        print(f"   âš ï¸  Opt-in security test: {e}")
 
     print("\n" + "=" * 70)
-    print("✅ NEW v1.1.0 FEATURES AVAILABLE")
+    print("âœ… NEW v1.1.0 FEATURES AVAILABLE")
     print("=" * 70)
 
 
@@ -128,7 +128,7 @@ v1.0.x Code (Still Works):
 --------------------------
 from mem_llm import MemAgent
 
-agent = MemAgent(model="rnj-1:latest")
+agent = MemAgent(model="ministral-3:14b")
 agent.set_user("alice")
 response = agent.chat("Hello!")
 
@@ -138,8 +138,8 @@ v1.1.0 with Security (Opt-in):
 from mem_llm import MemAgent
 
 agent = MemAgent(
-    model="rnj-1:latest",
-    enable_security=True  # ← Only change needed!
+    model="ministral-3:14b",
+    enable_security=True  # â† Only change needed!
 )
 agent.set_user("alice")
 response = agent.chat("Hello!")  # Now protected from injection
@@ -154,7 +154,7 @@ logger = get_logger("my_app", log_file="logs/app.log")
 
 # Security-enabled agent
 agent = MemAgent(
-    model="rnj-1:latest",
+    model="ministral-3:14b",
     use_sql=True,          # Thread-safe in v1.1.0
     enable_security=True   # Prompt injection protection
 )
@@ -167,9 +167,9 @@ logger.info("Agent initialized with security")
 def main():
     """Run all compatibility tests"""
     print("\n")
-    print("╔" + "=" * 68 + "╗")
-    print("║" + " " * 10 + "MEM-LLM v1.1.0 BACKWARD COMPATIBILITY TEST" + " " * 15 + "║")
-    print("╚" + "=" * 68 + "╝")
+    print("â•”" + "=" * 68 + "â•—")
+    print("â•‘" + " " * 10 + "MEM-LLM v1.1.0 BACKWARD COMPATIBILITY TEST" + " " * 15 + "â•‘")
+    print("â•š" + "=" * 68 + "â•")
 
     # Test backward compatibility
     compatible = test_v1_0_code_compatibility()
@@ -182,14 +182,15 @@ def main():
 
     print("\n" + "=" * 70)
     if compatible:
-        print("✅ v1.1.0 IS 100% BACKWARD COMPATIBLE")
+        print("âœ… v1.1.0 IS 100% BACKWARD COMPATIBLE")
         print("   - All v1.0.x code works without changes")
         print("   - New features are opt-in only")
         print("   - Safe to upgrade for all users")
     else:
-        print("⚠️  Compatibility issues detected")
+        print("âš ï¸  Compatibility issues detected")
     print("=" * 70)
 
 
 if __name__ == "__main__":
     main()
+

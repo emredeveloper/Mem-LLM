@@ -1,10 +1,10 @@
-"""
+﻿"""
 Built-in Async Tools (v2.1.0+)
 ==============================
 
 Async versions of common tools for I/O-bound operations.
 
-Author: Cihat Emre Karataş
+Author: Cihat Emre Karata
 Version: 2.1.1
 """
 
@@ -171,3 +171,4 @@ ASYNC_BUILTIN_TOOLS = [
 
 # Backward compatibility
 ASYNC_TOOLS = ASYNC_BUILTIN_TOOLS
+

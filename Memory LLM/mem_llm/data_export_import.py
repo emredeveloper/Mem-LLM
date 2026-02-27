@@ -212,7 +212,7 @@ class DataExporter:
             # Parse connection string to get database name
             import re
 
-            match = re.search(r"/([^/]+)(?:\?|$)", connection_string)
+            match = re.search(r"/([^/?]+)(?:\?|$)", connection_string)
             db_name = match.group(1) if match else None
 
             # Try to connect, if database doesn't exist, create it

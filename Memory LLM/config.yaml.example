@@ -1,80 +1,74 @@
 # ====================================================================
-# MEM-AGENT ÖRNEK YAPILANDIRMA DOSYASI
+# MEM-AGENT EXAMPLE CONFIGURATION
 # ====================================================================
-# Bu dosyayı "config.yaml" olarak kaydedin ve düzenleyin
+# Save this file as "config.yaml" and edit as needed.
 #
-# Hızlı Başlangıç:
-# 1. Bu dosyayı "config.yaml" olarak kopyalayın
-# 2. Aşağıdaki temel ayarları kendi ihtiyaçlarınıza göre düzenleyin
-# 3. Detaylı bilgi için CONFIG_GUIDE.md dosyasına bakın
+# Quick start:
+# 1. Copy this file to "config.yaml"
+# 2. Update the core settings below
+# 3. See docs/CONFIG_GUIDE.md for detailed guidance
 # ====================================================================
 
-# TEMEL AYARLAR (Zorunlu)
+# CORE SETTINGS
 # --------------------------------------------------------------------
 
-# Kullanım Modu: "personal" (kişisel) veya "business" (kurumsal)
+# Usage mode: "personal" or "business"
 usage_mode: "personal"
 
-# LLM Model Ayarları
+# LLM settings
 llm:
-  model: "granite4:tiny-h"        # Ollama model adı (önerilen: granite4:tiny-h)
-  base_url: "http://localhost:11434"  # Ollama API URL'i (varsayılan port: 11434)
-  temperature: 0.7                # Yaratıcılık seviyesi (0.0-1.0 arası)
-  max_tokens: 500                 # Maksimum cevap uzunluğu
+  model: "granite4:3b"               # Ollama model name
+  base_url: "http://localhost:11434" # Ollama API URL
+  temperature: 0.7                   # 0.0 - 1.0
+  max_tokens: 500
 
-# Bellek Sistemi
+# Memory settings
 memory:
-  backend: "json"                 # "json" (basit) veya "sql" (gelişmiş)
-  json_dir: "memories"            # JSON dosyalarının kaydedileceği klasör
-  db_path: "memories.db"          # SQL veritabanı dosya yolu
+  backend: "json"                    # "json" or "sql"
+  json_dir: "memories"
+  db_path: "memories.db"
 
-# Sistem Prompt Şablonu
+# Prompt settings
 prompt:
-  template: "personal_assistant"  # Kullanılacak prompt şablonu
+  template: "personal_assistant"
   variables:
-    user_name: "Kullanıcı"        # Kullanıcı adı
-    tone: "samimi"                # Konuşma tonu
+    user_name: "User"
+    tone: "friendly"
 
 
-# GELİŞMİŞ AYARLAR (Opsiyonel)
+# ADVANCED SETTINGS (OPTIONAL)
 # --------------------------------------------------------------------
 
-# Personal Mod Ayarları
 personal:
-  user_name: "Kullanıcı"
+  user_name: "User"
   enable_reminders: true
   enable_personal_notes: true
   privacy_level: "high"
   share_data: false
 
-# Business Mod Ayarları
 business:
-  company_name: "Şirketimiz"
-  departments: ["Müşteri Hizmetleri", "Satış", "Teknik Destek"]
+  company_name: "Your Company"
+  departments: ["Customer Service", "Sales", "Technical Support"]
   enable_multi_user: true
   enable_reporting: true
   security_level: "high"
 
-# Bilgi Bankası
 knowledge_base:
   enabled: true
   auto_load: true
-  default_kb: "ecommerce"         # ecommerce, tech_support
+  default_kb: "ecommerce"            # ecommerce, tech_support
   search_limit: 5
 
-# Yanıt Ayarları
 response:
   use_knowledge_base: true
   use_memory: true
   recent_conversations_limit: 5
 
-# Loglama
 logging:
   enabled: true
-  level: "INFO"                   # DEBUG, INFO, WARNING, ERROR
+  level: "INFO"                      # DEBUG, INFO, WARNING, ERROR
   file: "mem_agent.log"
 
-# Güvenlik
 security:
   filter_sensitive_data: true
   rate_limit:
@@ -82,29 +76,21 @@ security:
     max_requests_per_minute: 60
 
 # ====================================================================
-# KULLANIM ÖRNEKLERİ
+# EXAMPLES
 # ====================================================================
 
-# Kişisel Asistan için minimal config:
+# Minimal personal setup:
 # usage_mode: "personal"
 # llm:
-#   model: "granite4:tiny-h"
+#   model: "granite4:3b"
 # memory:
 #   backend: "json"
 
-# Kurumsal Kullanım için önerilen config:
+# Recommended business setup:
 # usage_mode: "business"
 # llm:
-#   model: "granite4:tiny-h"
+#   model: "granite4:3b"
 # memory:
 #   backend: "sql"
 # knowledge_base:
 #   enabled: true
-
-# ====================================================================
-# YARDIM
-# ====================================================================
-# Detaylı dokümantasyon: docs/CONFIG_GUIDE.md
-# Hızlı başlangıç: QUICKSTART_TR.md
-# Örnekler: examples/ klasörü
-

@@ -1,10 +1,10 @@
-"""
+﻿"""
 Base Agent Class for Multi-Agent System
 ========================================
 
 Defines the core agent interface and functionality.
 
-Author: Cihat Emre Karataş
+Author: Cihat Emre KarataÅŸ
 Version: 2.2.0
 """
 
@@ -68,7 +68,7 @@ class BaseAgent:
         agent_id: Optional[str] = None,
         name: Optional[str] = None,
         role: AgentRole = AgentRole.GENERAL,
-        model: str = "rnj-1:latest",
+        model: str = "granite4:3b",
         backend: str = "ollama",
         enable_tools: bool = False,
         private_memory: bool = True,
@@ -114,7 +114,7 @@ class BaseAgent:
         # Conversation history with other agents
         self.conversation_history: List[Dict[str, Any]] = []
 
-        logger.info(f"🤖 Agent created: {self.name} (ID: {self.agent_id}, Role: {role.value})")
+        logger.info(f"ğŸ¤– Agent created: {self.name} (ID: {self.agent_id}, Role: {role.value})")
 
     def process(self, task: str, context: Optional[Dict[str, Any]] = None) -> str:
         """
@@ -271,3 +271,4 @@ class BaseAgent:
             f"BaseAgent(id={self.agent_id}, name={self.name}, "
             f"role={self.role.value}, status={self.status.value})"
         )
+

@@ -1,4 +1,4 @@
-import os
+﻿import os
 import sys
 
 # Ensure parent directory is in path
@@ -7,14 +7,14 @@ from mem_llm import MemAgent
 
 
 def test_lmstudio_default_model_logic():
-    """Verify that using backend='lmstudio' switches the default model to google/gemma-3-4b."""
+    """Verify that using backend='lmstudio' switches the default model to google/gemma-3-12b."""
     # Initialize without checking connection (offline test)
     agent = MemAgent(backend="lmstudio", check_connection=False)
 
     assert agent.backend == "lmstudio"
     assert (
-        agent.model == "google/gemma-3-4b"
-    ), "Default model for LM Studio should be google/gemma-3-4b"
+        agent.model == "google/gemma-3-12b"
+    ), "Default model for LM Studio should be google/gemma-3-12b"
 
 
 def test_lmstudio_explicit_model_preserved():
@@ -31,4 +31,5 @@ def test_ollama_default_preserved():
     agent = MemAgent(backend="ollama", check_connection=False)
 
     assert agent.backend == "ollama"
-    assert agent.model == "rnj-1:latest", "Ollama default should be rnj-1:latest"
+    assert agent.model == "granite4:3b", "Ollama default should be granite4:3b"
+

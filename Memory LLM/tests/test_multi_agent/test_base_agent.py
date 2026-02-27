@@ -1,4 +1,4 @@
-"""
+﻿"""
 Unit tests for BaseAgent and AgentRegistry
 ===========================================
 
@@ -15,7 +15,7 @@ class TestBaseAgent:
 
     def test_agent_creation(self):
         """Test basic agent creation"""
-        agent = BaseAgent(name="Test Agent", role=AgentRole.RESEARCHER, model="rnj-1:latest")
+        agent = BaseAgent(name="Test Agent", role=AgentRole.RESEARCHER, model="ministral-3:14b")
 
         assert agent.name == "Test Agent"
         assert agent.role == AgentRole.RESEARCHER
@@ -30,7 +30,7 @@ class TestBaseAgent:
 
     def test_agent_process(self):
         """Test agent task processing"""
-        agent = BaseAgent(role=AgentRole.GENERAL, model="rnj-1:latest")
+        agent = BaseAgent(role=AgentRole.GENERAL, model="ministral-3:14b")
 
         # Simple task
         response = agent.process("Say hello")
@@ -207,3 +207,4 @@ class TestAgentRegistry:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+

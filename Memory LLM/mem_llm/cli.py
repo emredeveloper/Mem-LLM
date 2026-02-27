@@ -1,4 +1,4 @@
-"""
+﻿"""
 Command Line Interface for Mem-LLM
 Interactive chat, statistics, and data management
 """
@@ -26,7 +26,7 @@ def cli():
 
 @cli.command()
 @click.option("--user", "-u", default="default", help="User ID for the chat session")
-@click.option("--model", "-m", default="rnj-1:latest", help="LLM model to use")
+@click.option("--model", "-m", default="granite4:3b", help="LLM model to use")
 @click.option("--sql/--json", default=False, help="Use SQL (default: JSON)")
 @click.option("--config", "-c", type=click.Path(exists=True), help="Config file path")
 def chat(user: str, model: str, sql: bool, config: Optional[str]):
@@ -38,7 +38,7 @@ def chat(user: str, model: str, sql: bool, config: Optional[str]):
         mem-llm chat --user alice --sql
         mem-llm chat --config config.yaml
     """
-    click.echo("🤖 Mem-LLM Interactive Chat")
+    click.echo(" Mem-LLM Interactive Chat")
     click.echo("=" * 60)
 
     # Initialize agent
@@ -51,18 +51,18 @@ def chat(user: str, model: str, sql: bool, config: Optional[str]):
         # Check setup
         status = agent.check_setup()
         if status["status"] != "ready":
-            click.echo("\n❌ Setup Error!", err=True)
+            click.echo("\n Setup Error!", err=True)
             if not status["ollama_running"]:
-                click.echo("   → Ollama service is not running", err=True)
-                click.echo("   → Start it with: ollama serve", err=True)
+                click.echo("    Ollama service is not running", err=True)
+                click.echo("    Start it with: ollama serve", err=True)
             elif not status["model_ready"]:
-                click.echo(f"   → Model '{model}' not found", err=True)
-                click.echo(f"   → Download it with: ollama pull {model}", err=True)
+                click.echo(f"    Model '{model}' not found", err=True)
+                click.echo(f"    Download it with: ollama pull {model}", err=True)
             sys.exit(1)
 
         agent.set_user(user)
 
-        click.echo("\n✅ Chat session started")
+        click.echo("\n Chat session started")
         click.echo(f"   User: {user}")
         click.echo(f"   Model: {model}")
         click.echo(f"   Memory: {'SQL' if sql else 'JSON'}")
@@ -82,25 +82,25 @@ def chat(user: str, model: str, sql: bool, config: Optional[str]):
 
                 # Handle commands
                 if message.lower() in ["/exit", "/quit", "exit", "quit"]:
-                    click.echo("\n👋 Goodbye!")
+                    click.echo("\n Goodbye!")
                     break
 
                 elif message.lower() == "/profile":
                     profile = agent.get_user_profile()
-                    click.echo("\n👤 User Profile:")
+                    click.echo("\n User Profile:")
                     click.echo(json.dumps(profile, indent=2, ensure_ascii=False))
                     continue
 
                 elif message.lower() == "/stats":
                     stats = agent.get_statistics()
-                    click.echo("\n📊 Statistics:")
+                    click.echo("\n Statistics:")
                     click.echo(json.dumps(stats, indent=2, ensure_ascii=False))
                     continue
 
                 elif message.lower() == "/history":
                     if hasattr(agent.memory, "get_recent_conversations"):
                         convs = agent.memory.get_recent_conversations(user, 5)
-                        click.echo("\n📜 Recent Conversations:")
+                        click.echo("\n Recent Conversations:")
                         for i, conv in enumerate(convs, 1):
                             click.echo(f"\n{i}. [{conv.get('timestamp', 'N/A')}]")
                             click.echo(f"   You: {conv.get('user_message', '')[:100]}")
@@ -109,17 +109,17 @@ def chat(user: str, model: str, sql: bool, config: Optional[str]):
 
                 # Regular chat
                 response = agent.chat(message)
-                click.echo(f"\n🤖 Bot> {response}")
+                click.echo(f"\n Bot> {response}")
 
             except KeyboardInterrupt:
-                click.echo("\n\n👋 Goodbye!")
+                click.echo("\n\n Goodbye!")
                 break
             except EOFError:
-                click.echo("\n\n👋 Goodbye!")
+                click.echo("\n\n Goodbye!")
                 break
 
     except Exception as e:
-        click.echo(f"\n❌ Error: {str(e)}", err=True)
+        click.echo(f"\n Error: {str(e)}", err=True)
         sys.exit(1)
 
 
@@ -141,17 +141,17 @@ def stats(user: Optional[str], sql: bool):
         if user:
             agent.set_user(user)
             profile = agent.get_user_profile()
-            click.echo(f"\n👤 User Profile: {user}")
+            click.echo(f"\n User Profile: {user}")
             click.echo("=" * 60)
             click.echo(json.dumps(profile, indent=2, ensure_ascii=False))
         else:
             stats = agent.get_statistics()
-            click.echo("\n📊 Memory Statistics")
+            click.echo("\n Memory Statistics")
             click.echo("=" * 60)
             click.echo(json.dumps(stats, indent=2, ensure_ascii=False))
 
     except Exception as e:
-        click.echo(f"\n❌ Error: {str(e)}", err=True)
+        click.echo(f"\n Error: {str(e)}", err=True)
         sys.exit(1)
 
 
@@ -180,17 +180,17 @@ def export(user: str, format: str, output: Optional[str], sql: bool):
         if output:
             with open(output, "w", encoding="utf-8") as f:
                 f.write(data)
-            click.echo(f"✅ Exported to: {output}")
+            click.echo(f" Exported to: {output}")
         else:
             click.echo(data)
 
     except Exception as e:
-        click.echo(f"\n❌ Error: {str(e)}", err=True)
+        click.echo(f"\n Error: {str(e)}", err=True)
         sys.exit(1)
 
 
 @cli.command()
-@click.option("--model", "-m", default="rnj-1:latest", help="Model to check")
+@click.option("--model", "-m", default="granite4:3b", help="Model to check")
 def check(model: str):
     """
     Check if Ollama and model are ready
@@ -203,11 +203,11 @@ def check(model: str):
         agent = MemAgent(model=model)
         status = agent.check_setup()
 
-        click.echo("\n🔍 System Check")
+        click.echo("\n System Check")
         click.echo("=" * 60)
-        click.echo(f"Ollama Running:    {'✅' if status['ollama_running'] else '❌'}")
+        click.echo(f"Ollama Running:    {'' if status['ollama_running'] else ''}")
         click.echo(f"Target Model:      {status['target_model']}")
-        click.echo(f"Model Ready:       {'✅' if status['model_ready'] else '❌'}")
+        click.echo(f"Model Ready:       {'' if status['model_ready'] else ''}")
         click.echo(f"Memory Backend:    {status['memory_backend']}")
         click.echo(f"Total Users:       {status['total_users']}")
         click.echo(f"Total Chats:       {status['total_interactions']}")
@@ -216,15 +216,15 @@ def check(model: str):
         if status["available_models"]:
             click.echo("\nAvailable Models:")
             for m in status["available_models"]:
-                click.echo(f"  • {m}")
+                click.echo(f"   {m}")
 
-        click.echo(f"\nStatus: {'✅ READY' if status['status'] == 'ready' else '❌ NOT READY'}")
+        click.echo(f"\nStatus: {' READY' if status['status'] == 'ready' else ' NOT READY'}")
 
         if status["status"] != "ready":
             sys.exit(1)
 
     except Exception as e:
-        click.echo(f"\n❌ Error: {str(e)}", err=True)
+        click.echo(f"\n Error: {str(e)}", err=True)
         sys.exit(1)
 
 
@@ -242,10 +242,10 @@ def clear(user: str, sql: bool):
     try:
         agent = MemAgent(use_sql=sql)
         result = agent.clear_user_data(user, confirm=True)
-        click.echo(f"✅ {result}")
+        click.echo(f" {result}")
 
     except Exception as e:
-        click.echo(f"\n❌ Error: {str(e)}", err=True)
+        click.echo(f"\n Error: {str(e)}", err=True)
         sys.exit(1)
 
 
@@ -256,3 +256,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+

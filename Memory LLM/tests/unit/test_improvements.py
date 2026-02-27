@@ -1,4 +1,4 @@
-"""
+﻿"""
 Test Script for New Features
 =============================
 Tests logging, retry logic, and WAL mode improvements
@@ -32,13 +32,13 @@ def test_logging_system():
     logger.error("This is an error message", error_code=500)
 
     # Test specialized logging methods
-    logger.log_llm_call(model="rnj-1:latest", prompt_length=150, response_length=300, duration=1.5)
+    logger.log_llm_call(model="ministral-3:14b", prompt_length=150, response_length=300, duration=1.5)
 
     logger.log_memory_operation(
         operation="save", user_id="alice", success=True, details="Saved 3 conversations"
     )
 
-    print("✅ Logging system test passed!")
+    print("âœ… Logging system test passed!")
     print("   Log file created at: logs/test.log")
 
 
@@ -62,7 +62,7 @@ def test_retry_logic():
 
     try:
         result = unstable_function()
-        print(f"✅ Retry logic works! Result: {result} (after {attempt_count[0]} attempts)")
+        print(f"âœ… Retry logic works! Result: {result} (after {attempt_count[0]} attempts)")
     except Exception as e:
         pytest.fail(f"Retry test failed: {e}")
 
@@ -72,7 +72,7 @@ def test_retry_logic():
     # Test JSON parsing with fallback
     broken_json = '{"name": "Alice", "age": 30'  # Missing closing brace
     result = executor.safe_json_parse(broken_json, default={"error": "parse_failed"})
-    print(f"✅ Safe JSON parse handled broken JSON: {result}")
+    print(f"âœ… Safe JSON parse handled broken JSON: {result}")
 
     # Test execution with fallback
     def failing_func():
@@ -84,9 +84,9 @@ def test_retry_logic():
     result = executor.execute_with_fallback(
         primary_func=failing_func, fallback_func=fallback_func, error_message="Testing fallback"
     )
-    print(f"✅ Fallback execution: {result}")
+    print(f"âœ… Fallback execution: {result}")
 
-    print("✅ Retry logic test passed!")
+    print("âœ… Retry logic test passed!")
 
 
 def test_wal_mode():
@@ -110,9 +110,9 @@ def test_wal_mode():
     print(f"   Journal mode: {journal_mode}")
 
     if journal_mode.upper() == "WAL":
-        print("✅ WAL mode is enabled!")
+        print("âœ… WAL mode is enabled!")
     else:
-        pytest.fail("⚠️  WAL mode is NOT enabled")
+        pytest.fail("âš ï¸  WAL mode is NOT enabled")
 
     # Check other pragmas
     cursor.execute("PRAGMA synchronous")
@@ -131,16 +131,16 @@ def test_wal_mode():
         )
 
     elapsed = time.time() - start_time
-    print(f"✅ Wrote 100 records in {elapsed:.3f}s")
+    print(f"âœ… Wrote 100 records in {elapsed:.3f}s")
 
     # Verify data integrity
     cursor.execute("SELECT COUNT(*) FROM conversations")
     count = cursor.fetchone()[0]
 
     if count == 100:
-        print(f"✅ Data integrity verified: {count} records")
+        print(f"âœ… Data integrity verified: {count} records")
     else:
-        print(f"❌ Data integrity issue: expected 100, got {count}")
+        print(f"âŒ Data integrity issue: expected 100, got {count}")
         return False
 
     # Cleanup
@@ -151,7 +151,7 @@ def test_wal_mode():
     _ = f"{db_path}-wal"
     _ = f"{db_path}-shm"
 
-    print("✅ WAL mode test passed!")
+    print("âœ… WAL mode test passed!")
 
 
 def test_integration_with_mem_agent():
@@ -166,7 +166,7 @@ def test_integration_with_mem_agent():
         from mem_llm import MemAgent
 
         # Create agent with SQL (WAL mode will be enabled)
-        agent = MemAgent(model="rnj-1:latest", use_sql=True, memory_dir=db_path)
+        agent = MemAgent(model="ministral-3:14b", use_sql=True, memory_dir=db_path)
 
         print("MemAgent created with WAL-enabled database")
 
@@ -203,9 +203,9 @@ def main():
 
     """Run all tests"""
     print("\n")
-    print("╔" + "=" * 68 + "╗")
-    print("║" + " " * 15 + "MEM-LLM IMPROVEMENTS TEST SUITE" + " " * 22 + "║")
-    print("╚" + "=" * 68 + "╝")
+    print("â•”" + "=" * 68 + "â•—")
+    print("â•‘" + " " * 15 + "MEM-LLM IMPROVEMENTS TEST SUITE" + " " * 22 + "â•‘")
+    print("â•š" + "=" * 68 + "â•")
 
     results = {
         "Logging System": False,
@@ -217,22 +217,22 @@ def main():
     try:
         results["Logging System"] = test_logging_system()
     except Exception as e:
-        print(f"❌ Logging test failed with exception: {e}")
+        print(f"âŒ Logging test failed with exception: {e}")
 
     try:
         results["Retry Logic"] = test_retry_logic()
     except Exception as e:
-        print(f"❌ Retry test failed with exception: {e}")
+        print(f"âŒ Retry test failed with exception: {e}")
 
     try:
         results["WAL Mode"] = test_wal_mode()
     except Exception as e:
-        print(f"❌ WAL test failed with exception: {e}")
+        print(f"âŒ WAL test failed with exception: {e}")
 
     try:
         results["Integration"] = test_integration_with_mem_agent()
     except Exception as e:
-        print(f"❌ Integration test failed with exception: {e}")
+        print(f"âŒ Integration test failed with exception: {e}")
 
     # Summary
     print("\n" + "=" * 70)
@@ -243,7 +243,7 @@ def main():
     total = len(results)
 
     for test_name, result in results.items():
-        status = "✅ PASSED" if result else "❌ FAILED"
+        status = "âœ… PASSED" if result else "âŒ FAILED"
         print(f"   {test_name:<20} {status}")
 
     print("=" * 70)
@@ -251,12 +251,13 @@ def main():
     print("=" * 70)
 
     if passed == total:
-        print("\n🎉 All tests passed! Improvements are working correctly!")
+        print("\nğŸ‰ All tests passed! Improvements are working correctly!")
         return 0
     else:
-        print(f"\n⚠️  {total - passed} test(s) failed. Please review the output above.")
+        print(f"\nâš ï¸  {total - passed} test(s) failed. Please review the output above.")
         return 1
 
 
 if __name__ == "__main__":
     sys.exit(main())
+

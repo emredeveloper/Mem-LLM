@@ -25,6 +25,8 @@ venv/
 ENV/
 env/
 quickstart/.venv/
+.venv/
+.release-venv/
 
 # IDE
 .vscode/
@@ -56,6 +58,11 @@ test_chain.txt
 story.txt
 api_data.txt
 *.tmp
+.tmp/
+.pytest_cache/
+htmlcov/
+.coverage
+.coverage.*
 
 # Temporary test files (only in root, not in tests/ directory)
 /test_*.py
@@ -64,3 +71,8 @@ api_data.txt
 /test_v2.1.3_comprehensive.py
 quickstart/check_files.py
 quickstart/test_tool_execution.py
+
+# Packaging / release artifacts
+Memory LLM/build/
+Memory LLM/dist/
+Memory LLM/*.egg-info/

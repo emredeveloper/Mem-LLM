@@ -49,6 +49,7 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 !tests/  # Allow tests directory
+.tmp/
 
 # Translations
 *.mo
@@ -104,6 +105,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.release-venv/
 
 # Spyder project settings
 .spyderproject

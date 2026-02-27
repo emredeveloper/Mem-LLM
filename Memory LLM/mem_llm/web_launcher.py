@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """
 Web UI Launcher for Mem-LLM
 Starts the API server and opens the Web UI in the browser.
@@ -66,25 +66,25 @@ def start_api_server():
 
         return server_thread
     except Exception as e:
-        print(f"❌ Failed to start API server: {e}")
+        print(f" Failed to start API server: {e}")
         return None
 
 
 def main():
     """Main entry point for the web launcher."""
-    print("🚀 Mem-LLM Web UI Launcher")
+    print(" Mem-LLM Web UI Launcher")
     print("=" * 50)
 
     # Check available backends
-    print("\n🔍 Checking available backends...")
+    print("\n Checking available backends...")
     backends = check_backend_available()
 
     if backends:
-        print("✅ Available backends:")
+        print(" Available backends:")
         for backend in backends:
             print(f"   - {backend}")
     else:
-        print("⚠️  No local backends detected!")
+        print("  No local backends detected!")
         print("   Please start Ollama or LM Studio first:")
         print("   - Ollama: https://ollama.ai")
         print("   - LM Studio: https://lmstudio.ai")
@@ -93,28 +93,28 @@ def main():
             sys.exit(0)
 
     # Start API server
-    print("\n🌐 Starting API server...")
+    print("\n Starting API server...")
     server_thread = start_api_server()
 
     if not server_thread:
-        print("❌ Failed to start API server!")
+        print(" Failed to start API server!")
         sys.exit(1)
 
     # Wait for server to be ready
-    print("⏳ Waiting for API server to be ready...")
+    print(" Waiting for API server to be ready...")
     if not check_api_ready():
-        print("❌ API server failed to start within 30 seconds!")
+        print(" API server failed to start within 30 seconds!")
         sys.exit(1)
 
-    print("✅ API server is ready!")
+    print(" API server is ready!")
 
     # Open browser
     web_url = "http://localhost:8000/"
-    print(f"\n🌐 Opening Web UI at {web_url}")
+    print(f"\n Opening Web UI at {web_url}")
     webbrowser.open(web_url)
 
     print("\n" + "=" * 50)
-    print("✅ Mem-LLM Web UI is running!")
+    print(" Mem-LLM Web UI is running!")
     print("   - Chat: http://localhost:8000/")
     print("   - Memory: http://localhost:8000/memory")
     print("   - Metrics: http://localhost:8000/metrics")
@@ -127,9 +127,10 @@ def main():
         while True:
             time.sleep(1)
     except KeyboardInterrupt:
-        print("\n\n👋 Shutting down...")
+        print("\n\n Shutting down...")
         sys.exit(0)
 
 
 if __name__ == "__main__":
     main()
+

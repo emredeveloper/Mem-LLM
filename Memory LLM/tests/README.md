@@ -1,4 +1,4 @@
-"""
+﻿"""
 README for Test Suite
 ======================
 
@@ -8,25 +8,25 @@ This directory contains the test suite for Mem-LLM v2.1.3+.
 
 ```
 tests/
-├── unit/                   # Unit tests (isolated, fast)
-│   ├── test_tool_system.py
-│   ├── test_async_tools.py
-│   ├── test_memory_manager.py
-│   ├── test_vector_store.py
-│   ├── test_config_manager.py
-│   └── test_response_metrics.py
-├── integration/            # Integration tests (with external services)
-│   ├── test_ollama_integration.py
-│   ├── test_lmstudio_integration.py
-│   ├── test_database_integration.py
-│   └── test_vector_search_integration.py
-├── api/                    # API endpoint tests
-│   ├── test_rest_endpoints.py
-│   ├── test_websocket.py
-│   └── test_streaming.py
-└── e2e/                    # End-to-end tests
-    ├── test_full_workflow.py
-    └── test_multi_user_scenarios.py
+â”œâ”€â”€ unit/                   # Unit tests (isolated, fast)
+â”‚   â”œâ”€â”€ test_tool_system.py
+â”‚   â”œâ”€â”€ test_async_tools.py
+â”‚   â”œâ”€â”€ test_memory_manager.py
+â”‚   â”œâ”€â”€ test_vector_store.py
+â”‚   â”œâ”€â”€ test_config_manager.py
+â”‚   â””â”€â”€ test_response_metrics.py
+â”œâ”€â”€ integration/            # Integration tests (with external services)
+â”‚   â”œâ”€â”€ test_ollama_integration.py
+â”‚   â”œâ”€â”€ test_lmstudio_integration.py
+â”‚   â”œâ”€â”€ test_database_integration.py
+â”‚   â””â”€â”€ test_vector_search_integration.py
+â”œâ”€â”€ api/                    # API endpoint tests
+â”‚   â”œâ”€â”€ test_rest_endpoints.py
+â”‚   â”œâ”€â”€ test_websocket.py
+â”‚   â””â”€â”€ test_streaming.py
+â””â”€â”€ e2e/                    # End-to-end tests
+    â”œâ”€â”€ test_full_workflow.py
+    â””â”€â”€ test_multi_user_scenarios.py
 ```
 
 ## Running Tests
@@ -102,7 +102,7 @@ from mem_llm import MemAgent
 @pytest.mark.integration
 class TestOllamaIntegration:
     def test_chat_with_ollama(self):
-        agent = MemAgent(backend='ollama', model='granite4:3b')
+        agent = MemAgent(backend='ollama', model='ministral-3:14b')
         response = agent.chat("Hello")
         assert len(response) > 0
 ```
@@ -123,10 +123,10 @@ async def test_async_tool():
 
 ## Coverage Goals
 
-- **Overall Coverage**: ≥ 80%
-- **Unit Tests**: ≥ 90%
-- **Integration Tests**: ≥ 70%
-- **API Tests**: ≥ 85%
+- **Overall Coverage**: â‰¥ 80%
+- **Unit Tests**: â‰¥ 90%
+- **Integration Tests**: â‰¥ 70%
+- **API Tests**: â‰¥ 85%
 
 ## CI/CD Integration
 
@@ -188,3 +188,4 @@ When adding new features:
 For questions about testing:
 - Open an issue: https://github.com/emredeveloper/Mem-LLM/issues
 - Email: karatasqemre@gmail.com
+

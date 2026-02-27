@@ -1,4 +1,4 @@
-"""
+﻿"""
 Configuration Manager
 Reads and manages configuration from YAML file
 """
@@ -35,7 +35,7 @@ class ConfigManager:
         """Returns default configuration"""
         return {
             "llm": {
-                "model": "rnj-1:latest",
+                "model": "granite4:3b",
                 "base_url": "http://localhost:11434",
                 "temperature": 0.7,
                 "max_tokens": 500,
@@ -217,3 +217,5 @@ def reload_config() -> None:
     """Reloads global configuration"""
     if _config_manager:
         _config_manager.reload()
+
+

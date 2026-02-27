@@ -1,4 +1,4 @@
-import json
+﻿import json
 from datetime import datetime, timedelta
 from unittest.mock import Mock
 
@@ -126,3 +126,4 @@ class TestConversationAnalytics:
 
         with pytest.raises(ValueError):
             analytics.export_report("user1", format="invalid")
+

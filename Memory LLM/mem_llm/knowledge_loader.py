@@ -1,4 +1,4 @@
-"""
+﻿"""
 Knowledge Base Loader
 Loads pre-prepared problem/solution database into the system
 """
@@ -80,3 +80,4 @@ class KnowledgeLoader:
             count += 1
 
         return count
+

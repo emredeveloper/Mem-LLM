@@ -1,5 +1,6 @@
-import os
-import tempfile
+﻿import os
+import uuid
+from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
@@ -7,7 +8,6 @@ import pytest
 from mem_llm.workflow.workflow_engine import Step, Workflow
 
 
-# Mock MemAgent
 class MockAgent:
     def __init__(self, name="MockAgent"):
         self.name = name
@@ -17,9 +17,6 @@ class MockAgent:
 
 @pytest.mark.asyncio
 async def test_simple_workflow_execution():
-    """Test a simple 2-step workflow with context passing."""
-
-    # Define steps
     def step1_action(context):
         return "Hello"
 
@@ -31,10 +28,8 @@ async def test_simple_workflow_execution():
     workflow.add_step(Step(name="Start", action=step1_action, output_key="greeting"))
     workflow.add_step(Step(name="End", action=step2_action, output_key="result"))
 
-    # Run
     context = await workflow.run()
 
-    # Verify
     assert context.get("greeting") == "Hello"
     assert context.get("result") == "Hello World"
     assert len(context.history) == 2
@@ -44,7 +39,6 @@ async def test_simple_workflow_execution():
 
 @pytest.mark.asyncio
 async def test_agent_integration():
-    """Test workflow with a mock agent."""
     agent = MockAgent()
 
     workflow = Workflow("Agent Flow")
@@ -55,15 +49,12 @@ async def test_agent_integration():
 
     assert context.get("answer") == "Mock response"
     agent.chat.assert_called_once()
-    # Check that prompt matches action
     args, _ = agent.chat.call_args
     assert "What is AI?" in args[0]
 
 
 @pytest.mark.asyncio
 async def test_yaml_workflow_loading():
-    """Test loading a workflow from YAML."""
-
     yaml_content = """
     name: YAML Flow
     steps:
@@ -82,19 +73,18 @@ async def test_yaml_workflow_loading():
     agent = MockAgent("Agent A")
     agents = {"agent_a": agent}
 
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
-        f.write(yaml_content)
-        temp_path = f.name
+    root = Path(__file__).resolve().parents[1] / ".tmp"
+    root.mkdir(parents=True, exist_ok=True)
+    temp_path = root / f"workflow_{uuid.uuid4().hex[:8]}.yaml"
+    temp_path.write_text(yaml_content, encoding="utf-8")
 
     try:
-        workflow = Workflow.from_yaml(temp_path, agents)
+        workflow = Workflow.from_yaml(str(temp_path), agents)
         assert workflow.name == "YAML Flow"
         assert len(workflow.steps) == 2
         assert workflow.steps[0].name == "Step 1"
         assert workflow.steps[0].agent == agent
 
-        # Functionally run it?
-        # Mock responses differently? No, MockAgent returns constant.
         context = await workflow.run({"initial_input": "Data"})
         assert context.get("analysis") == "Mock response"
         assert context.get("summary") == "Mock response"

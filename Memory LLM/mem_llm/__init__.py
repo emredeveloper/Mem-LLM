@@ -17,9 +17,9 @@ from .memory_manager import MemoryManager  # noqa: F401
 try:
     from .memory_tools import MemoryTools, ToolExecutor  # noqa: F401
 
-    __all_tools__ = ["MemoryTools", "ToolExecutor"]
+    __all_memory_tools__ = ["MemoryTools", "ToolExecutor"]
 except ImportError:
-    __all_tools__ = []
+    __all_memory_tools__ = []
 
 # Pro version imports (optional)
 try:
@@ -86,7 +86,7 @@ try:
 except ImportError:
     __all_metrics__ = []
 
-__version__ = "2.4.3"
+__version__ = "2.4.4"
 __author__ = "Cihat Emre Karataş"
 
 # Multi-backend LLM support (v1.3.0+)
@@ -98,7 +98,7 @@ try:
     from .tool_system import Tool, ToolRegistry, tool  # noqa: F401
     from .tool_workspace import ToolWorkspace, get_workspace, set_workspace  # noqa: F401
 
-    __all_tools__ = [
+    __all_tool_system__ = [
         "tool",
         "Tool",
         "ToolRegistry",
@@ -108,7 +108,7 @@ try:
         "set_workspace",
     ]
 except ImportError:
-    __all_tools__ = []
+    __all_tool_system__ = []
 
 # CLI
 try:
@@ -183,7 +183,8 @@ __all__ = (
         "OllamaClient",
     ]
     + __all_llm_backends__
-    + __all_tools__
+    + __all_memory_tools__
+    + __all_tool_system__
     + __all_pro__
     + __all_cli__
     + __all_security__

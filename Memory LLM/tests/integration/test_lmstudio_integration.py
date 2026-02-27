@@ -1,4 +1,4 @@
-"""
+﻿"""
 Integration tests for LM Studio backend.
 """
 import pytest
@@ -17,8 +17,8 @@ class TestLMStudioIntegration:
         """Setup test environment"""
         self.lmstudio_url = "http://localhost:1234"
         # Use the exact model ID from LM Studio API
-        # From curl response: "google/gemma-3-4b" or another downloaded LM Studio model.
-        self.model_name = "google/gemma-3-4b"  # Exact model ID from LM Studio
+        # From curl response: "google/gemma-3-12b" or another downloaded LM Studio model.
+        self.model_name = "google/gemma-3-12b"  # Exact model ID from LM Studio
 
     def test_lmstudio_client_creation(self):
         """Test creating LM Studio client"""
@@ -82,7 +82,7 @@ class TestLMStudioIntegration:
             )
 
             # Test with a simple tool call
-            response = agent.chat("What is 2 + 2?")
+            response = agent.chat("What is 2 + 2U")
             assert response is not None
             assert len(response) > 0
         except Exception as e:
@@ -121,7 +121,7 @@ class TestLMStudioVsOllama:
         # Create agent with Ollama
         try:
             agent_ollama = MemAgent(
-                model="granite4:3b", backend="ollama", use_sql=False, check_connection=False
+                model="ministral-3:14b", backend="ollama", use_sql=False, check_connection=False
             )
             assert agent_ollama.backend == "ollama"
         except Exception:
@@ -130,7 +130,7 @@ class TestLMStudioVsOllama:
         # Create agent with LM Studio
         try:
             agent_lmstudio = MemAgent(
-                model="google/gemma-3-4b",  # Exact model ID
+                model="google/gemma-3-12b",  # Exact model ID
                 backend="lmstudio",
                 lmstudio_url="http://localhost:1234",
                 use_sql=False,
@@ -142,12 +142,12 @@ class TestLMStudioVsOllama:
 
     def test_response_consistency(self):
         """Test that both backends produce valid responses"""
-        prompt = "What is 1+1?"
+        prompt = "What is 1+1U"
 
         # Test Ollama
         try:
             agent_ollama = MemAgent(
-                model="granite4:3b", backend="ollama", use_sql=False, check_connection=False
+                model="ministral-3:14b", backend="ollama", use_sql=False, check_connection=False
             )
             response_ollama = agent_ollama.chat(prompt)
             assert response_ollama is not None
@@ -158,7 +158,7 @@ class TestLMStudioVsOllama:
         # Test LM Studio
         try:
             agent_lmstudio = MemAgent(
-                model="google/gemma-3-4b",  # Exact model ID
+                model="google/gemma-3-12b",  # Exact model ID
                 backend="lmstudio",
                 lmstudio_url="http://localhost:1234",
                 use_sql=False,
@@ -173,3 +173,5 @@ class TestLMStudioVsOllama:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "-s"])
+
+

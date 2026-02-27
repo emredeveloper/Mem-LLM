@@ -15,6 +15,15 @@ class ConversationAnalytics:
         self.memory = memory_manager
         self.topic_extractor = TopicExtractor()
 
+    def _get_conversations(self, user_id: str):
+        """Return conversations for either JSON or SQL backends."""
+        if hasattr(self.memory, "load_memory"):
+            data = self.memory.load_memory(user_id)
+            return data.get("conversations", [])
+        if hasattr(self.memory, "get_recent_conversations"):
+            return self.memory.get_recent_conversations(user_id, limit=100000)
+        return []
+
     def get_conversation_stats(self, user_id: str) -> Dict:
         """
         Get comprehensive conversation statistics
@@ -31,8 +40,7 @@ class ConversationAnalytics:
                 "most_active_day": str,
             }
         """
-        data = self.memory.load_memory(user_id)
-        conversations = data.get("conversations", [])
+        conversations = self._get_conversations(user_id)
 
         if not conversations:
             return {
@@ -97,8 +105,7 @@ class ConversationAnalytics:
         """
         Extract and count topics from conversations
         """
-        data = self.memory.load_memory(user_id)
-        conversations = data.get("conversations", [])
+        conversations = self._get_conversations(user_id)
 
         if not conversations:
             return {}
@@ -122,8 +129,7 @@ class ConversationAnalytics:
                 "interactions_per_active_day": float
             }
         """
-        data = self.memory.load_memory(user_id)
-        conversations = data.get("conversations", [])
+        conversations = self._get_conversations(user_id)
 
         if not conversations:
             return {
@@ -206,8 +212,7 @@ class ConversationAnalytics:
 
         Returns: {"00": 5, "01": 2, ..., "23": 10}
         """
-        data = self.memory.load_memory(user_id)
-        conversations = data.get("conversations", [])
+        conversations = self._get_conversations(user_id)
 
         hours_counter = Counter()
         # Initialize all hours with 0

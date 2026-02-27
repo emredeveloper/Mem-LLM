@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mem-llm"
-version = "2.4.3"
+version = "2.4.4"
 description = "Privacy-first, memory-enabled AI assistant with workflow engine, knowledge graph, multi-agent systems, multi-backend LLM support (Ollama, LM Studio), vector search, and analytics - 100% local and production-ready"
 readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">=3.8"
 license = {text = "MIT"}
 authors = [
-    {name = "Cihat Emre Karataş", email = "karatasqemre@gmail.com"}
+    {name = "Cihat Emre Karata", email = "karatasqemre@gmail.com"}
 ]
 keywords = ["llm", "ai", "memory", "agent", "multi-agent", "chatbot", "ollama", "lmstudio", "multi-backend", "local", "privacy", "vector-search", "chromadb", "response-metrics", "semantic-search", "quality-analytics", "embedding", "streaming", "function-calling", "tools", "async", "validation", "workspace", "collaboration"]
 classifiers = [
@@ -29,6 +29,7 @@ dependencies = [
     "pyyaml>=6.0.1",
     "click>=8.1.0",
     "aiohttp>=3.9.0",  # Async tools support (v2.1.0+)
+    "psutil>=5.9.0",  # Built-in system tools support
     "networkx>=3.0",  # Knowledge Graph support (v2.3.0+)
 ]
 
@@ -152,7 +153,7 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
     "class .*\\bProtocol\\):",
-    "@(abc\\.)?abstractmethod",
+    "@(abc\\.)Uabstractmethod",
 ]
 
 [tool.coverage.html]
@@ -161,7 +162,7 @@ directory = "htmlcov"
 [tool.black]
 line-length = 100
 target-version = ["py310", "py311", "py312"]
-include = '\.pyi?$'
+include = '\.pyiU$'
 exclude = '''
 /(
     \.git

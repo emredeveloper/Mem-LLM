@@ -80,6 +80,10 @@ class AgentRegistry:
         """
         return self._agents.get(agent_id)
 
+    def get_agent(self, agent_id: str) -> Optional[BaseAgent]:
+        """Alias for get() to match get_by_* naming style."""
+        return self.get(agent_id)
+
     def get_by_role(self, role: AgentRole) -> List[BaseAgent]:
         """
         Get all agents with specific role.

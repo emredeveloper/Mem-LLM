@@ -1,12 +1,13 @@
-"""
+﻿"""
 Integration Tests
 Tests all system components working together
 """
 
 import os
 import shutil
-import tempfile
 import unittest
+import uuid
+from pathlib import Path
 
 # Import all modules
 from mem_llm import MemAgent, ToolExecutor
@@ -17,11 +18,14 @@ class TestIntegration(unittest.TestCase):
 
     def setUp(self):
         """Setup before test"""
-        self.temp_dir = tempfile.mkdtemp()
+        root = Path(__file__).resolve().parents[1] / ".tmp"
+        root.mkdir(parents=True, exist_ok=True)
+        self.temp_dir = str(root / f"integration_{uuid.uuid4().hex[:8]}")
+        os.makedirs(self.temp_dir, exist_ok=True)
 
         # For simple agent (JSON memory)
         self.simple_agent = MemAgent(
-            model="granite4:3b",
+            model="rnj-1:latest",
             use_sql=False,
             memory_dir=os.path.join(self.temp_dir, "simple_memories"),
         )
@@ -34,7 +38,7 @@ class TestIntegration(unittest.TestCase):
             self.advanced_agent = MemAgent(config_file=config_file, use_sql=True)
             self.advanced_available = True
         except Exception as e:
-            print(f"⚠️  Advanced agent could not be created: {e}")
+            print(f"  Advanced agent could not be created: {e}")
             self.advanced_available = False
 
     def tearDown(self):
@@ -45,7 +49,7 @@ class TestIntegration(unittest.TestCase):
         """Config file for integration test"""
         config_content = """
 llm:
-  model: "granite4:3b"
+  model: "ministral-3:14b"
   base_url: "http://localhost:11434"
   temperature: 0.7
 
@@ -56,7 +60,7 @@ memory:
 prompt:
   template: "customer_service"
   variables:
-    company_name: "Entegrasyon Test Şirketi"
+    company_name: "Entegrasyon Test Sirketi"
 
 knowledge_base:
   enabled: true
@@ -69,66 +73,66 @@ logging:
             f.write(config_content)
 
     def test_cross_compatibility(self):
-        """Çapraz uyumluluk testi - JSON ve SQL bellek"""
+        """apraz uyumluluk testi - JSON ve SQL memory"""
 
         user_id = "cross_compat_user"
 
-        # Basit agent ile konuşma (JSON bellek)
+        # Basit agent ile konuma (JSON memory)
         self.simple_agent.set_user(user_id, name="Cross Test")
         response1 = self.simple_agent.chat("Merhaba basit agent!")
 
-        # Aynı kullanıcıyı gelişmiş agent ile kullan (SQL bellek)
+        # Ayn kullancy gelimi agent ile kullan (SQL memory)
         if self.advanced_available:
             self.advanced_agent.set_user(user_id)
-            response2 = self.advanced_agent.chat("Merhaba gelişmiş agent!")
+            response2 = self.advanced_agent.chat("Merhaba gelimi agent!")
 
-            # Her iki agent de kendi belleğinde kullanıcıyı görmeli
-            # Not: Farklı backend'ler farklı veri tutar
+            # Her iki agent de kendi belleinde kullancy grmeli
+            # Not: Farkl backend'ler farkl veri tutar
             self.assertIsInstance(response1, str)
             self.assertIsInstance(response2, str)
 
     def test_memory_tool_integration(self):
-        """Araçlar entegrasyonu testi"""
+        """Aralar entegrasyonu testi"""
         user_id = "tool_integration_user"
 
-        # Basit agent ile araçları kullan
+        # Basit agent ile aralar kullan
         self.simple_agent.set_user(user_id)
 
-        # Araç executor oluştur
+        # Ara executor olutur
         tool_executor = ToolExecutor(self.simple_agent.memory)
 
-        # Doğrudan araç kullan
+        # Dorudan ara kullan
         result = tool_executor.memory_tools.execute_tool("show_user_info", {"user_id": user_id})
         self.assertIsInstance(result, str)
 
-        # Chat üzerinden araç kullan
-        response = self.simple_agent.chat("Hakkımda ne biliyorsun?", user_id=user_id)
+        # Chat zerinden ara kullan
+        response = self.simple_agent.chat("What do you know about me?", user_id=user_id)
         self.assertIsInstance(response, str)
 
     @unittest.skip("prompt_manager module deprecated")
     def test_prompt_template_integration(self):
-        """Prompt şablonu entegrasyonu testi"""
+        """Prompt ablonu entegrasyonu testi"""
         pass
 
     def test_config_integration(self):
-        """Yapılandırma entegrasyonu testi"""
+        """Yaplandrma entegrasyonu testi"""
         if self.advanced_available:
-            # Gelişmiş agent config kullanıyor
+            # Gelimi agent config kullanyor
             self.assertIsNotNone(self.advanced_agent.config)
 
-            # Config değerlerini kontrol et
+            # Config deerlerini kontrol et
             if hasattr(self.advanced_agent, "config") and self.advanced_agent.config:
                 model = self.advanced_agent.config.get("llm.model")
                 self.assertIsNotNone(model)
 
     def test_knowledge_base_integration(self):
-        """Bilgi bankası entegrasyonu testi"""
+        """Bilgi bankas entegrasyonu testi"""
         if self.advanced_available:
             # Bilgi ekleme testi
             kb_id = self.advanced_agent.add_knowledge(
                 category="integration_test",
-                question="Entegrasyon testi sorusu?",
-                answer="Entegrasyon testi cevabı",
+                question="Entegrasyon testi question?",
+                answer="Entegrasyon testi cevab",
                 keywords=["test", "integration"],
                 priority=5,
             )
@@ -140,15 +144,15 @@ logging:
             self.assertGreater(len(results), 0)
 
     def test_error_handling(self):
-        """Hata yönetimi testi"""
-        # Kullanıcı olmadan chat deneme
+        """Hata ynetimi testi"""
+        # Kullanc olmadan chat deneme
         response = self.simple_agent.chat("Test")
-        self.assertIn("Error", response)  # Error mesajı İngilizce
+        self.assertIn("Error", response)  # Error mesaj ngilizce
 
-        # Geçersiz araç komutu
+        # Geersiz ara komutu
         tool_executor = ToolExecutor(self.simple_agent.memory)
         result = tool_executor.memory_tools.execute_tool("nonexistent_tool", {})
-        self.assertIn("not found", result)  # İngilizce mesaj
+        self.assertIn("not found", result)  # ngilizce mesaj
 
     def test_performance_basic(self):
         """Temel performans testi"""
@@ -157,7 +161,7 @@ logging:
         user_id = "perf_test"
         self.simple_agent.set_user(user_id)
 
-        # Birkaç hızlı konuşma
+        # Birka hzl konuma
         start_time = time.time()
 
         for i in range(3):
@@ -166,40 +170,40 @@ logging:
         end_time = time.time()
         duration = end_time - start_time
 
-        # 3 konuşma makul bir sürede tamamlanmalı (60 saniye)
-        # LLM çağrıları yavaş olabilir, gerçekçi bir limit
+        # 3 konuma makul bir srede tamamlanmal (60 saniye)
+        # LLM arlar yava olabilir, gereki bir limit
         self.assertLess(duration, 60.0)
 
     def test_memory_consistency(self):
-        """Bellek tutarlılık testi"""
+        """memory tutarllk testi"""
         import uuid
 
         user_id = f"consistency_test_{uuid.uuid4().hex[:8]}"  # Benzersiz user_id
 
-        # Basit agent ile konuşmalar
+        # Basit agent ile konumalar
         self.simple_agent.set_user(user_id)
 
-        # 3 konuşma ekle
+        # 3 konuma ekle
         for i in range(3):
-            self.simple_agent.chat(f"Konuşma {i}")
+            self.simple_agent.chat(f"Konuma {i}")
 
-        # Konuşmaların kaydedildiğini kontrol et
+        # Konumalarn kaydedildiini kontrol et
         if hasattr(self.simple_agent.memory, "get_recent_conversations"):
             simple_conversations = self.simple_agent.memory.get_recent_conversations(user_id)
             self.assertIsInstance(simple_conversations, list)
-            self.assertGreaterEqual(len(simple_conversations), 3)  # En az 3 olmalı
+            self.assertGreaterEqual(len(simple_conversations), 3)  # En az 3 olmal
 
 
 def run_integration_tests():
-    """Entegrasyon testlerini çalıştır"""
-    print("🔗 ENTEGRASYON TEST SUITE")
+    """Entegrasyon testlerini altr"""
+    print(" ENTEGRASYON TEST SUITE")
     print("=" * 50)
 
-    # Test suite oluştur
+    # Test suite olutur
     loader = unittest.TestLoader()
     suite = loader.loadTestsFromTestCase(TestIntegration)
 
-    # Test çalıştır
+    # Test altr
     runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(suite)
 
@@ -210,8 +214,10 @@ if __name__ == "__main__":
     success = run_integration_tests()
 
     if success:
-        print("\n✅ Tüm entegrasyon testleri başarıyla geçti!")
+        print("\n Tm entegrasyon testleri baaryla geti!")
     else:
-        print("\n❌ Bazı entegrasyon testleri başarısız oldu!")
+        print("\n Baz entegrasyon testleri baarsz oldu!")
 
     print("=" * 50)
+
+

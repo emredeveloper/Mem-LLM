@@ -1,4 +1,4 @@
-"""
+﻿"""
 LM Studio LLM Client
 ====================
 
@@ -16,7 +16,7 @@ Installation:
 2. Load a model
 3. Start local server (default: http://localhost:1234)
 
-Author: Cihat Emre Karataş
+Author: Cihat Emre KarataÅŸ
 Version: 1.3.0
 """
 
@@ -38,20 +38,20 @@ class LMStudioClient(BaseLLMClient):
 
     Usage:
         client = LMStudioClient(
-            model="local-model",  # or specific model name
+            model="google/gemma-3-12b",  # or specific model name
             base_url="http://localhost:1234"
         )
         response = client.chat([{"role": "user", "content": "Hello!"}])
     """
 
     def __init__(
-        self, model: str = "local-model", base_url: str = "http://localhost:1234", **kwargs
+        self, model: str = "google/gemma-3-12b", base_url: str = "http://localhost:1234", **kwargs
     ):
         """
         Initialize LM Studio client
 
         Args:
-            model: Model identifier (use "local-model" for default loaded model)
+            model: Model identifier (use "google/gemma-3-12b" for default loaded model)
             base_url: LM Studio server URL (default: http://localhost:1234)
             **kwargs: Additional configuration
         """
@@ -391,3 +391,4 @@ class LMStudioClient(BaseLLMClient):
             base_info["available_models"] = self.list_models()
 
         return base_info
+
