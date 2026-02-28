@@ -26,7 +26,7 @@ API Documentation:
     - ReDoc: http://localhost:8000/redoc
 
 Author: Cihat Emre KarataÅŸ
-Version: 2.4.3
+Version: 2.4.6
 """
 
 import asyncio
@@ -202,7 +202,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Mem-LLM API",
     description="REST API for Mem-LLM - Privacy-first, Memory-enabled AI Assistant (100% Local)",
-    version="2.4.3",
+    version="2.4.6",
     docs_url="/docs",
     redoc_url="/redoc",
     lifespan=lifespan,
