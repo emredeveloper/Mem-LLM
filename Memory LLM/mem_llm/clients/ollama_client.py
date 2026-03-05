@@ -5,7 +5,7 @@ Ollama LLM Client
 Client for local Ollama service.
 Supports all Ollama models (Llama3, Granite, Qwen3, DeepSeek, etc.)
 
-Author: C. Emre KarataÅŸ
+Author: C. Emre Karatas
 Version: 1.3.0
 """
 

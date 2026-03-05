@@ -21,6 +21,7 @@ import inspect
 import logging
 import os
 import re
+import threading
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Union, get_type_hints
@@ -432,7 +433,7 @@ class ToolRegistry:
 
         # Execute tool
         try:
-            result = tool.execute(**kwargs)
+            result = self._execute_with_loop_safety(tool, kwargs)
             return ToolCallResult(
                 tool_name=tool_name,
                 status=ToolCallStatus.SUCCESS,
@@ -453,6 +454,36 @@ class ToolRegistry:
                 error=str(e),
                 execution_time=time.time() - start_time,
             )
+
+    def _execute_with_loop_safety(self, tool: Tool, kwargs: Dict[str, Any]) -> Any:
+        """Execute async tools safely when called from a running event loop."""
+        has_running_loop = False
+        try:
+            asyncio.get_running_loop()
+            has_running_loop = True
+        except RuntimeError:
+            has_running_loop = False
+
+        if not tool.is_async or not has_running_loop:
+            return tool.execute(**kwargs)
+
+        result_holder: Dict[str, Any] = {}
+        error_holder: Dict[str, Exception] = {}
+
+        def _worker() -> None:
+            try:
+                result_holder["result"] = tool.execute(**kwargs)
+            except Exception as exc:
+                error_holder["error"] = exc
+
+        worker = threading.Thread(target=_worker, daemon=True)
+        worker.start()
+        worker.join()
+
+        if "error" in error_holder:
+            raise error_holder["error"]
+
+        return result_holder.get("result")
 
 
 class ToolCallParser:
@@ -716,3 +747,7 @@ def format_tools_for_prompt(tools: List[Tool]) -> str:
     lines.append("")
 
     return "\n".join(lines)
+
+
+
+

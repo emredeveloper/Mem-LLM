@@ -25,7 +25,7 @@ def test_v1_0_code_compatibility():
 
         _ = [MemAgent, MemoryManager, OllamaClient]
 
-        print("   âœ… Core imports work")
+        print("   [OK] Core imports work")
     except Exception as e:
         pytest.fail(f"Import failed: {e}")
 
@@ -33,7 +33,7 @@ def test_v1_0_code_compatibility():
     print("\n2. Testing v1.0.x agent creation (no security parameter)...")
     try:
         agent = MemAgent(model="ministral-3:14b", use_sql=False)
-        print("   âœ… Agent created without enable_security parameter")
+        print("   [OK] Agent created without enable_security parameter")
     except Exception as e:
         pytest.fail(f"Agent creation failed: {e}")
 
@@ -42,19 +42,19 @@ def test_v1_0_code_compatibility():
     try:
         agent.set_user("test_user")
         # Note: We won't actually call chat as it requires Ollama
-        print("   âœ… set_user() works")
+        print("   [OK] set_user() works")
     except Exception as e:
         pytest.fail(f"Operation failed: {e}")
 
     # Test 4: Verify security is disabled by default
     print("\n4. Testing security is disabled by default...")
     if hasattr(agent, "enable_security") and not agent.enable_security:
-        print("   âœ… Security disabled by default (backward compatible)")
+        print("   [OK] Security disabled by default (backward compatible)")
     else:
-        print("   âš ï¸  Security state unexpected")
+        print("   [WARN]  Security state unexpected")
 
     print("\n" + "=" * 70)
-    print("âœ… ALL v1.0.x CODE WORKS WITHOUT MODIFICATION")
+    print("[OK] ALL v1.0.x CODE WORKS WITHOUT MODIFICATION")
     print("=" * 70)
 
 
@@ -71,9 +71,9 @@ def test_v1_1_new_features():
 
         _ = [InputSanitizer, PromptInjectionDetector, SecurePromptBuilder]
 
-        print("   âœ… Security classes imported")
+        print("   [OK] Security classes imported")
     except ImportError as e:
-        print(f"   âš ï¸  Security imports not available: {e}")
+        print(f"   [WARN]  Security imports not available: {e}")
 
     # Test 2: New logging imports
     print("\n2. Testing new logging imports...")
@@ -82,9 +82,9 @@ def test_v1_1_new_features():
 
         _ = [MemLLMLogger, get_logger]
 
-        print("   âœ… Logging classes imported")
+        print("   [OK] Logging classes imported")
     except ImportError as e:
-        print(f"   âš ï¸  Logging imports not available: {e}")
+        print(f"   [WARN]  Logging imports not available: {e}")
 
     # Test 3: New retry handler imports
     print("\n3. Testing new retry handler imports...")
@@ -93,9 +93,9 @@ def test_v1_1_new_features():
 
         _ = [SafeExecutor, exponential_backoff_retry]
 
-        print("   âœ… Retry handler imported")
+        print("   [OK] Retry handler imported")
     except ImportError as e:
-        print(f"   âš ï¸  Retry handler imports not available: {e}")
+        print(f"   [WARN]  Retry handler imports not available: {e}")
 
     # Test 4: Opt-in security
     print("\n4. Testing opt-in security feature...")
@@ -105,14 +105,14 @@ def test_v1_1_new_features():
         agent_secure = MemAgent(model="ministral-3:14b", use_sql=False, enable_security=True)
 
         if hasattr(agent_secure, "enable_security") and agent_secure.enable_security:
-            print("   âœ… Security enabled via opt-in parameter")
+            print("   [OK] Security enabled via opt-in parameter")
         else:
-            print("   âš ï¸  Security not properly enabled")
+            print("   [WARN]  Security not properly enabled")
     except Exception as e:
-        print(f"   âš ï¸  Opt-in security test: {e}")
+        print(f"   [WARN]  Opt-in security test: {e}")
 
     print("\n" + "=" * 70)
-    print("âœ… NEW v1.1.0 FEATURES AVAILABLE")
+    print("[OK] NEW v1.1.0 FEATURES AVAILABLE")
     print("=" * 70)
 
 
@@ -139,7 +139,7 @@ from mem_llm import MemAgent
 
 agent = MemAgent(
     model="ministral-3:14b",
-    enable_security=True  # â† Only change needed!
+    enable_security=True  # <- Only change needed!
 )
 agent.set_user("alice")
 response = agent.chat("Hello!")  # Now protected from injection
@@ -167,9 +167,9 @@ logger.info("Agent initialized with security")
 def main():
     """Run all compatibility tests"""
     print("\n")
-    print("â•”" + "=" * 68 + "â•—")
-    print("â•‘" + " " * 10 + "MEM-LLM v1.1.0 BACKWARD COMPATIBILITY TEST" + " " * 15 + "â•‘")
-    print("â•š" + "=" * 68 + "â•")
+    print("+" + "=" * 68 + "+")
+    print("|" + " " * 10 + "MEM-LLM v1.1.0 BACKWARD COMPATIBILITY TEST" + " " * 15 + "|")
+    print("+" + "=" * 68 + "+")
 
     # Test backward compatibility
     compatible = test_v1_0_code_compatibility()
@@ -182,12 +182,12 @@ def main():
 
     print("\n" + "=" * 70)
     if compatible:
-        print("âœ… v1.1.0 IS 100% BACKWARD COMPATIBLE")
+        print("[OK] v1.1.0 IS 100% BACKWARD COMPATIBLE")
         print("   - All v1.0.x code works without changes")
         print("   - New features are opt-in only")
         print("   - Safe to upgrade for all users")
     else:
-        print("âš ï¸  Compatibility issues detected")
+        print("[WARN]  Compatibility issues detected")
     print("=" * 70)
 
 

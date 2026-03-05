@@ -5,7 +5,7 @@ Tool Workspace Manager (v2.1.3+)
 Manages file artifacts created by tools.
 Provides cleanup and organization for tool-generated files.
 
-Author: Cihat Emre Karataş
+Author: Cihat Emre Karatas
 Version: 2.1.3
 """
 
@@ -49,7 +49,62 @@ class ToolWorkspace:
         if not auto_cleanup:
             self.session_dir.mkdir(exist_ok=True)
 
-        logger.info(f"📁 Tool workspace initialized: {self.base_dir.absolute()}")
+        logger.info(f"Tool workspace initialized: {self.base_dir.absolute()}")
+
+    def _validate_user_id(self, user_id: str) -> str:
+        """Validate user_id to avoid path traversal."""
+        if not user_id or not user_id.strip():
+            raise ValueError("user_id cannot be empty")
+
+        candidate = Path(user_id.strip())
+
+        if candidate.is_absolute() or candidate.drive:
+            raise ValueError("user_id must be a relative identifier")
+
+        if len(candidate.parts) != 1 or candidate.parts[0] in (".", ".."):
+            raise ValueError("user_id must not contain path separators")
+
+        return candidate.parts[0]
+
+    def _validate_relative_path(self, path_value: str, field_name: str = "path") -> Path:
+        """Validate a relative path fragment to keep operations inside workspace."""
+        if not path_value or not path_value.strip():
+            raise ValueError(f"{field_name} cannot be empty")
+
+        candidate = Path(path_value.strip())
+
+        if candidate.is_absolute() or candidate.drive:
+            raise ValueError(f"{field_name} must be a relative path")
+
+        if any(part in (".", "..") for part in candidate.parts):
+            raise ValueError(f"{field_name} must not contain '.' or '..'")
+
+        return candidate
+
+    def _ensure_within(self, base_dir: Path, candidate_path: Path) -> Path:
+        """Resolve and verify candidate path stays inside base_dir."""
+        resolved_base = base_dir.resolve()
+        resolved_candidate = candidate_path.resolve()
+
+        try:
+            resolved_candidate.relative_to(resolved_base)
+        except ValueError as exc:
+            raise ValueError("Path escapes workspace boundaries") from exc
+
+        return resolved_candidate
+
+    def _get_target_dir(self, user_id: Optional[str] = None) -> Path:
+        """Get base directory for current operation."""
+        if user_id and not self.auto_cleanup:
+            safe_user_id = self._validate_user_id(user_id)
+            user_dir = self.session_dir / safe_user_id
+            user_dir.mkdir(exist_ok=True)
+            return user_dir
+
+        if self.auto_cleanup:
+            return self.base_dir
+
+        return self.session_dir
 
     def get_file_path(self, filename: str, user_id: Optional[str] = None) -> Path:
         """
@@ -62,16 +117,10 @@ class ToolWorkspace:
         Returns:
             Full path in workspace
         """
-        if user_id and not self.auto_cleanup:
-            user_dir = self.session_dir / user_id
-            user_dir.mkdir(exist_ok=True)
-            return user_dir / filename
-
-        if self.auto_cleanup:
-            # Direct in base dir for easy cleanup
-            return self.base_dir / filename
-
-        return self.session_dir / filename
+        target_dir = self._get_target_dir(user_id)
+        safe_relative = self._validate_relative_path(filename, field_name="filename")
+        candidate = target_dir / safe_relative
+        return self._ensure_within(target_dir, candidate)
 
     def list_files(self, user_id: Optional[str] = None, pattern: str = "*") -> List[Path]:
         """
@@ -84,17 +133,15 @@ class ToolWorkspace:
         Returns:
             List of file paths
         """
-        if user_id and not self.auto_cleanup:
-            search_dir = self.session_dir / user_id
-        elif self.auto_cleanup:
-            search_dir = self.base_dir
-        else:
-            search_dir = self.session_dir
+        if pattern and ".." in pattern:
+            raise ValueError("Pattern must not contain '..'")
+
+        search_dir = self._get_target_dir(user_id)
 
         if not search_dir.exists():
             return []
 
-        return list(search_dir.glob(pattern))
+        return list(search_dir.glob(pattern or "*"))
 
     def cleanup(self, user_id: Optional[str] = None, older_than_days: Optional[int] = None):
         """
@@ -106,17 +153,19 @@ class ToolWorkspace:
         """
         if user_id:
             # Clean specific user directory
-            user_dir = self.session_dir / user_id
+            safe_user_id = self._validate_user_id(user_id)
+            user_dir = self.session_dir / safe_user_id
+            user_dir = self._ensure_within(self.session_dir, user_dir)
             if user_dir.exists():
                 shutil.rmtree(user_dir)
-                logger.info(f"🧹 Cleaned workspace for user: {user_id}")
+                logger.info(f"Workspace cleaned for user: {safe_user_id}")
         elif older_than_days:
             # Clean old session directories
             cutoff = datetime.now().timestamp() - (older_than_days * 86400)
             for session_dir in self.base_dir.iterdir():
                 if session_dir.is_dir() and session_dir.stat().st_mtime < cutoff:
                     shutil.rmtree(session_dir)
-                    logger.info(f"🧹 Removed old session: {session_dir.name}")
+                    logger.info(f"Removed old session: {session_dir.name}")
         else:
             # Clean everything in workspace
             for item in self.base_dir.iterdir():
@@ -124,7 +173,7 @@ class ToolWorkspace:
                     shutil.rmtree(item)
                 else:
                     item.unlink()
-            logger.info("🧹 Workspace cleaned")
+            logger.info("Workspace cleaned")
 
     def get_stats(self) -> dict:
         """
@@ -156,7 +205,7 @@ class ToolWorkspace:
                 for item in self.base_dir.iterdir():
                     if item.is_file():
                         item.unlink()
-                logger.info("🧹 Auto-cleanup completed")
+                logger.info("Auto-cleanup completed")
             except Exception as e:
                 logger.error(f"Auto-cleanup error: {e}")
 

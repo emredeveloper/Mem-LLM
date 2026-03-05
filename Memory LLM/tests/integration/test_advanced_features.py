@@ -47,7 +47,7 @@ class TestMemoryCorruption(unittest.TestCase):
 
     def test_corrupted_json_memory(self):
         """Test handling of corrupted JSON memory files"""
-        print("\nğŸ§ª Testing corrupted JSON memory handling...")
+        print("\n[TEST] Testing corrupted JSON memory handling...")
 
         # Create agent with JSON memory
         memory_dir = os.path.join(self.temp_dir, "json_mem")
@@ -72,13 +72,13 @@ class TestMemoryCorruption(unittest.TestCase):
         try:
             agent.memory.load_memory("test_user")
             # Should not crash, should create new memory
-            print("   âœ… Handled corrupted JSON gracefully")
+            print("   [OK] Handled corrupted JSON gracefully")
         except json.JSONDecodeError:
             self.fail("Should handle corrupted JSON without crashing")
 
     def test_database_integrity_after_crash(self):
         """Test database integrity after simulated crash"""
-        print("\nğŸ§ª Testing database integrity after crash simulation...")
+        print("\n[TEST] Testing database integrity after crash simulation...")
 
         db = SQLMemoryManager(self.db_path)
 
@@ -103,11 +103,11 @@ class TestMemoryCorruption(unittest.TestCase):
 
         # With WAL mode, we should recover most/all data
         self.assertGreater(count, 0, "Should recover data after crash")
-        print(f"   âœ… Recovered {count}/50 records after crash")
+        print(f"   [OK] Recovered {count}/50 records after crash")
 
     def test_invalid_data_insertion(self):
         """Test handling of invalid data types"""
-        print("\nğŸ§ª Testing invalid data insertion...")
+        print("\n[TEST] Testing invalid data insertion...")
 
         db = SQLMemoryManager(self.db_path)
 
@@ -118,15 +118,15 @@ class TestMemoryCorruption(unittest.TestCase):
             )
             self.fail("Should reject None message")
         except Exception:
-            print("   âœ… Correctly rejected None message")
+            print("   [OK] Correctly rejected None message")
 
         # Try very long strings
         try:
             huge_message = "x" * 1_000_000  # 1MB message
             db.add_interaction(user_id="user1", user_message=huge_message, bot_response="OK")
-            print("   âœ… Handled very long message")
+            print("   [OK] Handled very long message")
         except Exception as e:
-            print(f"   âš ï¸  Failed on large message: {e}")
+            print(f"   [WARN]  Failed on large message: {e}")
 
 
 @unittest.skip("Windows file locking issues in CI/CD")
@@ -151,7 +151,7 @@ class TestConcurrentAccess(unittest.TestCase):
 
     def test_concurrent_writes(self):
         """Test multiple threads writing simultaneously"""
-        print("\nğŸ§ª Testing concurrent writes (10 threads)...")
+        print("\n[TEST] Testing concurrent writes (10 threads)...")
 
         db = SQLMemoryManager(self.db_path)
         threads = []
@@ -186,7 +186,7 @@ class TestConcurrentAccess(unittest.TestCase):
 
         # Check for errors
         if self.errors:
-            print(f"   âŒ Errors occurred: {self.errors}")
+            print(f"   [ERROR] Errors occurred: {self.errors}")
             self.fail(f"Concurrent writes failed: {self.errors}")
 
         # Verify data integrity
@@ -197,12 +197,12 @@ class TestConcurrentAccess(unittest.TestCase):
         expected = num_threads * writes_per_thread
         self.assertEqual(total_count, expected, f"Expected {expected} records, got {total_count}")
 
-        print(f"   âœ… {total_count} concurrent writes in {elapsed:.2f}s")
-        print("   âœ… No race conditions detected")
+        print(f"   [OK] {total_count} concurrent writes in {elapsed:.2f}s")
+        print("   [OK] No race conditions detected")
 
     def test_concurrent_read_write(self):
         """Test simultaneous reads and writes"""
-        print("\nğŸ§ª Testing concurrent reads and writes...")
+        print("\n[TEST] Testing concurrent reads and writes...")
 
         db = SQLMemoryManager(self.db_path)
 
@@ -259,16 +259,16 @@ class TestConcurrentAccess(unittest.TestCase):
 
         # Check results
         if self.errors:
-            print(f"   âŒ Errors: {self.errors}")
+            print(f"   [ERROR] Errors: {self.errors}")
             self.fail(f"Concurrent read/write failed: {self.errors}")
 
-        print(f"   âœ… {len(read_counts)} reads completed")
-        print(f"   âœ… {sum(write_counts)} writes completed")
-        print("   âœ… No blocking or deadlocks detected")
+        print(f"   [OK] {len(read_counts)} reads completed")
+        print(f"   [OK] {sum(write_counts)} writes completed")
+        print("   [OK] No blocking or deadlocks detected")
 
     def test_multi_user_isolation(self):
         """Test that user data is properly isolated"""
-        print("\nğŸ§ª Testing multi-user data isolation...")
+        print("\n[TEST] Testing multi-user data isolation...")
 
         agent = MemAgent(model="ministral-3:14b", use_sql=True, memory_dir=self.db_path)
 
@@ -292,7 +292,7 @@ class TestConcurrentAccess(unittest.TestCase):
                     user, conv["user_message"].lower(), f"User {user} saw other user's data"
                 )
 
-        print(f"   âœ… {len(users)} users properly isolated")
+        print(f"   [OK] {len(users)} users properly isolated")
 
 
 @unittest.skip("Windows file locking issues in CI/CD")
@@ -316,7 +316,7 @@ class TestLongConversationHistory(unittest.TestCase):
 
     def test_1000_message_history(self):
         """Test performance with 1000 messages"""
-        print("\nğŸ§ª Testing 1000-message conversation history...")
+        print("\n[TEST] Testing 1000-message conversation history...")
 
         db = SQLMemoryManager(self.db_path)
 
@@ -335,15 +335,15 @@ class TestLongConversationHistory(unittest.TestCase):
         recent = db.get_recent_conversations("power_user", limit=50)
         read_time = time.time() - start_time
 
-        print(f"   âœ… Wrote 1000 messages in {write_time:.2f}s ({1000/write_time:.0f} msg/s)")
-        print(f"   âœ… Retrieved 50 messages in {read_time*1000:.2f}ms")
+        print(f"   [OK] Wrote 1000 messages in {write_time:.2f}s ({1000/write_time:.0f} msg/s)")
+        print(f"   [OK] Retrieved 50 messages in {read_time*1000:.2f}ms")
 
         self.assertEqual(len(recent), 50, "Should retrieve exactly 50 messages")
         self.assertLess(read_time, 0.5, "Read should be fast (<500ms)")
 
     def test_memory_context_overflow(self):
         """Test handling when context window is exceeded"""
-        print("\nğŸ§ª Testing context window overflow handling...")
+        print("\n[TEST] Testing context window overflow handling...")
 
         agent = MemAgent(model="ministral-3:14b", use_sql=True, memory_dir=self.db_path)
         agent.set_user("verbose_user")
@@ -360,15 +360,15 @@ class TestLongConversationHistory(unittest.TestCase):
             recent = agent.memory.get_recent_conversations("verbose_user", limit=50)
             total_length = sum(len(c["user_message"]) + len(c["bot_response"]) for c in recent)
 
-            print(f"   âœ… Context size: {total_length:,} characters")
-            print("   âœ… No overflow crash with large history")
+            print(f"   [OK] Context size: {total_length:,} characters")
+            print("   [OK] No overflow crash with large history")
 
         except Exception as e:
             self.fail(f"Should handle large context gracefully: {e}")
 
     def test_search_performance_large_dataset(self):
         """Test search performance with large dataset"""
-        print("\nğŸ§ª Testing search on large dataset...")
+        print("\n[TEST] Testing search on large dataset...")
 
         db = SQLMemoryManager(self.db_path)
 
@@ -387,8 +387,8 @@ class TestLongConversationHistory(unittest.TestCase):
         results = db.search_conversations("search_user", "bug")
         search_time = time.time() - start_time
 
-        print(f"   âœ… Searched 500 conversations in {search_time*1000:.2f}ms")
-        print(f"   âœ… Found {len(results)} matching conversations")
+        print(f"   [OK] Searched 500 conversations in {search_time*1000:.2f}ms")
+        print(f"   [OK] Found {len(results)} matching conversations")
 
         self.assertLess(search_time, 0.5, "Search should be fast (<500ms)")
         self.assertGreater(len(results), 0, "Should find matching results")
@@ -397,9 +397,9 @@ class TestLongConversationHistory(unittest.TestCase):
 def run_advanced_tests():
     """Run all advanced tests"""
     print("\n")
-    print("â•”" + "=" * 68 + "â•—")
-    print("â•‘" + " " * 15 + "ADVANCED TEST COVERAGE SUITE" + " " * 25 + "â•‘")
-    print("â•š" + "=" * 68 + "â•")
+    print("+" + "=" * 68 + "+")
+    print("|" + " " * 15 + "ADVANCED TEST COVERAGE SUITE" + " " * 25 + "|")
+    print("+" + "=" * 68 + "+")
 
     # Create test suite
     suite = unittest.TestSuite()
@@ -424,10 +424,10 @@ def run_advanced_tests():
     print("=" * 70)
 
     if result.wasSuccessful():
-        print("\nğŸ‰ All advanced tests passed!")
+        print("\n[DONE] All advanced tests passed!")
         return 0
     else:
-        print("\nâš ï¸  Some tests failed. Please review above.")
+        print("\n[WARN]  Some tests failed. Please review above.")
         return 1
 
 

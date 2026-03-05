@@ -19,7 +19,7 @@ Usage:
     # Get all available backends
     backends = LLMClientFactory.get_available_backends()
 
-Author: Cihat Emre KarataÅŸ
+Author: Cihat Emre Karatas
 Version: 1.3.0
 """
 
@@ -53,7 +53,7 @@ class LLMClientFactory:
             "description": "LM Studio local server (OpenAI-compatible)",
             "type": "local",
             "default_url": "http://localhost:1234",
-            "default_model": "google/gemma-3-12b",
+            "default_model": "qwen3.5-2b",
         },
     }
 
@@ -83,7 +83,7 @@ class LLMClientFactory:
             # LM Studio
             client = LLMClientFactory.create(
                 'lmstudio',
-                model='google/gemma-3-12b',
+                model='qwen3.5-2b',
                 base_url='http://localhost:1234'
             )
         """
@@ -162,7 +162,7 @@ class LLMClientFactory:
 
                 # Check if service is actually running
                 if client.check_connection():
-                    logger.info(f"âœ… Detected {backend_name} at {backend_info.get('default_url')}")
+                    logger.info(f"[OK] Detected {backend_name} at {backend_info.get('default_url')}")
                     return client
                 else:
                     logger.debug(f"Service not running: {backend_name}")
@@ -171,7 +171,7 @@ class LLMClientFactory:
                 logger.debug(f"Failed to detect {backend_name}: {e}")
                 continue
 
-        logger.warning("âš ï¸  No local LLM service detected")
+        logger.warning("[WARN] No local LLM service detected")
         return None
 
     @staticmethod
@@ -256,4 +256,5 @@ class LLMClientFactory:
         # Remove class reference for JSON serialization
         info.pop("class", None)
         return info
+
 

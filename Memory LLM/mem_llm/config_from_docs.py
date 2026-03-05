@@ -36,7 +36,7 @@ def extract_text_from_file(file_path: str) -> str:
                     text.append(page.extract_text())
             return "\n".join(text)
         except ImportError:
-            return "âš ï¸ PyPDF2 not installed. Run: pip install PyPDF2"
+            return "[WARN] PyPDF2 not installed. Run: pip install PyPDF2"
 
     elif file_ext in [".docx", ".doc"]:
         try:
@@ -48,10 +48,10 @@ def extract_text_from_file(file_path: str) -> str:
                 text.append(paragraph.text)
             return "\n".join(text)
         except ImportError:
-            return "âš ï¸ python-docx not installed. Run: pip install python-docx"
+            return "[WARN] python-docx not installed. Run: pip install python-docx"
 
     else:
-        return f"âš ï¸ Unsupported file format: {file_ext}"
+        return f"[WARN] Unsupported file format: {file_ext}"
 
 
 def generate_config_from_text(text: str, company_name: Optional[str] = None) -> Dict[str, Any]:
@@ -111,16 +111,16 @@ def create_config_from_document(
         Success message
     """
     if not os.path.exists(doc_path):
-        return f"âŒ File not found: {doc_path}"
+        return f"[ERROR] File not found: {doc_path}"
 
     # Extract text
-    print(f"ğŸ“„ Reading document: {doc_path}")
+    print(f"[INFO] Reading document: {doc_path}")
     text = extract_text_from_file(doc_path)
 
-    if text.startswith("âš ï¸"):
+    if text.startswith("[WARN]"):
         return text  # Error message
 
-    print(f"âœ… Extracted {len(text)} characters")
+    print(f"[OK] Extracted {len(text)} characters")
 
     # Generate config
     config = generate_config_from_text(text, company_name)
@@ -129,10 +129,10 @@ def create_config_from_document(
     with open(output_path, "w", encoding="utf-8") as f:
         yaml.dump(config, f, default_flow_style=False, allow_unicode=True)
 
-    print(f"âœ… Config created: {output_path}")
-    print(f"ğŸ“Œ Company: {config['business']['company_name']}")
+    print(f"[OK] Config created: {output_path}")
+    print(f"[INFO] Company: {config['business']['company_name']}")
 
-    return f"âœ… Config successfully created at {output_path}"
+    return f"[OK] Config successfully created at {output_path}"
 
 
 # Simple CLI
@@ -142,7 +142,7 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print(
             """
-ğŸ”§ Config Generator from Documents
+[INFO] Config Generator from Documents
 
 Usage:
     python -m mem_llm.config_from_docs <document_path> [output_path] [company_name]

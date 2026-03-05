@@ -1,21 +1,23 @@
-"""
+﻿"""
 Built-in Tools
 ==============
 
 Common tools that are available by default.
 
-Author: Cihat Emre Karataş
+Author: Cihat Emre Karatas
 Version: 2.1.3
 """
 
+import ast
 import json
 import math
+import operator as op
 import os
 import platform
 import random
 import uuid
 from datetime import datetime
-from typing import List
+from typing import Any, Dict, List
 
 import psutil
 
@@ -25,6 +27,78 @@ from .tool_workspace import get_workspace
 # ============================================================================
 # Math & Calculation Tools
 # ============================================================================
+
+
+_ALLOWED_BINOPS = {
+    ast.Add: op.add,
+    ast.Sub: op.sub,
+    ast.Mult: op.mul,
+    ast.Div: op.truediv,
+    ast.FloorDiv: op.floordiv,
+    ast.Mod: op.mod,
+    ast.Pow: op.pow,
+}
+
+_ALLOWED_UNARYOPS = {
+    ast.UAdd: op.pos,
+    ast.USub: op.neg,
+}
+
+def _safe_math_eval(expression: str, allowed_names: Dict[str, Any]) -> float:
+    """Safely evaluate basic math expressions without eval()."""
+
+    def _eval_node(node: ast.AST) -> Any:
+        if isinstance(node, ast.Expression):
+            return _eval_node(node.body)
+
+        if isinstance(node, ast.Constant):
+            if isinstance(node.value, (int, float)):
+                return node.value
+            raise ValueError("Only numeric constants are allowed")
+
+        if isinstance(node, ast.BinOp):
+            op_type = type(node.op)
+            if op_type not in _ALLOWED_BINOPS:
+                raise ValueError(f"Operator '{op_type.__name__}' is not allowed")
+            return _ALLOWED_BINOPS[op_type](_eval_node(node.left), _eval_node(node.right))
+
+        if isinstance(node, ast.UnaryOp):
+            op_type = type(node.op)
+            if op_type not in _ALLOWED_UNARYOPS:
+                raise ValueError(f"Unary operator '{op_type.__name__}' is not allowed")
+            return _ALLOWED_UNARYOPS[op_type](_eval_node(node.operand))
+
+        if isinstance(node, ast.Name):
+            if node.id in allowed_names and isinstance(allowed_names[node.id], (int, float)):
+                return allowed_names[node.id]
+            raise ValueError(f"Name '{node.id}' is not allowed")
+
+        if isinstance(node, ast.List):
+            return [_eval_node(item) for item in node.elts]
+
+        if isinstance(node, ast.Tuple):
+            return tuple(_eval_node(item) for item in node.elts)
+
+        if isinstance(node, ast.Call):
+            if not isinstance(node.func, ast.Name):
+                raise ValueError("Only direct function calls are allowed")
+
+            func_name = node.func.id
+            func = allowed_names.get(func_name)
+            if func is None or not callable(func):
+                raise ValueError(f"Function '{func_name}' is not allowed")
+
+            if node.keywords:
+                raise ValueError("Keyword arguments are not allowed")
+
+            args = [_eval_node(arg) for arg in node.args]
+            return func(*args)
+
+        raise ValueError(f"Unsupported syntax: {type(node).__name__}")
+
+    parsed = ast.parse(expression, mode="eval")
+    result = _eval_node(parsed)
+    return float(result)
 
 
 @tool(name="calculate", description="Evaluate mathematical expressions", category="math")
@@ -44,7 +118,6 @@ def calculate(expression: str) -> float:
         calculate("pi * 2") -> 6.283185307179586
         calculate("(25 * 4) + 10") -> 110.0
     """
-    # Safe eval with math functions
     allowed_names = {k: v for k, v in math.__dict__.items() if not k.startswith("__")}
     allowed_names["abs"] = abs
     allowed_names["round"] = round
@@ -53,15 +126,13 @@ def calculate(expression: str) -> float:
     allowed_names["sum"] = sum
 
     try:
-        # Clean up expression - replace common text with symbols
         clean_expr = expression.strip()
         clean_expr = clean_expr.replace(" divided by ", " / ")
         clean_expr = clean_expr.replace(" times ", " * ")
         clean_expr = clean_expr.replace(" plus ", " + ")
         clean_expr = clean_expr.replace(" minus ", " - ")
 
-        result = eval(clean_expr, {"__builtins__": {}}, allowed_names)
-        return float(result)
+        return _safe_math_eval(clean_expr, allowed_names)
     except Exception as e:
         raise ValueError(f"Invalid expression '{expression}': {str(e)}")
 
@@ -253,7 +324,7 @@ def get_system_info() -> str:
     os_info = f"{platform.system()} {platform.release()}"
 
     return (
-        f"🖥️ System Info:\n"
+        f"System Info:\n"
         f"  OS: {os_info}\n"
         f"  CPU: {cpu_count} cores\n"
         f"  Memory: {total_mem_gb} GB\n"
@@ -371,7 +442,7 @@ def list_workspace_files(pattern: str = "*") -> str:
     if not files:
         return "No files in workspace"
 
-    result = f"📁 Workspace files ({len(files)}):\n"
+    result = f"Workspace files ({len(files)}):\n"
     for f in files:
         size = f.stat().st_size
         result += f"  - {f.name} ({size} bytes)\n"
@@ -391,9 +462,7 @@ def cleanup_workspace() -> str:
     stats = workspace.get_stats()
     workspace.cleanup()
 
-    return (
-        f"🧹 Workspace cleaned: {stats['total_files']} files ({stats['total_size_mb']} MB) removed"
-    )
+    return f"Workspace cleaned: {stats['total_files']} files ({stats['total_size_mb']} MB) removed"
 
 
 @tool(name="workspace_stats", description="Get tool workspace statistics", category="utility")
@@ -408,7 +477,7 @@ def workspace_stats() -> str:
     stats = workspace.get_stats()
 
     return (
-        f"📊 Workspace Statistics:\n"
+        f"Workspace Statistics:\n"
         f"  Files: {stats['total_files']}\n"
         f"  Size: {stats['total_size_mb']} MB\n"
         f"  Location: {stats['workspace_dir']}\n"
@@ -446,3 +515,5 @@ BUILTIN_TOOLS = [
     cleanup_workspace,
     workspace_stats,
 ]
+
+

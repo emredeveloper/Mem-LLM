@@ -15,7 +15,7 @@ Perfect for privacy-first, production-ready workflows!
 
 ---
 
-## 🚀 What's New in v2.4.6?
+## 🚀 What's New in v2.4.7?
 
 We've supercharged Mem-LLM with core stability and performance updates:
 - **Major Bug Fixes:** Resolved critical memory handling, tool parsing, and backend compatibility issues.

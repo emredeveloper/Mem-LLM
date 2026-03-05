@@ -1,4 +1,4 @@
-"""
+﻿"""
 API Authentication Module for Mem-LLM
 ======================================
 
@@ -10,7 +10,7 @@ Features:
 - Rate limiting
 - User session management
 
-Author: Cihat Emre Karataş
+Author: Cihat Emre Karatas
 Version: 2.4.1
 """
 
@@ -29,9 +29,21 @@ from fastapi.security import APIKeyHeader, APIKeyQuery
 # Configuration
 # ============================================================================
 
-# Default API key for development (should be overridden in production)
-DEFAULT_API_KEY = os.environ.get("MEM_LLM_API_KEY", "dev-api-key-change-in-production")
-AUTH_DISABLED = os.environ.get("MEM_LLM_AUTH_DISABLED", "true").lower() in ("1", "true", "yes")
+# Auth is enabled by default. To disable explicitly:
+# MEM_LLM_AUTH_DISABLED=true
+AUTH_DISABLED = os.environ.get("MEM_LLM_AUTH_DISABLED", "false").lower() in ("1", "true", "yes")
+
+# Default API key behavior:
+# - If MEM_LLM_API_KEY is set, use it.
+# - If auth is disabled, keep a static dev key for convenience.
+# - If auth is enabled and no env key is provided, generate a per-process secure key.
+_env_api_key = os.environ.get("MEM_LLM_API_KEY")
+if _env_api_key:
+    DEFAULT_API_KEY = _env_api_key
+elif AUTH_DISABLED:
+    DEFAULT_API_KEY = "dev-api-key-change-in-production"
+else:
+    DEFAULT_API_KEY = secrets.token_urlsafe(32)
 
 # Rate limiting settings
 RATE_LIMIT_REQUESTS = int(os.environ.get("MEM_LLM_RATE_LIMIT", "60"))  # requests per minute
@@ -277,3 +289,5 @@ def create_api_key(
 def revoke_api_key(api_key: str) -> bool:
     """Revoke an API key"""
     return api_key_store.revoke_key(api_key)
+
+

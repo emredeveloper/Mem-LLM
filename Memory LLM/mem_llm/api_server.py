@@ -25,8 +25,8 @@ API Documentation:
     - Swagger UI: http://localhost:8000/docs
     - ReDoc: http://localhost:8000/redoc
 
-Author: Cihat Emre KarataÅŸ
-Version: 2.4.6
+Author: Cihat Emre Karatas
+Version: 2.4.7
 """
 
 import asyncio
@@ -38,7 +38,7 @@ from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
 from threading import Lock
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from fastapi import (
     Depends,
@@ -65,6 +65,7 @@ from .api_auth import AUTH_DISABLED, create_api_key, require_permission, api_key
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+API_VERSION = "2.4.7"
 
 
 class AgentStore:
@@ -186,15 +187,15 @@ def get_or_create_agent(user_id: str, config: Optional[Dict] = None) -> MemAgent
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
-    logger.info("ğŸš€ Mem-LLM API Server starting...")
-    logger.info("ğŸ“ API Documentation: http://localhost:8000/docs")
-    logger.info(f"ğŸ”Œ WebSocket endpoint: ws://localhost:8000/ws/chat/{'{user_id}'}")
+    logger.info("Mem-LLM API Server starting...")
+    logger.info("API Documentation: http://localhost:8000/docs")
+    logger.info(f"WebSocket endpoint: ws://localhost:8000/ws/chat/{'{user_id}'}")
     ttl_seconds = int(os.environ.get("MEM_LLM_AGENT_TTL_SECONDS", "3600"))
     max_size = int(os.environ.get("MEM_LLM_AGENT_MAX_SIZE", "500"))
     app.state.agent_store = AgentStore(ttl_seconds=ttl_seconds, max_size=max_size)
     yield
     # Shutdown
-    logger.info("ğŸ›‘ Mem-LLM API Server shutting down...")
+    logger.info("Mem-LLM API Server shutting down...")
     app.state.agent_store = AgentStore()
 
 
@@ -202,13 +203,13 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Mem-LLM API",
     description="REST API for Mem-LLM - Privacy-first, Memory-enabled AI Assistant (100% Local)",
-    version="2.4.6",
+    version="2.4.7",
     docs_url="/docs",
     redoc_url="/redoc",
     lifespan=lifespan,
 )
 
-def _get_allowed_origins() -> list:
+def _get_allowed_origins() -> List[str]:
     raw = os.environ.get("MEM_LLM_ALLOW_ORIGINS", "*")
     if raw.strip() == "*":
         return ["*"]
@@ -216,11 +217,37 @@ def _get_allowed_origins() -> list:
     return [origin for origin in origins if origin]
 
 
+
+def _sanitize_upload_filename(filename: str) -> str:
+    """Return a safe basename for uploaded files."""
+    safe_name = Path(filename or "").name
+    if not safe_name or safe_name in {".", ".."}:
+        raise HTTPException(status_code=400, detail="Invalid filename")
+    return safe_name
+
+
+
+def _ensure_within_directory(root: Path, target: Path) -> Path:
+    """Ensure resolved target path stays under root directory."""
+    resolved_root = root.resolve()
+    resolved_target = target.resolve()
+
+    try:
+        resolved_target.relative_to(resolved_root)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail="Invalid file path") from exc
+
+    return resolved_target
+
+
+_ALLOWED_ORIGINS = _get_allowed_origins()
+_ALLOW_CREDENTIALS = _ALLOWED_ORIGINS != ["*"]
+
 # Add CORS middleware for web frontends
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=_get_allowed_origins(),
-    allow_credentials=True,
+    allow_origins=_ALLOWED_ORIGINS,
+    allow_credentials=_ALLOW_CREDENTIALS,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -339,7 +366,7 @@ async def api_info(user=Depends(require_permission("read"))):  # noqa: B008
     """API information endpoint"""
     return {
         "name": "Mem-LLM API",
-        "version": "2.4.3",
+        "version": API_VERSION,
         "status": "running",
         "documentation": "/docs",
         "endpoints": {
@@ -943,8 +970,10 @@ async def upload_file(
         upload_dir = Path("uploads")
         upload_dir.mkdir(exist_ok=True)
 
-        # Save file
-        file_path = upload_dir / file.filename
+        # Save file safely inside uploads/
+        safe_filename = _sanitize_upload_filename(file.filename)
+        file_path = _ensure_within_directory(upload_dir, upload_dir / safe_filename)
+
         with open(file_path, "wb") as buffer:
             import shutil
 
@@ -952,7 +981,7 @@ async def upload_file(
 
         return {
             "status": "success",
-            "filename": file.filename,
+            "filename": safe_filename,
             "message": "File uploaded successfully",
         }
 
@@ -969,10 +998,10 @@ if __name__ == "__main__":
     import uvicorn
 
     print("\n" + "=" * 60)
-    print("  ğŸš€ Starting Mem-LLM API Server")
+    print("  Starting Mem-LLM API Server")
     print("=" * 60)
-    print("\nğŸ“ API Documentation: http://localhost:8000/docs")
-    print("ğŸ”Œ WebSocket endpoint: ws://localhost:8000/ws/chat/{user_id}")
+    print("API Documentation: http://localhost:8000/docs")
+    print("WebSocket endpoint: ws://localhost:8000/ws/chat/{user_id}")
     print("\nPress CTRL+C to stop the server\n")
 
     uvicorn.run("mem_llm.api_server:app", host="0.0.0.0", port=8000, reload=True, log_level="info")
@@ -988,7 +1017,7 @@ if web_ui_path.exists():
         index_path = web_ui_path / "index.html"
         if index_path.exists():
             return FileResponse(str(index_path), media_type="text/html")
-        return {"message": "Mem-LLM API Server", "version": "2.4.3"}
+        return {"message": "Mem-LLM API Server", "version": API_VERSION}
 
     @app.get("/memory")
     async def memory_page():
@@ -1005,4 +1034,8 @@ if web_ui_path.exists():
         if metrics_path.exists():
             return FileResponse(str(metrics_path), media_type="text/html")
         return {"error": "Page not found"}
+
+
+
+
 

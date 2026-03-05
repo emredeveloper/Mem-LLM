@@ -1,16 +1,15 @@
 """
-User Tools System
-Tools for users to manage their memory data
+User tools for managing memory data.
 """
 
 import json
 import re
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any, Dict, Optional, Tuple
 
 
 class MemoryTools:
-    """User memory management tools"""
+    """User memory management tools."""
 
     def __init__(self, memory_manager):
         """
@@ -49,14 +48,14 @@ class MemoryTools:
         }
 
     def _list_memories(self, user_id: str, limit: int = 10) -> str:
-        """List user conversations"""
+        """List user conversations."""
         try:
             conversations = self.memory.get_recent_conversations(user_id, limit)
 
             if not conversations:
-                return f"❌ No conversations found for user {user_id}."
+                return f"[ERROR] No conversations found for user {user_id}."
 
-            result = f"📝 Last {len(conversations)} conversations for user {user_id}:\n\n"
+            result = f"Last {len(conversations)} conversations for user {user_id}:\n\n"
 
             for i, conv in enumerate(conversations, 1):
                 timestamp = conv.get("timestamp", "Unknown")
@@ -64,28 +63,28 @@ class MemoryTools:
                 bot_response = conv.get("bot_response", "")[:100]
 
                 result += f"{i}. [{timestamp}]\n"
-                result += f"   👤 User: {user_msg}...\n"
-                result += f"   🤖 Bot: {bot_response}...\n\n"
+                result += f"   User: {user_msg}...\n"
+                result += f"   Bot: {bot_response}...\n\n"
 
             return result
 
         except Exception as e:
-            return f"❌ Error: {str(e)}"
+            return f"[ERROR] {str(e)}"
 
     def _search_memories(self, user_id: str, keyword: str, limit: int = 5) -> str:
-        """Search in conversations"""
+        """Search conversations."""
         try:
             if hasattr(self.memory, "search_conversations"):
                 results = self.memory.search_conversations(user_id, keyword)
             elif hasattr(self.memory, "search_memory"):
                 results = self.memory.search_memory(user_id, keyword)
             else:
-                return "âŒ Search is not supported by this memory backend."
+                return "[ERROR] Search is not supported by this memory backend."
 
             if not results:
-                return f"❌ No results found for keyword '{keyword}' for user {user_id}."
+                return f"[ERROR] No results found for keyword '{keyword}' for user {user_id}."
 
-            result = f"🔍 {len(results)} results found for keyword '{keyword}':\n\n"
+            result = f"{len(results)} results found for keyword '{keyword}':\n\n"
 
             for i, conv in enumerate(results[:limit], 1):
                 timestamp = conv.get("timestamp", "Unknown")
@@ -93,8 +92,8 @@ class MemoryTools:
                 bot_response = conv.get("bot_response", "")
 
                 result += f"{i}. [{timestamp}]\n"
-                result += f"   👤 User: {user_msg}\n"
-                result += f"   🤖 Bot: {bot_response}\n\n"
+                result += f"   User: {user_msg}\n"
+                result += f"   Bot: {bot_response}\n\n"
 
             if len(results) > limit:
                 result += f"... and {len(results) - limit} more results."
@@ -102,17 +101,17 @@ class MemoryTools:
             return result
 
         except Exception as e:
-            return f"❌ Search error: {str(e)}"
+            return f"[ERROR] Search error: {str(e)}"
 
     def _show_user_info(self, user_id: str) -> str:
-        """Show user information"""
+        """Show user information."""
         try:
             profile = self.memory.get_user_profile(user_id)
 
             if not profile:
-                return f"❌ User {user_id} not found."
+                return f"[ERROR] User {user_id} not found."
 
-            result = f"👤 User information for {user_id}:\n\n"
+            result = f"User information for {user_id}:\n\n"
 
             if profile.get("name"):
                 result += f"Name: {profile['name']}\n"
@@ -123,10 +122,10 @@ class MemoryTools:
             return result
 
         except Exception as e:
-            return f"❌ Information retrieval error: {str(e)}"
+            return f"[ERROR] Information retrieval error: {str(e)}"
 
     def _export_memories(self, user_id: str, format: str = "json") -> str:
-        """Export user data"""
+        """Export user data."""
         try:
             if format == "json":
                 profile = self.memory.get_user_profile(user_id)
@@ -141,7 +140,7 @@ class MemoryTools:
 
                 return json.dumps(export_data, ensure_ascii=False, indent=2)
 
-            elif format == "txt":
+            if format == "txt":
                 conversations = self.memory.get_recent_conversations(user_id, 1000)
 
                 result = f"Conversation history for user {user_id}\n"
@@ -157,48 +156,43 @@ class MemoryTools:
 
                 return result
 
-            else:
-                return "❌ Unsupported format. Use json or txt."
+            return "[ERROR] Unsupported format. Use json or txt."
 
         except Exception as e:
-            return f"❌ Export error: {str(e)}"
+            return f"[ERROR] Export error: {str(e)}"
 
     def execute_tool(self, tool_name: str, parameters: Dict[str, Any]) -> str:
-        """Execute the specified tool"""
+        """Execute the specified tool."""
         if tool_name not in self.tools:
-            return f"❌ Tool '{tool_name}' not found."
+            return f"[ERROR] Tool '{tool_name}' not found."
 
         tool = self.tools[tool_name]
 
         try:
             if "user_id" in parameters:
-                result = tool["function"](**parameters)
-            else:
-                return "❌ user_id parameter required."
-
-            return result
-
+                return tool["function"](**parameters)
+            return "[ERROR] user_id parameter required."
         except Exception as e:
-            return f"❌ Tool execution error: {str(e)}"
+            return f"[ERROR] Tool execution error: {str(e)}"
 
     def list_available_tools(self) -> str:
-        """List available tools"""
-        result = "🛠️ Available Tools:\n\n"
+        """List available tools."""
+        result = "Available tools:\n\n"
 
         for name, tool in self.tools.items():
-            result += f"🔧 {name}\n"
+            result += f"{name}\n"
             result += f"   Description: {tool['description']}\n"
             result += "   Parameters:\n"
 
             for param, desc in tool["parameters"].items():
-                result += f"     • {param}: {desc}\n"
+                result += f"     - {param}: {desc}\n"
 
             result += "\n"
 
         return result
 
-    def parse_user_command(self, user_message: str) -> tuple:
-        """Extract tool call from user message"""
+    def parse_user_command(self, user_message: str) -> Tuple[Optional[str], Optional[Dict[str, str]]]:
+        """Extract a tool call from a user message."""
         patterns = {
             "list_memories": [
                 r"show.*my.*past.*conversations",
@@ -211,16 +205,14 @@ class MemoryTools:
 
         for tool_name, pattern_list in patterns.items():
             for pattern in pattern_list:
-                match = re.search(pattern, message_lower)
-                if match:
-                    parameters = {"user_id": "current_user"}
-                    return tool_name, parameters
+                if re.search(pattern, message_lower):
+                    return tool_name, {"user_id": "current_user"}
 
         return None, None
 
 
 class ToolExecutor:
-    """Tool executor"""
+    """Tool executor."""
 
     def __init__(self, memory_manager, current_user_id: str = None):
         """
@@ -231,10 +223,9 @@ class ToolExecutor:
         self.memory_tools = MemoryTools(memory_manager)
         self.current_user_id = current_user_id
 
-    def execute_user_command(self, user_message: str, user_id: str = None) -> str:
-        """Detect and execute tool call from user message"""
+    def execute_user_command(self, user_message: str, user_id: str = None) -> Optional[str]:
+        """Detect and execute a tool call from user message."""
         uid = user_id or self.current_user_id
-
         tool_name, parameters = self.memory_tools.parse_user_command(user_message)
 
         if tool_name and uid:
@@ -244,6 +235,6 @@ class ToolExecutor:
         return None
 
     def is_tool_command(self, user_message: str) -> bool:
-        """Check if message is a tool command"""
+        """Check if message is a tool command."""
         tool_name, _ = self.memory_tools.parse_user_command(user_message)
         return tool_name is not None

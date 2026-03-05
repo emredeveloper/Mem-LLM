@@ -7,14 +7,14 @@ from mem_llm import MemAgent
 
 
 def test_lmstudio_default_model_logic():
-    """Verify that using backend='lmstudio' switches the default model to google/gemma-3-12b."""
+    """Verify that using backend='lmstudio' switches the default model to qwen3.5-2b."""
     # Initialize without checking connection (offline test)
     agent = MemAgent(backend="lmstudio", check_connection=False)
 
     assert agent.backend == "lmstudio"
     assert (
-        agent.model == "google/gemma-3-12b"
-    ), "Default model for LM Studio should be google/gemma-3-12b"
+        agent.model == "qwen3.5-2b"
+    ), "Default model for LM Studio should be qwen3.5-2b"
 
 
 def test_lmstudio_explicit_model_preserved():
@@ -32,4 +32,5 @@ def test_ollama_default_preserved():
 
     assert agent.backend == "ollama"
     assert agent.model == "granite4:3b", "Ollama default should be granite4:3b"
+
 

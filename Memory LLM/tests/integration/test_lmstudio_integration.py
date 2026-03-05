@@ -1,6 +1,9 @@
 ﻿"""
 Integration tests for LM Studio backend.
 """
+
+import os
+
 import pytest
 
 from mem_llm import MemAgent
@@ -16,9 +19,8 @@ class TestLMStudioIntegration:
     def setup(self):
         """Setup test environment"""
         self.lmstudio_url = "http://localhost:1234"
-        # Use the exact model ID from LM Studio API
-        # From curl response: "google/gemma-3-12b" or another downloaded LM Studio model.
-        self.model_name = "google/gemma-3-12b"  # Exact model ID from LM Studio
+        # Default LM Studio model for this project; can be overridden if needed.
+        self.model_name = os.environ.get("MEM_LLM_LMSTUDIO_MODEL", "qwen3.5-2b")
 
     def test_lmstudio_client_creation(self):
         """Test creating LM Studio client"""
@@ -33,7 +35,6 @@ class TestLMStudioIntegration:
         """Test LM Studio connection"""
         try:
             client = LMStudioClient(model=self.model_name, base_url=self.lmstudio_url)
-            # Try a simple chat
             response = client.chat([{"role": "user", "content": "Hello"}])
             assert response is not None
             assert len(response) > 0
@@ -81,8 +82,7 @@ class TestLMStudioIntegration:
                 check_connection=False,
             )
 
-            # Test with a simple tool call
-            response = agent.chat("What is 2 + 2U")
+            response = agent.chat("What is 2 + 2?")
             assert response is not None
             assert len(response) > 0
         except Exception as e:
@@ -100,14 +100,11 @@ class TestLMStudioIntegration:
             )
             agent.set_user("test_lmstudio_user")
 
-            # First message
             response1 = agent.chat("My name is Alice")
             assert response1 is not None
 
-            # Second message - should remember
             response2 = agent.chat("What is my name?")
             assert response2 is not None
-            # Note: Actual memory recall depends on LM Studio model capabilities
         except Exception as e:
             pytest.skip(f"LM Studio memory integration not available: {e}")
 
@@ -118,7 +115,6 @@ class TestLMStudioVsOllama:
 
     def test_backend_switching(self):
         """Test switching between Ollama and LM Studio"""
-        # Create agent with Ollama
         try:
             agent_ollama = MemAgent(
                 model="ministral-3:14b", backend="ollama", use_sql=False, check_connection=False
@@ -127,10 +123,9 @@ class TestLMStudioVsOllama:
         except Exception:
             pytest.skip("Ollama not available")
 
-        # Create agent with LM Studio
         try:
             agent_lmstudio = MemAgent(
-                model="google/gemma-3-12b",  # Exact model ID
+                model="qwen3.5-2b",
                 backend="lmstudio",
                 lmstudio_url="http://localhost:1234",
                 use_sql=False,
@@ -142,9 +137,8 @@ class TestLMStudioVsOllama:
 
     def test_response_consistency(self):
         """Test that both backends produce valid responses"""
-        prompt = "What is 1+1U"
+        prompt = "What is 1+1?"
 
-        # Test Ollama
         try:
             agent_ollama = MemAgent(
                 model="ministral-3:14b", backend="ollama", use_sql=False, check_connection=False
@@ -155,10 +149,9 @@ class TestLMStudioVsOllama:
         except Exception:
             pytest.skip("Ollama not available")
 
-        # Test LM Studio
         try:
             agent_lmstudio = MemAgent(
-                model="google/gemma-3-12b",  # Exact model ID
+                model="qwen3.5-2b",
                 backend="lmstudio",
                 lmstudio_url="http://localhost:1234",
                 use_sql=False,
@@ -173,5 +166,3 @@ class TestLMStudioVsOllama:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "-s"])
-
-

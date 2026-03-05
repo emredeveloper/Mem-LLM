@@ -128,7 +128,7 @@ class MemAgent:
             agent = MemAgent()
 
             # LM Studio
-            agent = MemAgent(backend='lmstudio', model='google/gemma-3-12b')
+            agent = MemAgent(backend='lmstudio', model='qwen3.5-2b')
 
             # Using Preset
             agent = MemAgent(preset='code_assistant')
@@ -287,9 +287,9 @@ class MemAgent:
         # Default model for LM Studio (v2.3.0)
         if self.backend == "lmstudio" and self.model in [
             "granite4:3b",
-            "google/gemma-3-12b",
+            "qwen3.5-2b",
         ]:
-            self.model = "google/gemma-3-12b"
+            self.model = "qwen3.5-2b"
             self.logger.info(f" Switched to default LM Studio model: {self.model}")
 
         # Initialize LLM client (v1.3.0: Multi-backend support)
@@ -1991,5 +1991,6 @@ class MemAgent:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
+
 
 

@@ -60,6 +60,8 @@ api_data.txt
 *.tmp
 .tmp/
 .pytest_cache/
+logs/
+Memory LLM/pytest-cache-files-*/
 htmlcov/
 .coverage
 .coverage.*

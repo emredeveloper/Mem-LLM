@@ -38,7 +38,7 @@ def test_logging_system():
         operation="save", user_id="alice", success=True, details="Saved 3 conversations"
     )
 
-    print("âœ… Logging system test passed!")
+    print("[OK] Logging system test passed!")
     print("   Log file created at: logs/test.log")
 
 
@@ -62,7 +62,7 @@ def test_retry_logic():
 
     try:
         result = unstable_function()
-        print(f"âœ… Retry logic works! Result: {result} (after {attempt_count[0]} attempts)")
+        print(f"[OK] Retry logic works! Result: {result} (after {attempt_count[0]} attempts)")
     except Exception as e:
         pytest.fail(f"Retry test failed: {e}")
 
@@ -72,7 +72,7 @@ def test_retry_logic():
     # Test JSON parsing with fallback
     broken_json = '{"name": "Alice", "age": 30'  # Missing closing brace
     result = executor.safe_json_parse(broken_json, default={"error": "parse_failed"})
-    print(f"âœ… Safe JSON parse handled broken JSON: {result}")
+    print(f"[OK] Safe JSON parse handled broken JSON: {result}")
 
     # Test execution with fallback
     def failing_func():
@@ -84,9 +84,9 @@ def test_retry_logic():
     result = executor.execute_with_fallback(
         primary_func=failing_func, fallback_func=fallback_func, error_message="Testing fallback"
     )
-    print(f"âœ… Fallback execution: {result}")
+    print(f"[OK] Fallback execution: {result}")
 
-    print("âœ… Retry logic test passed!")
+    print("[OK] Retry logic test passed!")
 
 
 def test_wal_mode():
@@ -110,9 +110,9 @@ def test_wal_mode():
     print(f"   Journal mode: {journal_mode}")
 
     if journal_mode.upper() == "WAL":
-        print("âœ… WAL mode is enabled!")
+        print("[OK] WAL mode is enabled!")
     else:
-        pytest.fail("âš ï¸  WAL mode is NOT enabled")
+        pytest.fail("[WARN]  WAL mode is NOT enabled")
 
     # Check other pragmas
     cursor.execute("PRAGMA synchronous")
@@ -131,16 +131,16 @@ def test_wal_mode():
         )
 
     elapsed = time.time() - start_time
-    print(f"âœ… Wrote 100 records in {elapsed:.3f}s")
+    print(f"[OK] Wrote 100 records in {elapsed:.3f}s")
 
     # Verify data integrity
     cursor.execute("SELECT COUNT(*) FROM conversations")
     count = cursor.fetchone()[0]
 
     if count == 100:
-        print(f"âœ… Data integrity verified: {count} records")
+        print(f"[OK] Data integrity verified: {count} records")
     else:
-        print(f"âŒ Data integrity issue: expected 100, got {count}")
+        print(f"[ERROR] Data integrity issue: expected 100, got {count}")
         return False
 
     # Cleanup
@@ -151,7 +151,7 @@ def test_wal_mode():
     _ = f"{db_path}-wal"
     _ = f"{db_path}-shm"
 
-    print("âœ… WAL mode test passed!")
+    print("[OK] WAL mode test passed!")
 
 
 def test_integration_with_mem_agent():
@@ -203,9 +203,9 @@ def main():
 
     """Run all tests"""
     print("\n")
-    print("â•”" + "=" * 68 + "â•—")
-    print("â•‘" + " " * 15 + "MEM-LLM IMPROVEMENTS TEST SUITE" + " " * 22 + "â•‘")
-    print("â•š" + "=" * 68 + "â•")
+    print("+" + "=" * 68 + "+")
+    print("|" + " " * 15 + "MEM-LLM IMPROVEMENTS TEST SUITE" + " " * 22 + "|")
+    print("+" + "=" * 68 + "+")
 
     results = {
         "Logging System": False,
@@ -217,22 +217,22 @@ def main():
     try:
         results["Logging System"] = test_logging_system()
     except Exception as e:
-        print(f"âŒ Logging test failed with exception: {e}")
+        print(f"[ERROR] Logging test failed with exception: {e}")
 
     try:
         results["Retry Logic"] = test_retry_logic()
     except Exception as e:
-        print(f"âŒ Retry test failed with exception: {e}")
+        print(f"[ERROR] Retry test failed with exception: {e}")
 
     try:
         results["WAL Mode"] = test_wal_mode()
     except Exception as e:
-        print(f"âŒ WAL test failed with exception: {e}")
+        print(f"[ERROR] WAL test failed with exception: {e}")
 
     try:
         results["Integration"] = test_integration_with_mem_agent()
     except Exception as e:
-        print(f"âŒ Integration test failed with exception: {e}")
+        print(f"[ERROR] Integration test failed with exception: {e}")
 
     # Summary
     print("\n" + "=" * 70)
@@ -243,7 +243,7 @@ def main():
     total = len(results)
 
     for test_name, result in results.items():
-        status = "âœ… PASSED" if result else "âŒ FAILED"
+        status = "[OK] PASSED" if result else "[ERROR] FAILED"
         print(f"   {test_name:<20} {status}")
 
     print("=" * 70)
@@ -251,10 +251,10 @@ def main():
     print("=" * 70)
 
     if passed == total:
-        print("\nğŸ‰ All tests passed! Improvements are working correctly!")
+        print("\n[DONE] All tests passed! Improvements are working correctly!")
         return 0
     else:
-        print(f"\nâš ï¸  {total - passed} test(s) failed. Please review the output above.")
+        print(f"\n[WARN]  {total - passed} test(s) failed. Please review the output above.")
         return 1
 
 

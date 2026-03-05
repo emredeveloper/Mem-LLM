@@ -4,7 +4,7 @@ Test Suite for Multi-Backend LLM Support (v1.3.6)
 
 Tests for Ollama and LM Studio backends (100% local).
 
-Author: C. Emre KarataÅŸ
+Author: C. Emre Karatas
 """
 
 import sys
@@ -28,16 +28,16 @@ class TestBaseLLMClient(unittest.TestCase):
 
     def test_base_client_is_abstract(self):
         """Test that BaseLLMClient cannot be instantiated directly"""
-        print("\nğŸ§ª TEST 1: Base client is abstract")
+        print("\n[TEST 1] Base client is abstract")
 
         with self.assertRaises(TypeError):
             _ = BaseLLMClient(model="test")
 
-        print("   âœ… BaseLLMClient is abstract as expected")
+        print("   [OK] BaseLLMClient is abstract as expected")
 
     def test_message_validation(self):
         """Test message format validation"""
-        print("\nğŸ§ª TEST 2: Message validation")
+        print("\n[TEST 2] Message validation")
 
         # Create a mock implementation
         class MockClient(BaseLLMClient):
@@ -63,7 +63,7 @@ class TestBaseLLMClient(unittest.TestCase):
         with self.assertRaises(ValueError):
             client._validate_messages([{"content": "test"}])  # Missing role
 
-        print("   âœ… Message validation works correctly")
+        print("   [OK] Message validation works correctly")
 
 
 class TestLLMClientFactory(unittest.TestCase):
@@ -71,7 +71,7 @@ class TestLLMClientFactory(unittest.TestCase):
 
     def test_get_available_backends(self):
         """Test listing available backends"""
-        print("\nğŸ§ª TEST 3: List available backends")
+        print("\n[TEST 3] List available backends")
 
         backends = LLMClientFactory.get_available_backends()
 
@@ -83,13 +83,13 @@ class TestLLMClientFactory(unittest.TestCase):
         self.assertIn("ollama", backend_names)
         self.assertIn("lmstudio", backend_names)
 
-        print(f"   âœ… Found {len(backends)} local backends:")
+        print(f"   [OK] Found {len(backends)} local backends:")
         for backend in backends:
             print(f"      - {backend['name']}: {backend['description']}")
 
     def test_create_ollama_client(self):
         """Test creating Ollama client"""
-        print("\nğŸ§ª TEST 4: Create Ollama client")
+        print("\n[TEST 4] Create Ollama client")
 
         try:
             client = LLMClientFactory.create("ollama", model="ministral-3:14b")
@@ -97,41 +97,41 @@ class TestLLMClientFactory(unittest.TestCase):
             self.assertIsInstance(client, OllamaClientNew)
             self.assertEqual(client.model, "ministral-3:14b")
 
-            print("   âœ… Ollama client created successfully")
+            print("   [OK] Ollama client created successfully")
             print(f"      Model: {client.model}")
             print(f"      Base URL: {client.base_url}")
         except Exception as e:
-            print(f"   âš ï¸  Ollama client creation skipped: {e}")
+            print(f"   [SKIP] Ollama client creation skipped: {e}")
 
     def test_create_lmstudio_client(self):
         """Test creating LM Studio client"""
-        print("\nğŸ§ª TEST 5: Create LM Studio client")
+        print("\n[TEST 5] Create LM Studio client")
 
         try:
-            client = LLMClientFactory.create("lmstudio", model="google/gemma-3-12b")
+            client = LLMClientFactory.create("lmstudio", model="qwen3.5-2b")
 
             self.assertIsInstance(client, LMStudioClient)
-            self.assertEqual(client.model, "google/gemma-3-12b")
+            self.assertEqual(client.model, "qwen3.5-2b")
 
-            print("   âœ… LM Studio client created successfully")
+            print("   [OK] LM Studio client created successfully")
             print(f"      Model: {client.model}")
             print(f"      Base URL: {client.base_url}")
         except Exception as e:
-            print(f"   âš ï¸  LM Studio client creation skipped: {e}")
+            print(f"   [SKIP] LM Studio client creation skipped: {e}")
 
     def test_create_invalid_backend(self):
         """Test error handling for invalid backend"""
-        print("\nğŸ§ª TEST 6: Invalid backend handling")
+        print("\n[TEST 6] Invalid backend handling")
 
         with self.assertRaises(ValueError) as context:
             _ = LLMClientFactory.create(backend="invalid", model="test")
 
         self.assertIn("Unsupported backend", str(context.exception))
-        print("   âœ… Invalid backend error handled correctly")
+        print("   [OK] Invalid backend error handled correctly")
 
     def test_get_backend_info(self):
         """Test getting backend information"""
-        print("\nğŸ§ª TEST 8: Get backend info")
+        print("\n[TEST 8] Get backend info")
 
         info = LLMClientFactory.get_backend_info("ollama")
 
@@ -139,27 +139,27 @@ class TestLLMClientFactory(unittest.TestCase):
         self.assertEqual(info["description"], "Local Ollama service")
         self.assertEqual(info["type"], "local")
 
-        print("   âœ… Backend info retrieved:")
+        print("   [OK] Backend info retrieved:")
         print(f"      Description: {info['description']}")
         print(f"      Type: {info['type']}")
 
     def test_check_backend_availability(self):
         """Test checking backend availability"""
-        print("\nğŸ§ª TEST 9: Check backend availability")
+        print("\n[TEST 9] Check backend availability")
 
         # Check Ollama
         ollama_available = LLMClientFactory.check_backend_availability("ollama")
         status = "Available" if ollama_available else "Not available"
-        icon = "âœ…" if ollama_available else "âŒ"
+        icon = "[OK]" if ollama_available else "[NO]"
         print(f"   {icon} Ollama: {status}")
 
         # Check LM Studio
         lmstudio_available = LLMClientFactory.check_backend_availability("lmstudio")
         status = "Available" if lmstudio_available else "Not available"
-        icon = "âœ…" if lmstudio_available else "âŒ"
+        icon = "[OK]" if lmstudio_available else "[NO]"
         print(f"   {icon} LM Studio: {status}")
 
-        print("   â„¹ï¸  Availability check completed")
+        print("   [INFO] Availability check completed")
 
 
 class TestMemAgentMultiBackend(unittest.TestCase):
@@ -167,7 +167,7 @@ class TestMemAgentMultiBackend(unittest.TestCase):
 
     def test_mem_agent_default_ollama(self):
         """Test MemAgent with default Ollama backend"""
-        print("\nğŸ§ª TEST 10: MemAgent with Ollama (default)")
+        print("\n[TEST 10] MemAgent with Ollama (default)")
 
         try:
             agent = MemAgent(
@@ -175,28 +175,28 @@ class TestMemAgentMultiBackend(unittest.TestCase):
             )
 
             self.assertIsNotNone(agent.llm)
-            print("   âœ… MemAgent created with Ollama backend")
+            print("   [OK] MemAgent created with Ollama backend")
         except Exception as e:
-            print(f"   âš ï¸  Test skipped: {e}")
+            print(f"   [SKIP] Test skipped: {e}")
 
     def test_mem_agent_lmstudio(self):
         """Test MemAgent with LM Studio backend"""
-        print("\nğŸ§ª TEST 11: MemAgent with LM Studio")
+        print("\n[TEST 11] MemAgent with LM Studio")
 
         try:
             agent = MemAgent(
-                model="google/gemma-3-12b", backend="lmstudio", use_sql=False, check_connection=False
+                model="qwen3.5-2b", backend="lmstudio", use_sql=False, check_connection=False
             )
 
             self.assertIsNotNone(agent.llm)
             self.assertIsInstance(agent.llm, LMStudioClient)
-            print("   âœ… MemAgent created with LM Studio backend")
+            print("   [OK] MemAgent created with LM Studio backend")
         except Exception as e:
-            print(f"   âš ï¸  Test skipped: {e}")
+            print(f"   [SKIP] Test skipped: {e}")
 
     def test_mem_agent_backward_compatibility(self):
         """Test backward compatibility with old API"""
-        print("\nğŸ§ª TEST 12: Backward compatibility")
+        print("\n[TEST 12] Backward compatibility")
 
         try:
             # Old API (without backend parameter)
@@ -208,9 +208,9 @@ class TestMemAgentMultiBackend(unittest.TestCase):
             )
 
             self.assertIsNotNone(agent.llm)
-            print("   âœ… Backward compatibility maintained")
+            print("   [OK] Backward compatibility maintained")
         except Exception as e:
-            print(f"   âš ï¸  Test skipped: {e}")
+            print(f"   [SKIP] Test skipped: {e}")
 
 
 class TestOllamaClient(unittest.TestCase):
@@ -227,27 +227,27 @@ class TestOllamaClient(unittest.TestCase):
 
     def test_ollama_connection(self):
         """Test Ollama connection"""
-        print("\nğŸ§ª TEST 13: Ollama connection")
+        print("\n[TEST 13] Ollama connection")
 
         if not self.available:
-            print("   âš ï¸  Ollama not available, skipping test")
+            print("   [SKIP] Ollama not available, skipping test")
             return
 
         self.assertTrue(self.client.check_connection())
-        print("   âœ… Ollama connection successful")
+        print("   [OK] Ollama connection successful")
 
     def test_ollama_list_models(self):
         """Test listing Ollama models"""
-        print("\nğŸ§ª TEST 14: List Ollama models")
+        print("\n[TEST 14] List Ollama models")
 
         if not self.available:
-            print("   âš ï¸  Ollama not available, skipping test")
+            print("   [SKIP] Ollama not available, skipping test")
             return
 
         models = self.client.list_models()
         self.assertIsInstance(models, list)
 
-        print(f"   âœ… Found {len(models)} Ollama models")
+        print(f"   [OK] Found {len(models)} Ollama models")
         if models:
             print(f"      First 3: {', '.join(models[:3])}")
 
@@ -258,7 +258,7 @@ class TestLMStudioClient(unittest.TestCase):
     def setUp(self):
         """Set up test client"""
         try:
-            self.client = LMStudioClient(model="google/gemma-3-12b")
+            self.client = LMStudioClient(model="qwen3.5-2b")
             self.available = self.client.check_connection()
         except Exception:
             self.client = None
@@ -266,27 +266,27 @@ class TestLMStudioClient(unittest.TestCase):
 
     def test_lmstudio_connection(self):
         """Test LM Studio connection"""
-        print("\nğŸ§ª TEST 15: LM Studio connection")
+        print("\n[TEST 15] LM Studio connection")
 
         if not self.available:
-            print("   âš ï¸  LM Studio not available, skipping test")
+            print("   [SKIP] LM Studio not available, skipping test")
             return
 
         self.assertTrue(self.client.check_connection())
-        print("   âœ… LM Studio connection successful")
+        print("   [OK] LM Studio connection successful")
 
     def test_lmstudio_model_info(self):
         """Test getting LM Studio model info"""
-        print("\nğŸ§ª TEST 16: LM Studio model info")
+        print("\n[TEST 16] LM Studio model info")
 
         if not self.available:
-            print("   âš ï¸  LM Studio not available, skipping test")
+            print("   [SKIP] LM Studio not available, skipping test")
             return
 
         info = self.client.get_model_info()
         self.assertIsInstance(info, dict)
 
-        print("   âœ… Model info retrieved")
+        print("   [OK] Model info retrieved")
         if info:
             print(f"      Model ID: {info.get('id', 'N/A')}")
 
@@ -322,9 +322,9 @@ def run_tests():
     print(f"Errors: {len(result.errors)}")
 
     if result.wasSuccessful():
-        print("\nâœ… ALL TESTS PASSED!")
+        print("\n[OK] ALL TESTS PASSED!")
     else:
-        print("\nâŒ SOME TESTS FAILED")
+        print("\n[FAIL] SOME TESTS FAILED")
 
     print("=" * 70 + "\n")
 
@@ -334,4 +334,5 @@ def run_tests():
 if __name__ == "__main__":
     success = run_tests()
     exit(0 if success else 1)
+
 

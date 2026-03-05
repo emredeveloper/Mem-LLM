@@ -1,5 +1,13 @@
 ﻿# Changelog
 
+## [2.4.7] - 2026-03-05
+### Fixed
+- Hardened API auth defaults, upload path handling, workspace boundaries, and async tool execution behavior.
+- Replaced unsafe calculator evaluation with AST-based parsing and normalized remaining encoding issues across code, docs, and tests.
+
+### Changed
+- Switched LM Studio default model and related tests to qwen3.5-2b.
+- Added security hardening and LM Studio full-feature coverage tests.
 ## [2.4.5] - 2026-02-28
 ### Fixed
 - Replaced PyPI long description with clean UTF-8 and ASCII-safe README text.
@@ -34,22 +42,22 @@
 - **Docs** - Refreshed PyPI README release notes for current version.
 
 ## [2.4.1] - 2026-01-20
-- **Security Defaults** â€” Optional API auth can be disabled for local UI demos.
-- **Workflow** â€” Non-blocking execution for agent steps.
-- **Graph** â€” Structured parsing and dedup updates for triplets.
-- **Tooling** â€” Allowlist/denylist policy support.
-- **UI** â€” Simplified auth UX for local usage.
+- **Security Defaults** - Optional API auth can be disabled for local UI demos.
+- **Workflow** - Non-blocking execution for agent steps.
+- **Graph** - Structured parsing and dedup updates for triplets.
+- **Tooling** - Allowlist/denylist policy support.
+- **UI** - Simplified auth UX for local usage.
 
 ## [2.4.0] - 2025-12-25
 ### Added
-- **Release v2.4.0** â€” Bumped package metadata and published to PyPI.
+- **Release v2.4.0** - Bumped package metadata and published to PyPI.
 
 ### Changed
 - **Docs**: Updated top-level README and package description used on PyPI.
 - **Packaging**: Ensured Python >=3.8 support and refreshed build process.
 
 ### Fixed
-- **Author**: Normalized author name to "Cihat Emre KarataÅŸ" across the codebase.
+- **Author**: Normalized author name to "Cihat Emre Karatas" across the codebase.
 
 
 ## [2.3.7] - 2025-12-25
@@ -102,7 +110,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.2.9] - 2025-01-27
 
-### ğŸ”§ Maintenance & Improvements
+### [MAINTENANCE] Maintenance & Improvements
 - Fixed linter errors in API authentication module
 - Removed unused imports and fixed code quality issues
 - Added proper exception handling (bare except â†’ Exception)
@@ -112,13 +120,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.2.8] - 2025-12-07
 
-### ğŸ”§ Maintenance & Improvements
+### [MAINTENANCE] Maintenance & Improvements
 - **Python Version Support**: Minimum Python version updated to 3.10 (removed 3.8, 3.9)
 - **Development Status**: Updated to Production/Stable (5)
 - **Classifiers**: Added "Topic :: Software Development :: Libraries :: Python Modules"
 - **Tool Configuration**: Updated Black and mypy to target Python 3.10+
 
-### ğŸ“ Documentation
+### [DOCS] Documentation
 - Fixed PyPI README.md description display
 - Updated project classifiers for better discoverability
 
@@ -126,7 +134,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.2.7] - 2025-12-05
 
-### ğŸ”§ Maintenance
+### [MAINTENANCE] Maintenance
 - Version bump to fix PyPI README description display
 - Updated README path configuration in pyproject.toml
 
@@ -134,21 +142,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.2.6] - 2025-12-04
 
-### ğŸ”§ Maintenance
+### [MAINTENANCE] Maintenance
 - Version bump to fix PyPI README description display
 
 ---
 
 ## [2.2.5] - 2025-12-03
 
-### ğŸ”§ Maintenance
+### [MAINTENANCE] Maintenance
 - Version bump to fix PyPI README description display
 
 ---
 
 ## [2.2.4] - 2025-12-02
 
-### ğŸ”§ Improvements
+### [MAINTENANCE] Improvements
 - **UUID Usage**: Improved trace_id generation using UUID instead of timestamp
 - **Vector Store**: Enhanced document ID generation with UUID fallback
 
@@ -156,7 +164,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.2.3] - 2025-12-01
 
-### ğŸ§  Hierarchical Memory System *(NEW - Major Feature)*
+### [MEMORY] Hierarchical Memory System *(NEW - Major Feature)*
 - **4-Layer Memory Architecture** - Mimics human cognitive memory
   - **Episode Layer**: Raw interaction storage (bottom layer)
   - **Trace Layer**: Short-term memory traces and abstractions
@@ -172,13 +180,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Injects hierarchical context (Active Domains, Recent Topics, Short-term Memory)
   - Reduces context window usage while maintaining relevance
 
-### ğŸ“¦ New Modules
+### [MODULES] New Modules
 - `mem_llm/memory/hierarchy/` - Core hierarchical memory implementation
 - `mem_llm/memory/hierarchy/layers.py` - Layer definitions
 - `mem_llm/memory/hierarchy/categorizer.py` - LLM-based categorization
 - `mem_llm/memory/hierarchy/manager.py` - System orchestrator
 
-### ğŸ”§ Improvements
+### [MAINTENANCE] Improvements
 - **MemAgent Integration**: Seamlessly integrated via `enable_hierarchical_memory=True`
 - **Backward Compatibility**: Fully compatible with existing SQL/JSON memory systems
 
@@ -186,29 +194,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.2.2] - 2025-12-01
 
-### ğŸ“ Documentation
+### [DOCS] Documentation
 - **README Updates** - Ensured all README files (root and package) are synchronized with v2.2.0 features
 - **PyPI Description** - Updated package description to reflect multi-agent capabilities
 
-### ğŸ”§ Maintenance
+### [MAINTENANCE] Maintenance
 - Version bump to ensure PyPI displays correct documentation
 
 ---
 
 ## [2.2.1] - 2025-11-30
 
-### ğŸ› Bug Fixes
+### [BUGFIX] Bug Fixes
 - **Package Distribution** - Fixed multi-agent module not being included in PyPI package
 - **MANIFEST.in** - Added `recursive-include mem_llm/multi_agent *.py` to ensure all multi-agent files are packaged
 
-### ğŸ“ Note
+### [DOCS] Note
 This is a critical bugfix release. Users who installed v2.2.0 should upgrade to v2.2.1 to access multi-agent features.
 
 ---
 
 ## [2.2.0] - 2025-11-30
 
-### ğŸ¤– Multi-Agent Systems *(NEW - Major Feature)*
+### [AGENT] Multi-Agent Systems *(NEW - Major Feature)*
 - **BaseAgent** - Role-based AI agents with specialized behaviors
   - 6 predefined roles: RESEARCHER, ANALYST, WRITER, VALIDATOR, COORDINATOR, GENERAL
   - Memory isolation (private/shared memory spaces)
@@ -229,7 +237,7 @@ This is a critical bugfix release. Users who installed v2.2.0 should upgrade to 
   - Message routing and delivery tracking
   - Communication statistics and monitoring
 
-### ğŸ§ª Testing & Quality
+### [TEST] Testing & Quality
 - **29 new tests** - Comprehensive test coverage for multi-agent features
   - 13 tests for BaseAgent and AgentRegistry
   - 16 tests for Communication system
@@ -237,18 +245,18 @@ This is a critical bugfix release. Users who installed v2.2.0 should upgrade to 
   - Thread-safety validation
   - Deadlock prevention testing
 
-### ğŸ“š Documentation & Examples
+### [DOCS] Documentation & Examples
 - **New demo** - `21_multi_agent_demo.py` showcasing all features
 - **Comprehensive examples** - Agent creation, messaging, broadcast, task processing
 - **API documentation** - Full docstrings for all new classes and methods
 
-### ğŸ”§ Technical Improvements
+### [MAINTENANCE] Technical Improvements
 - Thread-safe message queue implementation
 - Deadlock prevention in broadcast messaging
 - Efficient memory management for agent communication
 - Clean separation of concerns (agents, registry, communication)
 
-### ğŸ“¦ New Modules
+### [MODULES] New Modules
 - `mem_llm/multi_agent/base_agent.py` - Core agent implementation
 - `mem_llm/multi_agent/agent_registry.py` - Agent management
 - `mem_llm/multi_agent/communication.py` - Communication infrastructure
@@ -257,14 +265,14 @@ This is a critical bugfix release. Users who installed v2.2.0 should upgrade to 
 
 ## [2.1.4] - 2025-11-20
 
-### ğŸ“Š Conversation Analytics
+### [METRICS] Conversation Analytics
 - **New Analytics Module** - Comprehensive conversation analysis and insights
 - **Topic Extraction** - Automatically extracts key topics from conversations
 - **Engagement Metrics** - Tracks user engagement, session length, and active days
 - **Visual Reports** - Generates reports in JSON, CSV, or Markdown formats
 - **Time Distribution** - Analyzes activity patterns by hour of day
 
-### ğŸ“‹ Config Presets
+### [CONFIG] Config Presets
 - **Built-in Presets** - 8 optimized presets for common use cases:
   - `chatbot` (General purpose)
   - `code_assistant` (Programming expert)
@@ -277,7 +285,7 @@ This is a critical bugfix release. Users who installed v2.2.0 should upgrade to 
 - **Custom Presets** - Create, save, and load your own configuration presets
 - **Easy Integration** - Initialize agent with `MemAgent(preset='code_assistant')`
 
-### ğŸ› ï¸ Improvements & Fixes
+### [TOOLS] Improvements & Fixes
 - **Test Coverage** - Significant increase in test coverage (Analytics & Presets)
 - **Code Quality** - Fixed syntax warnings and flake8 issues
 - **LM Studio Integration** - Improved compatibility and testing with LM Studio
@@ -285,13 +293,13 @@ This is a critical bugfix release. Users who installed v2.2.0 should upgrade to 
 
 ## [2.1.3] - 2025-11-10
 
-### ğŸš€ Enhanced Tool Execution
+### [ENHANCED] Enhanced Tool Execution
 
 - **Smart Tool Call Parser** - Now understands natural language tool calls (not just `TOOL_CALL:` format)
-- **Improved System Prompt** - Clearer instructions with examples (âœ…/âŒ)
+- **Improved System Prompt** - Clearer instructions with examples ([OK]/[ERROR])
 - **Better Error Messages** - More helpful validation feedback
 
-### ğŸ“ Details
+### [DOCS] Details
 
 LLMs often don't follow the exact `TOOL_CALL:` format. Now the parser also understands:
 - `use tool_name(...)`
@@ -302,30 +310,30 @@ System prompt now includes clear DO/DON'T examples to guide the LLM.
 
 ## [2.1.2] - 2025-11-10
 
-### ğŸ› Critical Fix
+### [BUGFIX] Critical Fix
 
 - **Fixed dynamic tool registration** - System prompt now rebuilds on every chat call to include newly registered tools
 - **Fixed custom tools not visible to LLM** - Tools registered after agent initialization now properly appear in LLM's system prompt
 - **Removed google-generativeai dependency** - No more Gemini dependencies (100% local)
 - Affects both `chat()` and `chat_stream()` methods
 
-### ğŸ“ Details
+### [DOCS] Details
 
 When users called `agent.tool_registry.register_tool()` after creating the agent, those tools were registered in the registry but not included in the LLM's system prompt. Now the system prompt dynamically rebuilds before each chat to include all registered tools.
 
-### ğŸ§¹ Cleanup
+### [CLEANUP] Cleanup
 
 - Removed `google-generativeai` from core dependencies - now truly 100% local and private
 
 ## [2.1.1] - 2025-11-10
 
-### ğŸ› Bug Fixes
+### [BUGFIX] Bug Fixes
 
 - **Fixed `register_tool()` method missing** - Added `register_tool()` as an alias to `register()` in `ToolRegistry` for backward compatibility
 - **Fixed async tools not loading** - Updated `_load_builtin_tools()` to automatically load async tools from `builtin_tools_async.py`
 - **Fixed export name** - Added `ASYNC_BUILTIN_TOOLS` export to async tools module
 
-### ğŸ”§ Improvements
+### [MAINTENANCE] Improvements
 
 - `register_tool()` now accepts both `Tool` objects and decorated functions
 - Better error handling for tool registration
@@ -333,15 +341,15 @@ When users called `agent.tool_registry.register_tool()` after creating the agent
 
 ## [2.1.0] - 2025-11-10
 
-### âœ¨ New Features
+### [NEW] New Features
 
-- **Async Tool Support** ğŸš€
+- **Async Tool Support** [ENHANCED]
   - Full support for `async def` functions as tools
   - Automatic detection of async/sync functions
   - Proper event loop handling for async execution
   - Non-blocking I/O operations for better performance
 
-- **Comprehensive Input Validation** âœ…
+- **Comprehensive Input Validation** [OK]
   - **Pattern Validation**: Regex patterns for string parameters (e.g., email, URL validation)
   - **Range Validation**: Min/max values for numbers
   - **Length Validation**: Min/max length for strings and lists
@@ -349,27 +357,27 @@ When users called `agent.tool_registry.register_tool()` after creating the agent
   - **Custom Validators**: User-defined validation functions
   - Detailed validation error messages
 
-- **Built-in Async Tools** ğŸŒ
+- **Built-in Async Tools** [ASYNC]
   - `fetch_url`: Async HTTP GET requests
   - `post_json`: Async HTTP POST with JSON
   - `read_file_async`: Non-blocking file reads
   - `write_file_async`: Non-blocking file writes
   - `async_sleep`: Async wait utility
 
-### ğŸ”§ Enhanced Tool System
+### [MAINTENANCE] Enhanced Tool System
 
 - `ToolParameter` dataclass extended with validation fields
 - `Tool.validate_arguments()` method for pre-execution validation
 - `Tool.is_async` flag to identify async functions
 - Enhanced `@tool` decorator with validation parameters
 
-### ğŸ“š Documentation
+### [DOCS] Documentation
 
 - Added `examples/20_async_and_validation.py` - Complete async and validation demo
 - Updated tool system documentation
 - Added validation examples and best practices
 
-### ğŸ¯ Benefits
+### [BENEFITS] Benefits
 
 - **Better Performance**: Async tools don't block the event loop
 - **Safer Execution**: Input validation prevents errors before execution
@@ -380,9 +388,9 @@ When users called `agent.tool_registry.register_tool()` after creating the agent
 
 ## [2.0.0] - 2025-11-10
 
-### âœ¨ Major Features
+### [NEW] Major Features
 
-- **Function Calling / Tools System** ğŸ› ï¸
+- **Function Calling / Tools System** [TOOLS]
   - Enabled LLMs to perform actions by calling external Python functions
   - `@tool` decorator for easy function registration with automatic schema generation
   - `ToolRegistry` to manage and execute tools with error handling
@@ -390,14 +398,14 @@ When users called `agent.tool_registry.register_tool()` after creating the agent
   - Dynamic system prompt integration to inform LLM about available tools
   - Support for custom tool categories and organization
 
-- **Built-in Tools (13 total)** ğŸ“¦
+- **Built-in Tools (13 total)** [MODULES]
   - **Math** (1): `calculate` - Safe expression evaluation with parentheses support
   - **Text** (4): `count_words`, `reverse_text`, `to_uppercase`, `to_lowercase`
   - **File System** (3): `read_file`, `write_file`, `list_files`
   - **Utility** (2): `get_current_time`, `create_json`
   - **Memory** *(NEW)* (3): `search_memory`, `get_user_info`, `list_conversations`
 
-- **Memory-Aware Tools** ğŸ§  *(Game Changer)*
+- **Memory-Aware Tools** [MEMORY] *(Game Changer)*
   - Agents can now access their own conversation history!
   - `search_memory`: Search through past conversations by keyword
   - `get_user_info`: Get current user profile and conversation stats
@@ -405,7 +413,7 @@ When users called `agent.tool_registry.register_tool()` after creating the agent
   - Enables truly self-aware AI agents with context access
   - Tool chaining: Combine memory search with other tools (e.g., search + count_words)
 
-### ğŸ› Bug Fixes
+### [BUGFIX] Bug Fixes
 
 - **Tool System**
   - Fixed ToolResult status enum comparison (`result.status.value == "success"`)
@@ -418,7 +426,7 @@ When users called `agent.tool_registry.register_tool()` after creating the agent
   - Resolved "Duplicate Operation ID" warning by properly organizing endpoints
   - Fixed HTML rendering issue (added `media_type="text/html"` to FileResponse)
 
-### ğŸ“š Documentation
+### [DOCS] Documentation
 
 - **README Updates**
   - Added comprehensive Function Calling section with examples
@@ -430,26 +438,26 @@ When users called `agent.tool_registry.register_tool()` after creating the agent
   - `examples/18_function_calling.py` - Complete tool system demo
   - `examples/19_memory_tools_demo.py` - Memory-aware agent demo
 
-### ğŸ”§ Technical Improvements
+### [MAINTENANCE] Technical Improvements
 
 - Enhanced tool call pattern matching and parsing
 - Better error handling for tool execution failures
 - Improved system prompt formatting for tool instructions
 - Added tool execution logging and debugging support
 
-### ğŸ“Š Test Results
+### [METRICS] Test Results
 
-- âœ… All 13 built-in tools working correctly
-- âœ… Custom tool registration and execution verified
-- âœ… Memory tools successfully accessing conversation history
-- âœ… Tool chaining (memory + calculation, memory + text processing)
-- âœ… Parenthetical expressions in calculator: `(25 * 4) + 10 = 110`
+- [OK] All 13 built-in tools working correctly
+- [OK] Custom tool registration and execution verified
+- [OK] Memory tools successfully accessing conversation history
+- [OK] Tool chaining (memory + calculation, memory + text processing)
+- [OK] Parenthetical expressions in calculator: `(25 * 4) + 10 = 110`
 
 ---
 
 ## [1.3.6] - 2025-11-10
 
-### ğŸš« Breaking Changes
+### [BREAKING] Breaking Changes
 
 - **Removed Google Gemini Support**
   - Eliminated cloud backend dependency for 100% local operation
@@ -457,7 +465,7 @@ When users called `agent.tool_registry.register_tool()` after creating the agent
   - Updated all examples and documentation to reflect local-only backends
   - Strengthened privacy-first approach with Ollama and LM Studio only
 
-### ğŸ”’ Privacy Enhancements
+### [SECURITY] Privacy Enhancements
 
 - **100% Local Operation**
   - No external API calls or cloud services required
@@ -465,30 +473,30 @@ When users called `agent.tool_registry.register_tool()` after creating the agent
   - All processing happens on local machine
   - Perfect for sensitive/confidential data use cases
 
-### ğŸ”§ Updates
+### [MAINTENANCE] Updates
 
 - **Default Model Changed**: `ministral-3:14b` (was `ministral-3:14b`)
 - **Documentation**: Removed all Gemini references from README, examples, and guides
 - **Examples**: Deleted `12_gemini_example.py`, updated multi-backend examples
 - **Cleaner Codebase**: Removed unused cloud integration code
 
-### ğŸ“¦ What's Included
+### [MODULES] What's Included
 
-- âœ… Ollama backend (local)
-- âœ… LM Studio backend (local)
-- âœ… Auto-detection between local backends
-- âœ… Streaming responses
-- âœ… Web UI & REST API
-- âœ… Vector search with ChromaDB
-- âœ… Response metrics & analytics
+- [OK] Ollama backend (local)
+- [OK] LM Studio backend (local)
+- [OK] Auto-detection between local backends
+- [OK] Streaming responses
+- [OK] Web UI & REST API
+- [OK] Vector search with ChromaDB
+- [OK] Response metrics & analytics
 
 ---
 
 ## [1.3.2] - 2025-11-02
 
-### ğŸ‰ Major Features
+### [MILESTONE] Major Features
 
-- ğŸ“Š **Response Metrics & Quality Analytics** (v1.3.1+)
+- [METRICS] **Response Metrics & Quality Analytics** (v1.3.1+)
   - `ChatResponse` dataclass: Comprehensive response tracking
   - `ResponseMetricsAnalyzer`: Aggregate analytics and monitoring
   - Confidence scoring: Based on KB usage, memory, temperature, and length
@@ -497,7 +505,7 @@ When users called `agent.tool_registry.register_tool()` after creating the agent
   - Export metrics: JSON and summary formats for dashboards
   - Production monitoring: Health checks and SLA tracking
 
-- ğŸ” **Vector Search & Semantic Knowledge Base** (v1.3.2+)
+- [SEARCH] **Vector Search & Semantic Knowledge Base** (v1.3.2+)
   - ChromaDB integration: Semantic search with embeddings
   - Sentence-transformers support: `all-MiniLM-L6-v2` default model
   - Cross-lingual search: Understands meaning across languages
@@ -505,14 +513,14 @@ When users called `agent.tool_registry.register_tool()` after creating the agent
   - Better relevancy: Semantic understanding vs keyword matching
   - Optional feature: Install with `pip install chromadb sentence-transformers`
 
-### ğŸ†• New Components
+### [NEW] New Components
 
 - `response_metrics.py`: `ChatResponse`, `ResponseMetricsAnalyzer`, `calculate_confidence`
 - `vector_store.py`: `VectorStore`, `ChromaVectorStore`, `create_vector_store`
 - Enhanced `SQLMemoryManager`: Vector search integration
 - Enhanced `MemAgent`: Response metrics and vector search support
 
-### ğŸ”„ Enhanced Features
+### [CHANGED] Enhanced Features
 
 - **MemAgent.chat()**: New `return_metrics` parameter for detailed response analysis
 - **Memory Metadata**: Automatic saving of response metrics in conversations
@@ -520,12 +528,12 @@ When users called `agent.tool_registry.register_tool()` after creating the agent
 - **Knowledge Base Search**: Optional vector search with `use_vector_search=True`
 - **ChromaDB Sync**: `sync_all_kb_to_vector_store()` method for existing KB entries
 
-### ğŸ“š New Examples
+### [DOCS] New Examples
 
 - `15_response_metrics.py`: Response quality metrics and analytics
 - `16_vector_search.py`: Semantic/vector search demonstration
 
-### ğŸ› Bug Fixes
+### [BUGFIX] Bug Fixes
 
 - Fixed metadata not being saved in conversation history
 - Fixed preferences parsing from JSON string to dict
@@ -533,13 +541,13 @@ When users called `agent.tool_registry.register_tool()` after creating the agent
 - Fixed `get_user_profile()` SQL/JSON memory detection logic
 - Fixed ChromaDB embedding function compatibility
 
-### ğŸ“ Documentation
+### [DOCS] Documentation
 
 - Updated all examples: Simplified and more readable
 - Enhanced README with new features
 - Vector search usage guide
 
-### âš¡ Improved
+### [IMPROVED] Improved
 
 - Better error handling for ChromaDB initialization
 - Fallback mechanism for embedding function loading
@@ -548,33 +556,33 @@ When users called `agent.tool_registry.register_tool()` after creating the agent
 
 ## [1.3.1] - 2025-10-31
 
-### ğŸ“ Documentation
+### [DOCS] Documentation
 
-- âœ… **README Update**: Fixed PyPI package README to show v1.3.0 features correctly
-- âœ… No code changes - all v1.3.0 functionality remains the same
+- [OK] **README Update**: Fixed PyPI package README to show v1.3.0 features correctly
+- [OK] No code changes - all v1.3.0 functionality remains the same
 
 ## [1.3.0] - 2025-10-31
 
-### ğŸ‰ Major Features
+### [MILESTONE] Major Features
 
-- ğŸ”Œ **Multi-Backend LLM Support**: Choose your preferred LLM backend
+- [BACKEND] **Multi-Backend LLM Support**: Choose your preferred LLM backend
   - **Ollama**: Local, privacy-first, 100+ models
   - **LM Studio**: Fast local inference with easy GUI
   - **Google Gemini**: Powerful cloud models (gemini-2.5-flash)
   - Unified API across all backends
   - Seamless switching between backends
 
-- ğŸ—ï¸ **Factory Pattern Architecture**: Clean, extensible design
+- [ARCHITECTURE] **Factory Pattern Architecture**: Clean, extensible design
   - `LLMClientFactory`: Central backend management
   - `BaseLLMClient`: Abstract interface for all backends
   - Easy to add new backends in the future
 
-- ğŸ” **Auto-Detection**: Automatically find available LLM service
+- [SEARCH] **Auto-Detection**: Automatically find available LLM service
   - `auto_detect_backend=True` parameter
   - Checks Ollama â†’ LM Studio â†’ other local services
   - No manual configuration needed
 
-### ğŸ†• New Components
+### [NEW] New Components
 
 - `BaseLLMClient`: Abstract base class for all LLM backends
 - `LLMClientFactory`: Factory pattern for backend creation
@@ -582,30 +590,30 @@ When users called `agent.tool_registry.register_tool()` after creating the agent
 - `LMStudioClient`: OpenAI-compatible local inference
 - `GeminiClient`: Google Gemini API integration
 
-### ğŸ“š New Examples
+### [DOCS] New Examples
 
 - `11_lmstudio_example.py`: Using LM Studio backend
 - `12_gemini_example.py`: Using Google Gemini API
 - `13_multi_backend_comparison.py`: Compare backend performance
 - `14_auto_detect_backend.py`: Auto-detection feature
 
-### ğŸ“– New Documentation
+### [DOCS] New Documentation
 
 - `MULTI_BACKEND_GUIDE.md`: Comprehensive guide for multi-backend setup
 
-### ğŸ”„ Changed
+### [CHANGED] Changed
 
 - **MemAgent**: Now supports multiple backends (backward compatible)
 - **Examples**: All simplified for clarity
 - **Package structure**: Better organized with `clients/` subdirectory
 
-### âš¡ Improved
+### [IMPROVED] Improved
 
 - **Backward Compatibility**: All v1.2.0 code still works
 - **Error Messages**: Backend-specific troubleshooting
 - **Connection Checks**: Improved availability detection
 
-### ğŸ§ª Testing
+### [TEST] Testing
 
 - 16+ new tests for multi-backend support
 - Factory pattern tests
@@ -616,34 +624,34 @@ When users called `agent.tool_registry.register_tool()` after creating the agent
 
 ### Added
 
-- ğŸ“Š **Conversation Summarization**: Automatic conversation history compression
+- [METRICS] **Conversation Summarization**: Automatic conversation history compression
   - `ConversationSummarizer`: Generates concise summaries from conversation histories
   - `AutoSummarizer`: Threshold-based automatic summary updates
   - Token compression: ~40-60% reduction in context size
   - Key facts extraction: Automatic user profile insights
   - Configurable thresholds and conversation limits
 
-- ğŸ“¤ **Data Export/Import System**: Multi-format and multi-database support
+- [EXPORT] **Data Export/Import System**: Multi-format and multi-database support
   - `DataExporter`: Export conversations to JSON, CSV, SQLite, PostgreSQL, MongoDB
   - `DataImporter`: Import from JSON, CSV, SQLite, PostgreSQL, MongoDB
   - Auto-create databases: PostgreSQL and MongoDB databases created automatically if missing
   - Enterprise-ready: Support for analytics (PostgreSQL) and real-time dashboards (MongoDB)
   - Optional dependencies: `pip install mem-llm[postgresql]`, `pip install mem-llm[mongodb]`, `pip install mem-llm[databases]`
 
-- ğŸ—„ï¸ **In-Memory Database Support**: Temporary database operations
+- [DATABASE] **In-Memory Database Support**: Temporary database operations
   - `db_path=":memory:"` parameter for MemAgent
   - No file creation: Perfect for testing and temporary workflows
   - Full SQL functionality without persistent storage
 
 ### Changed
 
-- ğŸ”‡ **Reduced Logging Verbosity**: Cleaner console output
+- [LOGGING] **Reduced Logging Verbosity**: Cleaner console output
   - Default log level changed from INFO to WARNING
   - Less noise in production environments
   - Users can still enable detailed logs via config
   - Examples suppress logs for cleaner demonstrations
 
-- ğŸ“¦ **Enhanced Package Structure**: Better optional dependencies
+- [MODULES] **Enhanced Package Structure**: Better optional dependencies
   - `pip install mem-llm[postgresql]` - PostgreSQL support only
   - `pip install mem-llm[mongodb]` - MongoDB support only
   - `pip install mem-llm[databases]` - Both PostgreSQL and MongoDB
@@ -651,12 +659,12 @@ When users called `agent.tool_registry.register_tool()` after creating the agent
 
 ### Fixed
 
-- ğŸ—„ï¸ **Database Path Handling**: SQLite files now organized in memories/ folder
+- [DATABASE] **Database Path Handling**: SQLite files now organized in memories/ folder
   - All SQLite files (.db, .db-shm, .db-wal) now in memories/ directory
   - Cleaner workspace: No database files cluttering project root
   - Automatic directory creation: memories/ folder created if missing
 
-- ğŸ”§ **MemAgent db_path Parameter**: Added missing parameter
+- [MAINTENANCE] **MemAgent db_path Parameter**: Added missing parameter
   - New `db_path` parameter in MemAgent.__init__()
   - Enables custom database locations and in-memory databases
   - Better control over database file placement
@@ -665,20 +673,20 @@ When users called `agent.tool_registry.register_tool()` after creating the agent
 
 ### Added
 
-- ğŸ”’ **Prompt Injection Protection** (Opt-in): Advanced security system to detect and block prompt injection attacks
+- [SECURITY] **Prompt Injection Protection** (Opt-in): Advanced security system to detect and block prompt injection attacks
   - `PromptInjectionDetector`: Detects 15+ attack patterns (role manipulation, system override, jailbreak attempts)
   - Risk assessment: safe, low, medium, high, critical levels
   - `InputSanitizer`: Neutralizes malicious patterns while preserving user intent
   - `SecurePromptBuilder`: Template-based secure prompt construction
   - Enable with `enable_security=True` parameter (default: False for backward compatibility)
 
-- ğŸ“ **Structured Logging System**: Production-ready logging infrastructure
+- [DOCS] **Structured Logging System**: Production-ready logging infrastructure
   - `MemLLMLogger`: Centralized logging with file and console handlers
   - Specialized methods: `log_llm_call()`, `log_memory_operation()`, `log_error_with_context()`
   - Configurable log levels (DEBUG, INFO, WARNING, ERROR, CRITICAL)
   - Timestamps and formatted output for debugging
 
-- ğŸ”„ **Retry Logic with Exponential Backoff**: Robust error handling for network operations
+- [CHANGED] **Retry Logic with Exponential Backoff**: Robust error handling for network operations
   - `exponential_backoff_retry` decorator: 3 retries with 1s, 2s, 4s delays
   - `SafeExecutor`: Context manager for safe operations with automatic rollback
   - `check_connection_with_retry()`: Connection validation before operations
@@ -686,13 +694,13 @@ When users called `agent.tool_registry.register_tool()` after creating the agent
 
 ### Changed
 
-- âš¡ **Thread-Safe SQLite Operations**: Complete concurrency overhaul
+- [IMPROVED] **Thread-Safe SQLite Operations**: Complete concurrency overhaul
   - Added `threading.RLock()` to all critical operations (add_user, add_interaction, get_recent, search)
   - Configured `isolation_level=None` (autocommit mode) to prevent transaction conflicts
   - Set `busy_timeout=30000` (30 seconds) for concurrent write handling
   - Performance: 15,346 messages/second write throughput, <1ms search latency
 
-- ğŸ’¾ **SQLite WAL Mode**: Write-Ahead Logging for better concurrency
+- [STORAGE] **SQLite WAL Mode**: Write-Ahead Logging for better concurrency
   - Enabled WAL mode with `PRAGMA journal_mode=WAL`
   - Configured 64MB cache (`cache_size=-64000`)
   - Set `synchronous=NORMAL` for balanced safety/performance
@@ -700,26 +708,26 @@ When users called `agent.tool_registry.register_tool()` after creating the agent
 
 ### Fixed
 
-- ğŸ› **Concurrent Write Errors**: Fixed "cannot start transaction within transaction" errors
+- [BUGFIX] **Concurrent Write Errors**: Fixed "cannot start transaction within transaction" errors
   - Root cause: Multiple threads trying to start nested transactions
   - Solution: Autocommit mode + RLock on all operations
   - Validated: 200 concurrent writes in 0.03s with ZERO errors
 
-- ğŸ› **Race Conditions**: Fixed "bad parameter or other API misuse" in multi-threaded scenarios
+- [BUGFIX] **Race Conditions**: Fixed "bad parameter or other API misuse" in multi-threaded scenarios
   - Added thread-safe connection pooling
   - Eliminated tuple index errors in concurrent reads
   - All race conditions verified fixed in stress tests
 
 ### Security
 
-- ğŸ›¡ï¸ **Prompt Injection Detection Patterns**:
+- [SECURITY] **Prompt Injection Detection Patterns**:
   - Role manipulation: "You are now...", "Ignore previous...", "Act as..."
   - System override: "Forget all instructions", "Disregard guidelines"
   - Jailbreak: "DAN mode", "developer mode", "unrestricted mode"
   - Token injection: Special tokens, control characters, encoding exploits
   - Context pollution: Excessive newlines, recursive instructions
 
-- ğŸ” **Input Sanitization**:
+- [INPUT] **Input Sanitization**:
   - Escapes control characters and special sequences
   - Neutralizes role-switching patterns
   - Preserves legitimate user input while removing threats
@@ -727,7 +735,7 @@ When users called `agent.tool_registry.register_tool()` after creating the agent
 
 ### Performance
 
-- ğŸ“Š **Benchmark Results** (Intel Core i7, 16GB RAM):
+- [METRICS] **Benchmark Results** (Intel Core i7, 16GB RAM):
   - Write throughput: 15,346 messages/second (500 writes/0.0326s)
   - Search latency: <1ms for 500 conversations
   - Concurrent writes: 200 operations in 0.03s (ZERO errors)
@@ -735,7 +743,7 @@ When users called `agent.tool_registry.register_tool()` after creating the agent
 
 ### Testing
 
-- ğŸ§ª **Enhanced Test Coverage**: New test suites added
+- [TEST] **Enhanced Test Coverage**: New test suites added
   - `test_improvements.py`: Logging, retry logic, WAL mode (4/4 tests passed)
   - `test_advanced_coverage.py`: Concurrent access, corruption recovery, long history (9 tests)
   - `test_backward_compatibility.py`: Validates v1.0.x code still works (100% compatible)
@@ -743,7 +751,7 @@ When users called `agent.tool_registry.register_tool()` after creating the agent
 
 ### Backward Compatibility
 
-- âœ… **100% Backward Compatible**: All v1.0.x code works without modification
+- [OK] **100% Backward Compatible**: All v1.0.x code works without modification
   - `enable_security=False` by default (opt-in security)
   - All new imports wrapped in try/except (graceful degradation)
   - No breaking changes to existing API
@@ -808,7 +816,7 @@ response = agent.chat("Hello!")  # Security checks applied automatically
 ## [1.0.11] - 2025-10-20
 
 ### Changed
-- ğŸ“ **Enhanced README.md**: Comprehensive PyPI documentation
+- [DOCS] **Enhanced README.md**: Comprehensive PyPI documentation
   - Professional badges (version, Python support, license)
   - Detailed feature list with emojis
   - Quick start guide with 5-line example
@@ -822,49 +830,49 @@ response = agent.chat("Hello!")  # Security checks applied automatically
   - SEO-optimized for PyPI discovery
 
 ### Improved
-- ğŸ“š **Documentation Quality**: Better structured for PyPI users
-- ğŸ¯ **User Onboarding**: Clearer getting started instructions
-- ğŸ” **Discoverability**: Enhanced keywords and descriptions
+- [DOCS] **Documentation Quality**: Better structured for PyPI users
+- [BENEFITS] **User Onboarding**: Clearer getting started instructions
+- [SEARCH] **Discoverability**: Enhanced keywords and descriptions
 
 ## [1.0.10] - 2025-10-20
 
 ### Added
-- ğŸ§  **Dynamic Prompt System**: Context-aware system prompts that adapt to active features
+- [MEMORY] **Dynamic Prompt System**: Context-aware system prompts that adapt to active features
   - Prevents hallucinations by only including instructions for enabled features
   - Separate prompt sections for KB, tools, business/personal modes
   - Automatic feature detection (Knowledge Base presence, tools availability)
-  - Logging shows active features: "âœ… Knowledge Base | âŒ Tools | ğŸ’¾ Memory: SQL"
-- ğŸ”„ **Universal Ollama Model Compatibility**: Full support for ALL Ollama models
+  - Logging shows active features: "[OK] Knowledge Base | [ERROR] Tools | [STORAGE] Memory: SQL"
+- [CHANGED] **Universal Ollama Model Compatibility**: Full support for ALL Ollama models
   - Thinking-enabled models (Qwen3, DeepSeek, etc.) now work correctly
   - Auto-detection and handling of thinking mode
   - `enable_thinking: false` parameter for direct responses
   - Fallback extraction from thinking process when needed
   - Empty response retry with simpler prompts
-- ğŸ“Š **Comprehensive Test Suite**: Pre-publish validation system
+- [METRICS] **Comprehensive Test Suite**: Pre-publish validation system
   - 34 automated tests covering all major features
   - Tests: imports, CLI, Ollama, JSON/SQL memory, MemAgent, config, multi-user
   - User scenario testing with output analysis
   - Hallucination detection and context verification
 
 ### Changed
-- âš¡ **LLM Token Limits**: Increased from 150 to 2000 tokens for thinking models
-- ğŸ§¹ **Removed Obsolete Module**: Deleted `prompt_templates.py` (replaced by dynamic system)
-- ğŸ“ **Context Window**: Increased from 2048 to 4096 tokens for better context
-- ğŸ¯ **Response Quality**: Better handling of empty responses with automatic retry
+- [IMPROVED] **LLM Token Limits**: Increased from 150 to 2000 tokens for thinking models
+- [CLEANUP] **Removed Obsolete Module**: Deleted `prompt_templates.py` (replaced by dynamic system)
+- [DOCS] **Context Window**: Increased from 2048 to 4096 tokens for better context
+- [BENEFITS] **Response Quality**: Better handling of empty responses with automatic retry
 
 ### Fixed
-- ğŸ› **Thinking Model Issue**: Qwen3 and similar models now respond correctly
+- [BUGFIX] **Thinking Model Issue**: Qwen3 and similar models now respond correctly
   - Fixed empty responses from thinking-mode models
   - Proper content extraction from model responses
   - System prompt instructions to suppress thinking process
-- ğŸ”§ **Stop Sequences**: Removed problematic stop sequences that interfered with models
-- âš ï¸ **Empty Response Handling**: Automatic retry with fallback for reliability
+- [MAINTENANCE] **Stop Sequences**: Removed problematic stop sequences that interfered with models
+- [WARN] **Empty Response Handling**: Automatic retry with fallback for reliability
 
 ### Improved
-- ğŸ¨ **Prompt Quality**: Feature-specific instructions prevent confusion
-- ğŸš€ **Model Performance**: Works seamlessly with granite4, qwen3, llama3, and all Ollama models
-- ğŸ“ˆ **User Experience**: No more irrelevant feature mentions in responses
-- ğŸ§ª **Testing Coverage**: Complete validation before releases
+- [PROMPT] **Prompt Quality**: Feature-specific instructions prevent confusion
+- [ENHANCED] **Model Performance**: Works seamlessly with granite4, qwen3, llama3, and all Ollama models
+- [UX] **User Experience**: No more irrelevant feature mentions in responses
+- [TEST] **Testing Coverage**: Complete validation before releases
 
 ### Technical Details
 - Created `mem_llm/dynamic_prompt.py` (350+ lines) - modular prompt builder
@@ -889,35 +897,35 @@ response = agent.chat("Hello!")  # Security checks applied automatically
 ## [1.0.9] - 2025-10-20
 
 ### Added
-- ğŸ“ **PyPI-Optimized README**: Complete rewrite with practical examples
+- [DOCS] **PyPI-Optimized README**: Complete rewrite with practical examples
   - 5 comprehensive usage examples with full code and output
   - Print statements in all examples for better user experience
   - Step-by-step workflows showing complete processes
   - Real-world customer service scenario example
   - Turkish language support demonstration
   - User profile extraction example
-- ğŸ“„ **Document Configuration Examples**: Added example demonstrating PDF/DOCX/TXT config generation
-- ğŸ§ª **Config Update Testing**: Verification that manual YAML edits work correctly
+- [CONFIG] **Document Configuration Examples**: Added example demonstrating PDF/DOCX/TXT config generation
+- [TEST] **Config Update Testing**: Verification that manual YAML edits work correctly
 
 ### Changed
-- ğŸ—‘ï¸ **Removed docs folder**: Consolidated documentation into main README
-- ğŸªµ **Logging Behavior**: Changed from file+console to console-only logging
+- [REMOVED] **Removed docs folder**: Consolidated documentation into main README
+- [LOGGING] **Logging Behavior**: Changed from file+console to console-only logging
   - No more `mem_agent.log` files cluttering workspace
   - Keeps workspace clean with only `.db` and `.yaml` files
-- ğŸ“– **Example Format**: All examples now include:
+- [DOCS] **Example Format**: All examples now include:
   - Print statements for visibility
   - Expected output blocks
   - Full conversation flows
   - Real usage scenarios
 
 ### Fixed
-- ğŸ› **Log File Pollution**: Removed FileHandler from logging, only StreamHandler now
-- ğŸ“ **README Examples**: Fixed examples that didn't show actual output or complete process
+- [BUGFIX] **Log File Pollution**: Removed FileHandler from logging, only StreamHandler now
+- [DOCS] **README Examples**: Fixed examples that didn't show actual output or complete process
 
 ### Improved
-- ğŸ¯ **User Experience**: Much clearer examples for new users
-- ğŸ“š **Documentation Quality**: Professional PyPI-ready documentation
-- ğŸ” **Example Clarity**: Each example shows input, process, and output
+- [BENEFITS] **User Experience**: Much clearer examples for new users
+- [DOCS] **Documentation Quality**: Professional PyPI-ready documentation
+- [SEARCH] **Example Clarity**: Each example shows input, process, and output
 
 ### Technical Details
 - Modified `mem_llm/mem_agent.py` - removed FileHandler from logging setup
@@ -928,67 +936,67 @@ response = agent.chat("Hello!")  # Security checks applied automatically
 ## [1.0.8] - 2025-10-20
 
 ### Added
-- ğŸ¯ **CLI Tool**: Full-featured command-line interface
+- [BENEFITS] **CLI Tool**: Full-featured command-line interface
   - `mem-llm chat` - Interactive chat sessions
   - `mem-llm check` - System verification
   - `mem-llm stats` - Statistics and analytics
   - `mem-llm export` - Data export (JSON/TXT)
   - `mem-llm clear` - User data deletion
-- ğŸ“Š **Feature Comparison Matrix**: Clear comparison between JSON and SQL modes
-- ğŸ“¦ **Improved Dependencies**: Proper separation of core, dev, and optional requirements
+- [METRICS] **Feature Comparison Matrix**: Clear comparison between JSON and SQL modes
+- [MODULES] **Improved Dependencies**: Proper separation of core, dev, and optional requirements
   - `requirements.txt` - Core dependencies only
   - `requirements-dev.txt` - Development tools
   - `requirements-optional.txt` - Optional features (web, API, etc.)
-- ğŸ”§ **Better Error Handling**: Improved startup checks with user-friendly messages
-- ğŸ“š **Enhanced Documentation**: CLI usage examples and feature matrices
+- [MAINTENANCE] **Better Error Handling**: Improved startup checks with user-friendly messages
+- [DOCS] **Enhanced Documentation**: CLI usage examples and feature matrices
 
 ### Changed
-- ğŸŒ **Multi-language Support**: Changed from "Turkish Support" to general multi-language
-- ğŸ“– **Documentation**: All content now in English for broader accessibility
-- ğŸ¨ **CLI Entry Point**: Added `mem-llm` console script in setup.py
+- [LANGUAGE] **Multi-language Support**: Changed from "Turkish Support" to general multi-language
+- [DOCS] **Documentation**: All content now in English for broader accessibility
+- [PROMPT] **CLI Entry Point**: Added `mem-llm` console script in setup.py
 
 ### Fixed
-- ğŸ› Missing `click` dependency in requirements
-- ğŸ› Improved error messages when Ollama is not running
+- [BUGFIX] Missing `click` dependency in requirements
+- [BUGFIX] Improved error messages when Ollama is not running
 
 ### Improved
-- âš¡ Better user experience with CLI commands
-- ğŸ“ Clearer README with usage examples
-- ğŸ¯ More intuitive API design
+- [IMPROVED] Better user experience with CLI commands
+- [DOCS] Clearer README with usage examples
+- [BENEFITS] More intuitive API design
 
 ## [1.0.4] - 2025-10-13
 
 ### Added
-- âœ¨ Config-free knowledge base support - KB now works without config.yaml
-- âœ¨ Smart keyword extraction for knowledge base search (Turkish & English stopwords)
-- âœ¨ Enhanced KB context injection - KB data injected directly into user message
-- âœ¨ Automatic user profile extraction (name, favorite_food, location)
-- âœ¨ Turkish language support for profile extraction
-- âœ¨ SQL-JSON memory compatibility methods
-- ğŸ“š New example: `example_knowledge_base.py`
-- ğŸ§ª Comprehensive test suite
+- [NEW] Config-free knowledge base support - KB now works without config.yaml
+- [NEW] Smart keyword extraction for knowledge base search (Turkish & English stopwords)
+- [NEW] Enhanced KB context injection - KB data injected directly into user message
+- [NEW] Automatic user profile extraction (name, favorite_food, location)
+- [NEW] Turkish language support for profile extraction
+- [NEW] SQL-JSON memory compatibility methods
+- [DOCS] New example: `example_knowledge_base.py`
+- [TEST] Comprehensive test suite
 
 ### Fixed
-- ğŸ› Knowledge base not being used without config.yaml
-- ğŸ› LLM ignoring knowledge base information
-- ğŸ› User profiles returning empty dictionaries
-- ğŸ› Profile updates not working correctly with SQL memory
-- ğŸ› Keyword search failing with Turkish queries
+- [BUGFIX] Knowledge base not being used without config.yaml
+- [BUGFIX] LLM ignoring knowledge base information
+- [BUGFIX] User profiles returning empty dictionaries
+- [BUGFIX] Profile updates not working correctly with SQL memory
+- [BUGFIX] Keyword search failing with Turkish queries
 
 ### Improved
-- âš¡ Better KB-first response priority in system prompts
-- âš¡ More accurate answers from knowledge base
-- âš¡ Enhanced search algorithm with stopword filtering
+- [IMPROVED] Better KB-first response priority in system prompts
+- [IMPROVED] More accurate answers from knowledge base
+- [IMPROVED] Enhanced search algorithm with stopword filtering
 
 ## [1.0.3] - 2025-10-12
 
 ### Added
-- ğŸ“¦ Initial PyPI release
-- ğŸ¯ Core memory features (JSON & SQL)
-- ğŸ¤– Ollama integration
-- ğŸ’¾ Knowledge base system
-- ğŸ› ï¸ User tools
-- âš™ï¸ Configuration management
+- [MODULES] Initial PyPI release
+- [BENEFITS] Core memory features (JSON & SQL)
+- [AGENT] Ollama integration
+- [STORAGE] Knowledge base system
+- [TOOLS] User tools
+- [CONFIG] Configuration management
 
 ### Features
 - Memory-enabled AI agent
@@ -1001,22 +1009,22 @@ response = agent.chat("Hello!")  # Security checks applied automatically
 ## [1.0.2] - 2025-10-11
 
 ### Internal
-- ğŸ”§ Package structure improvements
-- ğŸ“ Documentation updates
+- [MAINTENANCE] Package structure improvements
+- [DOCS] Documentation updates
 
 ## [1.0.1] - 2025-10-10
 
 ### Fixed
-- ğŸ› Import errors after package rename
-- ğŸ“¦ Package directory naming issues
+- [BUGFIX] Import errors after package rename
+- [MODULES] Package directory naming issues
 
 ## [1.0.0] - 2025-10-09
 
 ### Initial Release
-- ğŸ‰ First stable release
-- ğŸ¤– Memory-enabled AI assistant
-- ğŸ’¾ JSON memory management
-- ğŸ”Œ Ollama integration
+- [MILESTONE] First stable release
+- [AGENT] Memory-enabled AI assistant
+- [STORAGE] JSON memory management
+- [BACKEND] Ollama integration
 
 
 

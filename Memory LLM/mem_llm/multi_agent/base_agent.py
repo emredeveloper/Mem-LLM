@@ -4,7 +4,7 @@ Base Agent Class for Multi-Agent System
 
 Defines the core agent interface and functionality.
 
-Author: Cihat Emre KarataÅŸ
+Author: Cihat Emre Karatas
 Version: 2.2.0
 """
 
@@ -114,7 +114,7 @@ class BaseAgent:
         # Conversation history with other agents
         self.conversation_history: List[Dict[str, Any]] = []
 
-        logger.info(f"ğŸ¤– Agent created: {self.name} (ID: {self.agent_id}, Role: {role.value})")
+        logger.info(f"[AGENT] Agent created: {self.name} (ID: {self.agent_id}, Role: {role.value})")
 
     def process(self, task: str, context: Optional[Dict[str, Any]] = None) -> str:
         """

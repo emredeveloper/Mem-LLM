@@ -16,7 +16,7 @@ Installation:
 2. Load a model
 3. Start local server (default: http://localhost:1234)
 
-Author: Cihat Emre KarataÅŸ
+Author: Cihat Emre Karatas
 Version: 1.3.0
 """
 
@@ -38,20 +38,20 @@ class LMStudioClient(BaseLLMClient):
 
     Usage:
         client = LMStudioClient(
-            model="google/gemma-3-12b",  # or specific model name
+            model="qwen3.5-2b",  # or specific model name
             base_url="http://localhost:1234"
         )
         response = client.chat([{"role": "user", "content": "Hello!"}])
     """
 
     def __init__(
-        self, model: str = "google/gemma-3-12b", base_url: str = "http://localhost:1234", **kwargs
+        self, model: str = "qwen3.5-2b", base_url: str = "http://localhost:1234", **kwargs
     ):
         """
         Initialize LM Studio client
 
         Args:
-            model: Model identifier (use "google/gemma-3-12b" for default loaded model)
+            model: Model identifier (use "qwen3.5-2b" for default loaded model)
             base_url: LM Studio server URL (default: http://localhost:1234)
             **kwargs: Additional configuration
         """
@@ -391,4 +391,5 @@ class LMStudioClient(BaseLLMClient):
             base_info["available_models"] = self.list_models()
 
         return base_info
+
 
