@@ -26,7 +26,7 @@ API Documentation:
     - ReDoc: http://localhost:8000/redoc
 
 Author: Cihat Emre Karatas
-Version: 2.4.7
+Version: 2.4.8
 """
 
 import asyncio
@@ -65,7 +65,7 @@ from .api_auth import AUTH_DISABLED, create_api_key, require_permission, api_key
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-API_VERSION = "2.4.7"
+API_VERSION = "2.4.8"
 
 
 class AgentStore:
@@ -203,7 +203,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Mem-LLM API",
     description="REST API for Mem-LLM - Privacy-first, Memory-enabled AI Assistant (100% Local)",
-    version="2.4.7",
+    version="2.4.8",
     docs_url="/docs",
     redoc_url="/redoc",
     lifespan=lifespan,

@@ -1,5 +1,18 @@
 ﻿# Changelog
 
+## [2.4.8] - 2026-03-05
+### Changed
+- Updated all README files for the current release and normalized remaining encoding artifacts.
+- Aligned documentation and examples with the LM Studio default model qwen3.5-2b.
+
+## [2.4.7] - 2026-03-05
+### Fixed
+- Hardened API auth defaults, upload path handling, workspace boundaries, and async tool execution behavior.
+- Replaced unsafe calculator evaluation with AST-based parsing and normalized remaining encoding issues across code, docs, and tests.
+
+### Changed
+- Switched LM Studio default model and related tests to qwen3.5-2b.
+- Added security hardening and LM Studio full-feature coverage tests.
 ## [2.4.7] - 2026-03-05
 ### Fixed
 - Hardened API auth defaults, upload path handling, workspace boundaries, and async tool execution behavior.

@@ -86,7 +86,7 @@ try:
 except ImportError:
     __all_metrics__ = []
 
-__version__ = "2.4.7"
+__version__ = "2.4.8"
 __author__ = "Cihat Emre Karatas"
 
 # Multi-backend LLM support (v1.3.0+)

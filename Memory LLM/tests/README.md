@@ -1,32 +1,15 @@
-﻿"""
-README for Test Suite
-======================
+# Test Suite README
 
-This directory contains the test suite for Mem-LLM v2.1.3+.
+This directory contains the Mem-LLM test suite.
 
 ## Test Structure
 
-```
+```text
 tests/
-â”œâ”€â”€ unit/                   # Unit tests (isolated, fast)
-â”‚   â”œâ”€â”€ test_tool_system.py
-â”‚   â”œâ”€â”€ test_async_tools.py
-â”‚   â”œâ”€â”€ test_memory_manager.py
-â”‚   â”œâ”€â”€ test_vector_store.py
-â”‚   â”œâ”€â”€ test_config_manager.py
-â”‚   â””â”€â”€ test_response_metrics.py
-â”œâ”€â”€ integration/            # Integration tests (with external services)
-â”‚   â”œâ”€â”€ test_ollama_integration.py
-â”‚   â”œâ”€â”€ test_lmstudio_integration.py
-â”‚   â”œâ”€â”€ test_database_integration.py
-â”‚   â””â”€â”€ test_vector_search_integration.py
-â”œâ”€â”€ api/                    # API endpoint tests
-â”‚   â”œâ”€â”€ test_rest_endpoints.py
-â”‚   â”œâ”€â”€ test_websocket.py
-â”‚   â””â”€â”€ test_streaming.py
-â””â”€â”€ e2e/                    # End-to-end tests
-    â”œâ”€â”€ test_full_workflow.py
-    â””â”€â”€ test_multi_user_scenarios.py
+|-- unit/                   # Unit tests (isolated, fast)
+|-- integration/            # Integration tests (external services)
+|-- api/                    # API endpoint tests
+`-- test_multi_agent/       # Multi-agent coverage
 ```
 
 ## Running Tests
@@ -36,22 +19,19 @@ tests/
 pytest
 ```
 
-### Run specific test categories
+### Run focused suites
 ```bash
-# Unit tests only (fast)
-pytest -m unit
+# Unit tests
+pytest tests/unit -q
 
-# Integration tests (requires Ollama/LM Studio)
-pytest -m integration
+# Integration tests
+pytest tests/integration -q
 
 # API tests
-pytest -m api
+pytest tests/api -q
 
-# End-to-end tests
-pytest -m e2e
-
-# Async tests
-pytest -m asyncio
+# LM Studio only
+pytest tests -q -s -k "lmstudio and not ollama"
 ```
 
 ### Run with coverage
@@ -59,133 +39,35 @@ pytest -m asyncio
 pytest --cov=mem_llm --cov-report=html --cov-report=term-missing
 ```
 
-### Run specific test file
-```bash
-pytest tests/unit/test_tool_system.py -v
-```
-
-### Run specific test class or function
-```bash
-pytest tests/unit/test_tool_system.py::TestToolRegistry::test_registry_creation -v
-```
-
-## Test Markers
-
-Tests are marked with the following pytest markers:
-
-- `@pytest.mark.unit` - Unit tests (isolated, no external dependencies)
-- `@pytest.mark.integration` - Integration tests (require external services)
-- `@pytest.mark.api` - API endpoint tests
-- `@pytest.mark.e2e` - End-to-end tests
-- `@pytest.mark.slow` - Tests that take >5 seconds
-- `@pytest.mark.asyncio` - Async tests
-
-## Writing Tests
-
-### Unit Test Example
-```python
-import pytest
-from mem_llm.tool_system import ToolRegistry
-
-@pytest.mark.unit
-class TestToolRegistry:
-    def test_registry_creation(self):
-        registry = ToolRegistry()
-        assert registry is not None
-```
-
-### Integration Test Example
-```python
-import pytest
-from mem_llm import MemAgent
-
-@pytest.mark.integration
-class TestOllamaIntegration:
-    def test_chat_with_ollama(self):
-        agent = MemAgent(backend='ollama', model='ministral-3:14b')
-        response = agent.chat("Hello")
-        assert len(response) > 0
-```
-
-### Async Test Example
-```python
-import pytest
-
-@pytest.mark.asyncio
-async def test_async_tool():
-    @tool(name="test", description="Test")
-    async def async_func(x: int) -> int:
-        return x * 2
-
-    result = await async_func.execute({"x": 5})
-    assert result == 10
-```
-
-## Coverage Goals
-
-- **Overall Coverage**: â‰¥ 80%
-- **Unit Tests**: â‰¥ 90%
-- **Integration Tests**: â‰¥ 70%
-- **API Tests**: â‰¥ 85%
-
-## CI/CD Integration
-
-Tests are automatically run on:
-- Every push to `main` or `develop`
-- Every pull request
-- Weekly schedule (Mondays)
-
-See `.github/workflows/ci.yml` for CI configuration.
-
 ## Test Dependencies
 
-Core test dependencies (in `requirements-dev.txt`):
-- `pytest>=7.4.0` - Testing framework
-- `pytest-cov>=4.1.0` - Coverage reporting
-- `pytest-asyncio>=0.21.0` - Async test support
-- `pytest-mock>=3.11.0` - Mocking utilities
-- `httpx>=0.24.0` - HTTP testing for FastAPI
+Core dev dependencies are defined in `pyproject.toml`:
+- `pytest>=7.4.0`
+- `pytest-cov>=4.1.0`
+- `pytest-asyncio>=0.21.0`
+- `pytest-mock>=3.11.0`
+- `httpx>=0.24.0`
 
 ## Troubleshooting
 
-### Tests fail with ImportError
+### Import errors
 ```bash
 pip install -e .
-pip install -r requirements-dev.txt
+pip install -e .[dev]
 ```
 
-### Integration tests fail
-Make sure Ollama or LM Studio is running:
+### LM Studio integration tests
+Make sure LM Studio is running locally on `http://localhost:1234` and has a model loaded.
+
+### Ollama integration tests
 ```bash
-# For Ollama
 ollama serve
-
-# Check if running
 curl http://localhost:11434/api/tags
-```
-
-### Coverage report not generated
-```bash
-# Install coverage dependencies
-pip install pytest-cov
-
-# Generate report
-pytest --cov=mem_llm --cov-report=html
-open htmlcov/index.html  # View in browser
 ```
 
 ## Contributing
 
-When adding new features:
-1. Write unit tests first (TDD)
-2. Ensure tests pass: `pytest`
-3. Check coverage: `pytest --cov`
-4. Run linters: `black mem_llm tests && flake8 mem_llm tests`
-5. Update this README if needed
-
-## Contact
-
-For questions about testing:
-- Open an issue: https://github.com/emredeveloper/Mem-LLM/issues
-- Email: karatasqemre@gmail.com
-
+When adding features or bug fixes:
+1. Add or update unit tests.
+2. Update integration tests when behavior changes.
+3. Keep README examples and version references current.

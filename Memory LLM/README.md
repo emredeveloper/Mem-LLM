@@ -15,15 +15,13 @@ Perfect for privacy-first, production-ready workflows!
 
 ---
 
-## 🚀 What's New in v2.4.7?
+## 🚀 What's New in v2.4.8?
 
-We've supercharged Mem-LLM with core stability and performance updates:
-- **Major Bug Fixes:** Resolved critical memory handling, tool parsing, and backend compatibility issues.
-- **Enhanced Database Reliability:** Improved SQL ordering and thread-safety behavior for concurrent operations.
-- **Missing Dependencies Resolved:** Automatically includes `psutil` and `networkx`.
-- **Updated Default Models:** 
-  - Ollama now defaults to `granite4:3b`
-  - LM Studio now defaults to `google/gemma-3-12b`
+This release finalizes the recent hardening and packaging updates:
+- **Security Hardening:** Safer API auth defaults, upload handling, workspace validation, and tool execution behavior.
+- **Safer Built-in Tools:** Calculator execution now uses AST-based parsing instead of unsafe evaluation.
+- **LM Studio Defaults Updated:** LM Studio examples and defaults now use `qwen3.5-2b`.
+- **Documentation Cleanup:** README files and remaining encoding issues were normalized.
 
 ---
 
@@ -83,7 +81,7 @@ Ensure LM Studio's local server is running on its default port:
 ```python
 from mem_llm import MemAgent
 
-agent = MemAgent(backend="lmstudio", model="google/gemma-3-12b")
+agent = MemAgent(backend="lmstudio", model="qwen3.5-2b")
 agent.set_user("bob")
 
 print(agent.chat("Explain Python memory management in 2 sentences."))

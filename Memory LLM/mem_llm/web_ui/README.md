@@ -1,43 +1,43 @@
 # Mem-LLM Web UI
 
-Modern web interface for Mem-LLM with streaming support, memory management, and metrics dashboard.
+Modern web interface for Mem-LLM with streaming support, memory management, and metrics dashboards.
 
-## 📄 Pages
+## Pages
 
-1. **💬 Chat (index.html)** - Main chat interface with real-time streaming
-2. **🧠 Memory (memory.html)** - Memory management and search
-3. **📊 Metrics (metrics.html)** - System metrics and statistics
+1. `index.html` - Main chat interface with streaming responses
+2. `memory.html` - Memory management and search
+3. `metrics.html` - Metrics and statistics views
 
-## 🚀 Usage
+## Usage
 
 ```bash
 # Install mem-llm with API support
 pip install mem-llm[api]
 
-# Launch Web UI (recommended)
+# Launch Web UI
 mem-llm-web
 
-# Or use launcher script
+# Or use the launcher script
 python start_web_ui.py
 ```
 
-## 📋 Requirements
+## Requirements
 
 - Python 3.10+
 - FastAPI
 - Uvicorn
 - WebSockets
 
-## 🔧 Configuration
+## Configuration
 
-Configure backend and model in the Web UI sidebar, or edit `api_server.py` defaults.
+Configure the backend and model in the Web UI sidebar, or edit the defaults in `api_server.py`.
 
-## 📚 More Info
+## More Info
 
 - [Main README](../README.md)
 - [API Docs](http://localhost:8000/docs)
 - [Examples](../../examples/)
 
-## 📄 License
+## License
 
 MIT License
