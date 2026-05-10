@@ -8,10 +8,12 @@ from .base_llm_client import BaseLLMClient  # noqa: F401
 # New multi-backend support (v1.3.0+)
 from .clients import LMStudioClient  # noqa: F401
 from .clients import OllamaClient as OllamaClientNew  # noqa: F401
+from .clients import LlamaCppClient, OpenAICompatibleClient  # noqa: F401
 from .llm_client import OllamaClient  # noqa: F401 Backward compatibility
 from .llm_client_factory import LLMClientFactory  # noqa: F401
 from .mem_agent import MemAgent  # noqa: F401
 from .memory_manager import MemoryManager  # noqa: F401
+from .memory_router import MemoryRouter  # noqa: F401
 
 # Tools (optional)
 try:
@@ -86,11 +88,12 @@ try:
 except ImportError:
     __all_metrics__ = []
 
-__version__ = "2.4.8"
+__version__ = "2.5.0"
 __author__ = "Cihat Emre Karatas"
 
 # Multi-backend LLM support (v1.3.0+)
 __all_llm_backends__ = ["BaseLLMClient", "LLMClientFactory", "OllamaClientNew", "LMStudioClient"]
+__all_llm_backends__ += ["OpenAICompatibleClient", "LlamaCppClient"]
 
 # Tool system (v2.0.0+)
 try:
@@ -180,6 +183,7 @@ __all__ = (
     [
         "MemAgent",
         "MemoryManager",
+        "MemoryRouter",
         "OllamaClient",
     ]
     + __all_llm_backends__

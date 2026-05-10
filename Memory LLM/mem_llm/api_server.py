@@ -26,7 +26,7 @@ API Documentation:
     - ReDoc: http://localhost:8000/redoc
 
 Author: Cihat Emre Karatas
-Version: 2.4.8
+Version: 2.5.0
 """
 
 import asyncio
@@ -65,7 +65,7 @@ from .api_auth import AUTH_DISABLED, create_api_key, require_permission, api_key
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-API_VERSION = "2.4.8"
+API_VERSION = "2.5.0"
 
 
 class AgentStore:
@@ -203,7 +203,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Mem-LLM API",
     description="REST API for Mem-LLM - Privacy-first, Memory-enabled AI Assistant (100% Local)",
-    version="2.4.8",
+    version="2.5.0",
     docs_url="/docs",
     redoc_url="/redoc",
     lifespan=lifespan,
@@ -837,25 +837,25 @@ async def clear_graph(user_id: str, user=Depends(require_permission("write"))): 
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# Check for a global workflow registry or simple directory scan
+WORKFLOW_DEFINITIONS = {
+    "research": {
+        "name": "Deep Research",
+        "description": "Research a topic and summarize findings",
+    },
+    "content_creation": {
+        "name": "Content Creation",
+        "description": "Generate blog post from topic",
+    },
+}
 
 
 @app.get("/api/v1/workflows", tags=["Workflow"])
 async def list_workflows(user=Depends(require_permission("read"))):  # noqa: B008
     """List available workflows"""
-    # Mocking for now, or scanning a directory
     return {
         "workflows": [
-            {
-                "id": "research",
-                "name": "Deep Research",
-                "description": "Research a topic and summarize findings",
-            },
-            {
-                "id": "content_creation",
-                "name": "Content Creation",
-                "description": "Generate blog post from topic",
-            },
+            {"id": workflow_id, **definition}
+            for workflow_id, definition in WORKFLOW_DEFINITIONS.items()
         ]
     }
 
@@ -872,8 +872,7 @@ async def run_workflow(
     try:
         agent = get_or_create_agent(user_id)
 
-        # Define available workflows dynamically or via registry (simplified for demo)
-        workflow = _get_workflow(workflow_id, agent)  # Refactored helper
+        workflow = _get_workflow(workflow_id, agent)
 
         # Run workflow
         context = await workflow.run(initial_data=input_data)
@@ -898,7 +897,6 @@ async def run_workflow_stream(
         agent = get_or_create_agent(user_id)
         import json
 
-        # Helper to get workflow (duplicate logic for now, should refactor)
         workflow = _get_workflow(workflow_id, agent)
 
         async def event_generator():

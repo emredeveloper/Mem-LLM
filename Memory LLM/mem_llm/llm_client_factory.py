@@ -8,6 +8,8 @@ Supports multiple backends with automatic detection.
 Supported Backends:
 - Ollama: Local Ollama service
 - LM Studio: Local LM Studio server
+- OpenAI-compatible: Any OpenAI-compatible chat completions server
+- llama.cpp: llama.cpp server using the OpenAI-compatible API
 
 Usage:
     # Create specific backend
@@ -29,6 +31,7 @@ from typing import Any, Dict, List, Optional
 from .base_llm_client import BaseLLMClient
 from .clients.lmstudio_client import LMStudioClient
 from .clients.ollama_client import OllamaClient
+from .clients.openai_compatible_client import LlamaCppClient, OpenAICompatibleClient
 
 
 class LLMClientFactory:
@@ -55,6 +58,27 @@ class LLMClientFactory:
             "default_url": "http://localhost:1234",
             "default_model": "qwen3.5-2b",
         },
+        "openai-compatible": {
+            "class": OpenAICompatibleClient,
+            "description": "Generic OpenAI-compatible chat completions API",
+            "type": "local",
+            "default_url": "http://localhost:8080",
+            "default_model": "local-model",
+        },
+        "llamacpp": {
+            "class": LlamaCppClient,
+            "description": "llama.cpp server (OpenAI-compatible)",
+            "type": "local",
+            "default_url": "http://localhost:8080",
+            "default_model": "llama.cpp",
+        },
+    }
+    BACKEND_ALIASES = {
+        "openai": "openai-compatible",
+        "openai_compatible": "openai-compatible",
+        "llama-cpp": "llamacpp",
+        "llama_cpp": "llamacpp",
+        "llama.cpp": "llamacpp",
     }
 
     @staticmethod
@@ -63,7 +87,7 @@ class LLMClientFactory:
         Create LLM client for specified backend
 
         Args:
-            backend: Backend name ('ollama', 'lmstudio')
+            backend: Backend name ('ollama', 'lmstudio', 'openai-compatible', 'llamacpp')
             model: Model name (uses default if None)
             **kwargs: Backend-specific configuration
                      - base_url: API endpoint (for local backends)
@@ -87,7 +111,7 @@ class LLMClientFactory:
                 base_url='http://localhost:1234'
             )
         """
-        backend = backend.lower()
+        backend = LLMClientFactory.BACKEND_ALIASES.get(backend.lower(), backend.lower())
 
         if backend not in LLMClientFactory.BACKENDS:
             available = ", ".join(LLMClientFactory.BACKENDS.keys())
@@ -142,9 +166,12 @@ class LLMClientFactory:
 
         # Default check order: local services first
         if preferred_backends is None:
-            preferred_backends = ["ollama", "lmstudio"]
+            preferred_backends = ["ollama", "lmstudio", "llamacpp", "openai-compatible"]
 
         for backend_name in preferred_backends:
+            backend_name = LLMClientFactory.BACKEND_ALIASES.get(
+                backend_name.lower(), backend_name.lower()
+            )
             if backend_name not in LLMClientFactory.BACKENDS:
                 logger.warning(f"Unknown backend in auto-detect: {backend_name}")
                 continue
@@ -249,6 +276,7 @@ class LLMClientFactory:
         Raises:
             ValueError: If backend not found
         """
+        backend = LLMClientFactory.BACKEND_ALIASES.get(backend.lower(), backend.lower())
         if backend not in LLMClientFactory.BACKENDS:
             raise ValueError(f"Unknown backend: {backend}")
 

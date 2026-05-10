@@ -33,13 +33,14 @@ import json
 import logging
 import time
 from datetime import datetime
-from typing import Any, Dict, Iterator, List, Optional, Union
+from typing import Any, Dict, Iterator, List, Optional, Tuple, Union
 
 from .llm_client import OllamaClient  # noqa: F401 Backward compatibility
 from .llm_client_factory import LLMClientFactory
 
 # Core dependencies
 from .memory_manager import MemoryManager
+from .memory_router import MemoryRouter
 from .response_metrics import ChatResponse, ResponseMetricsAnalyzer, calculate_confidence
 from .tool_system import ToolCallParser, ToolRegistry, format_tools_for_prompt
 from .memory_tools import ToolExecutor
@@ -99,6 +100,7 @@ class MemAgent:
         preset: Optional[str] = None,
         enable_hierarchical_memory: bool = False,
         enable_graph_memory: bool = False,
+        enable_memory_router: bool = True,
         **llm_kwargs,
     ):
         """
@@ -283,6 +285,7 @@ class MemAgent:
         self.model = model  # Store model name
         self.backend = backend  # Store backend name
         self.use_sql = use_sql  # Store SQL usage flag
+        self.enable_memory_router = enable_memory_router
 
         # Default model for LM Studio (v2.3.0)
         if self.backend == "lmstudio" and self.model in [
@@ -292,6 +295,20 @@ class MemAgent:
             self.model = "qwen3.5-2b"
             self.logger.info(f" Switched to default LM Studio model: {self.model}")
 
+        if self.backend in ["llamacpp", "llama.cpp", "llama-cpp", "llama_cpp"] and self.model in [
+            "granite4:3b",
+            "qwen3.5-2b",
+        ]:
+            self.model = "llama.cpp"
+            self.logger.info(f" Switched to default llama.cpp model alias: {self.model}")
+
+        if self.backend in ["openai-compatible", "openai_compatible", "openai"] and self.model in [
+            "granite4:3b",
+            "qwen3.5-2b",
+        ]:
+            self.model = "local-model"
+            self.logger.info(f" Switched to default OpenAI-compatible model alias: {self.model}")
+
         # Initialize LLM client (v1.3.0: Multi-backend support)
         # Prepare backend configuration
         llm_config = llm_kwargs.copy()
@@ -300,8 +317,26 @@ class MemAgent:
         if base_url is None and backend == "ollama":
             base_url = ollama_url
 
+        if base_url is None:
+            base_url = llm_config.pop("lmstudio_url", None) or llm_config.pop(
+                "openai_base_url", None
+            )
+
+        if api_key:
+            llm_config["api_key"] = api_key
+
         # Add base_url for local backends
-        if base_url and backend in ["ollama", "lmstudio"]:
+        if base_url and backend in [
+            "ollama",
+            "lmstudio",
+            "openai-compatible",
+            "openai_compatible",
+            "openai",
+            "llamacpp",
+            "llama.cpp",
+            "llama-cpp",
+            "llama_cpp",
+        ]:
             llm_config["base_url"] = base_url
 
         # Add api_key for cloud backends
@@ -360,7 +395,16 @@ class MemAgent:
             # Check if model exists (for backends that support listing)
             try:
                 available_models = self.llm.list_models()
-                if available_models and self.model not in available_models:
+                skip_model_strict_check = backend in [
+                    "openai-compatible",
+                    "openai_compatible",
+                    "openai",
+                    "llamacpp",
+                    "llama.cpp",
+                    "llama-cpp",
+                    "llama_cpp",
+                ] and self.model in ["local-model", "llama.cpp"]
+                if available_models and self.model not in available_models and not skip_model_strict_check:
                     error_msg = (
                         f" ERROR: Model '{self.model}' not found in {backend}!\n"
                         f"   \n"
@@ -422,6 +466,12 @@ class MemAgent:
             self.graph_store = GraphStore(persistence_path=graph_path)
             self.graph_extractor = GraphExtractor(self)
             self.logger.info(f" Graph Memory enabled (path: {graph_path})")
+
+        self.memory_router = (
+            MemoryRouter(self.memory, graph_store=self.graph_store)
+            if self.enable_memory_router
+            else None
+        )
 
         self.logger.info("MemAgent successfully initialized")
 
@@ -792,6 +842,91 @@ class MemAgent:
 
         return current_text
 
+    def _get_kb_context(self, message: str) -> Tuple[str, int, bool]:
+        """Return formatted KB context, result count, and usage flag."""
+        if not (ADVANCED_AVAILABLE and isinstance(self.memory, SQLMemoryManager)):
+            return "", 0, False
+
+        use_kb = True
+        kb_limit = 5
+        if hasattr(self, "config") and self.config:
+            use_kb = self.config.get("response.use_knowledge_base", True)
+            kb_limit = self.config.get("knowledge_base.search_limit", 5)
+
+        if not use_kb:
+            return "", 0, False
+
+        try:
+            if self.memory_router:
+                kb_results = self.memory_router.search_knowledge(query=message, limit=kb_limit)
+            else:
+                kb_results = self.memory.search_knowledge(query=message, limit=kb_limit)
+        except Exception as e:
+            self.logger.error(f"Knowledge base search error: {e}")
+            return "", 0, False
+
+        if not kb_results:
+            return "", 0, False
+
+        lines = ["\n\n RELEVANT KNOWLEDGE BASE:"]
+        for i, result in enumerate(kb_results, 1):
+            lines.append(f"{i}. Q: {result['question']}\n   A: {result['answer']}")
+        lines.append("\n USE THIS INFORMATION TO ANSWER! Be brief but accurate.")
+        return "\n".join(lines), len(kb_results), True
+
+    def _build_chat_messages(
+        self, user_id: str, message: str, kb_context: str
+    ) -> Tuple[List[Dict[str, str]], bool]:
+        """Build system prompt, routed memory, recent history, and user message."""
+        messages = []
+        used_memory = False
+
+        if self.current_system_prompt:
+            messages.append({"role": "system", "content": self.current_system_prompt})
+
+        if self.memory_router:
+            try:
+                memory_context = self.memory_router.build_context(user_id, message)
+                if memory_context.get("text"):
+                    used_memory = True
+                    messages.append(
+                        {
+                            "role": "system",
+                            "content": (
+                                "Use this routed long-term memory only when relevant. "
+                                "Prefer current user instructions if there is a conflict.\n\n"
+                                f"{memory_context['text']}"
+                            ),
+                        }
+                    )
+            except Exception as e:
+                self.logger.error(f"Memory router context error: {e}")
+
+        try:
+            if hasattr(self.memory, "get_recent_conversations"):
+                recent_limit = (
+                    self.config.get("response.recent_conversations_limit", 5)
+                    if hasattr(self, "config") and self.config
+                    else 5
+                )
+                recent_convs = self.memory.get_recent_conversations(user_id, recent_limit)
+
+                if recent_convs:
+                    used_memory = True
+
+                if ADVANCED_AVAILABLE and isinstance(self.memory, SQLMemoryManager):
+                    recent_convs = list(reversed(recent_convs))
+
+                for conv in recent_convs:
+                    messages.append({"role": "user", "content": conv.get("user_message", "")})
+                    messages.append({"role": "assistant", "content": conv.get("bot_response", "")})
+        except Exception as e:
+            self.logger.error(f"Memory history loading error: {e}")
+
+        final_message = f"{kb_context}\n\nUser Question: {message}" if kb_context else message
+        messages.append({"role": "user", "content": final_message})
+        return messages, used_memory
+
     def chat(
         self,
         message: str,
@@ -891,75 +1026,13 @@ class MemAgent:
                 )
             return tool_result
 
-        # Knowledge base search (if using SQL)
-        kb_context = ""
-        if ADVANCED_AVAILABLE and isinstance(self.memory, SQLMemoryManager):
-            # Check config only if it exists, otherwise always use KB
-            use_kb = True
-            kb_limit = 5
-
-            if hasattr(self, "config") and self.config:
-                use_kb = self.config.get("response.use_knowledge_base", True)
-                kb_limit = self.config.get("knowledge_base.search_limit", 5)
-
-            if use_kb:
-                try:
-                    kb_results = self.memory.search_knowledge(query=message, limit=kb_limit)
-
-                    if kb_results:
-                        kb_results_count = len(kb_results)
-                        used_kb = True
-                        kb_context = "\n\n RELEVANT KNOWLEDGE BASE:\n"
-                        for i, result in enumerate(kb_results, 1):
-                            kb_context += (
-                                f"{i}. Q: {result['question']}\n   A: {result['answer']}\n"
-                            )
-                        kb_context += (
-                            "\n USE THIS INFORMATION TO ANSWER! Be brief but accurate.\n"
-                        )
-                except Exception as e:
-                    self.logger.error(f"Knowledge base search error: {e}")
+        kb_context, kb_results_count, used_kb = self._get_kb_context(message)
 
         # Rebuild system prompt to include any newly registered tools (v2.1.1+)
         if self.enable_tools and self.tool_registry:
             self._build_dynamic_system_prompt()
 
-        # Get conversation history
-        messages = []
-        if self.current_system_prompt:
-            messages.append({"role": "system", "content": self.current_system_prompt})
-
-        # Add memory history
-        try:
-            if hasattr(self.memory, "get_recent_conversations"):
-                recent_limit = (
-                    self.config.get("response.recent_conversations_limit", 5)
-                    if hasattr(self, "config") and self.config
-                    else 5
-                )
-                recent_convs = self.memory.get_recent_conversations(user_id, recent_limit)
-
-                if recent_convs:
-                    used_memory = True
-
-                # SQL backend returns newest-first; reverse to build oldest-first context.
-                if ADVANCED_AVAILABLE and isinstance(self.memory, SQLMemoryManager):
-                    recent_convs = list(reversed(recent_convs))
-
-                # Add conversations in chronological order (oldest first)
-                for conv in recent_convs:
-                    messages.append({"role": "user", "content": conv.get("user_message", "")})
-                    messages.append({"role": "assistant", "content": conv.get("bot_response", "")})
-        except Exception as e:
-            self.logger.error(f"Memory history loading error: {e}")
-
-        # Add current message WITH knowledge base context (if available)
-        final_message = message
-        if kb_context:
-            # Inject KB directly into user message for maximum visibility
-            final_message = f"{kb_context}\n\nUser Question: {message}"
-
-        messages.append({"role": "user", "content": final_message})
+        messages, used_memory = self._build_chat_messages(user_id, message, kb_context)
 
         # Get response from LLM
         temperature = (
@@ -1062,6 +1135,13 @@ class MemAgent:
                     bot_response=response,
                     metadata=enriched_metadata,
                 )
+                if self.memory_router:
+                    self.memory_router.update_after_interaction(
+                        user_id=user_id,
+                        user_message=message,
+                        bot_response=response,
+                        metadata=enriched_metadata,
+                    )
             elif hasattr(self.memory, "add_interaction"):
                 self.memory.add_interaction(
                     user_id=user_id,
@@ -1072,6 +1152,14 @@ class MemAgent:
 
                 # Extract and save user info to profile
                 self._update_user_profile(user_id, message, response)
+
+                if self.memory_router:
+                    self.memory_router.update_after_interaction(
+                        user_id=user_id,
+                        user_message=message,
+                        bot_response=response,
+                        metadata=enriched_metadata,
+                    )
 
                 # Update graph memory (v2.3.0)
                 self._update_graph_memory(message, response)
@@ -1175,73 +1263,13 @@ class MemAgent:
             yield tool_result
             return
 
-        # Knowledge base search (if using SQL)
-        kb_context = ""
-        if ADVANCED_AVAILABLE and isinstance(self.memory, SQLMemoryManager):
-            use_kb = True
-            kb_limit = 5
-
-            if hasattr(self, "config") and self.config:
-                use_kb = self.config.get("response.use_knowledge_base", True)
-                kb_limit = self.config.get("knowledge_base.search_limit", 5)
-
-            if use_kb:
-                try:
-                    kb_results = self.memory.search_knowledge(query=message, limit=kb_limit)
-
-                    if kb_results:
-                        kb_results_count = len(kb_results)
-                        used_kb = True
-                        kb_context = "\n\n RELEVANT KNOWLEDGE BASE:\n"
-                        for i, result in enumerate(kb_results, 1):
-                            kb_context += (
-                                f"{i}. Q: {result['question']}\n   A: {result['answer']}\n"
-                            )
-                        kb_context += (
-                            "\n USE THIS INFORMATION TO ANSWER! Be brief but accurate.\n"
-                        )
-                except Exception as e:
-                    self.logger.error(f"Knowledge base search error: {e}")
+        kb_context, kb_results_count, used_kb = self._get_kb_context(message)
 
         # Rebuild system prompt to include any newly registered tools (v2.1.1+)
         if self.enable_tools and self.tool_registry:
             self._build_dynamic_system_prompt()
 
-        # Get conversation history
-        messages = []
-        if self.current_system_prompt:
-            messages.append({"role": "system", "content": self.current_system_prompt})
-
-        # Add memory history
-        try:
-            if hasattr(self.memory, "get_recent_conversations"):
-                recent_limit = (
-                    self.config.get("response.recent_conversations_limit", 5)
-                    if hasattr(self, "config") and self.config
-                    else 5
-                )
-                recent_convs = self.memory.get_recent_conversations(user_id, recent_limit)
-
-                if recent_convs:
-                    used_memory = True
-
-                # SQL backend returns newest-first; reverse to build oldest-first context.
-                if ADVANCED_AVAILABLE and isinstance(self.memory, SQLMemoryManager):
-                    recent_convs = list(reversed(recent_convs))
-
-                # Add conversations in chronological order
-                for conv in recent_convs:
-                    messages.append({"role": "user", "content": conv.get("user_message", "")})
-                    messages.append({"role": "assistant", "content": conv.get("bot_response", "")})
-        except Exception as e:
-            self.logger.error(f"Memory history loading error: {e}")
-
-        # Add current message WITH knowledge base context (if available)
-        final_message = message
-        if kb_context:
-            final_message = f"{kb_context}\n\nUser Question: {message}"
-
-        messages.append({"role": "user", "content": final_message})
+        messages, used_memory = self._build_chat_messages(user_id, message, kb_context)
 
         # Get streaming response from LLM
         temperature = (
@@ -1329,6 +1357,14 @@ class MemAgent:
 
                 # Extract and save user info to profile
                 self._update_user_profile(user_id, message, final_response)
+
+                if self.memory_router:
+                    self.memory_router.update_after_interaction(
+                        user_id=user_id,
+                        user_message=message,
+                        bot_response=final_response,
+                        metadata=enriched_metadata,
+                    )
 
                 # Update graph memory (v2.3.0)
                 self._update_graph_memory(message, final_response)
@@ -1508,7 +1544,18 @@ class MemAgent:
             if triplets:
                 self.logger.info(f" Found {len(triplets)} graph triplets to save")
                 for source, relation, target in triplets:
-                    self.graph_store.add_triplet(source, relation, target)
+                    self.graph_store.add_triplet(
+                        source,
+                        relation,
+                        target,
+                        metadata={
+                            "user_id": self.current_user,
+                            "source": "conversation",
+                            "source_message": message[:500],
+                            "confidence": 0.7,
+                            "supersedes": True,
+                        },
+                    )
 
                 # Save graph to disk
                 self.graph_store.save()
@@ -1772,6 +1819,7 @@ class MemAgent:
             "tools_enabled": self.enable_tools,
             "tool_count": len(self.tool_registry.tools) if self.tool_registry else 0,
             "security_enabled": self.enable_security,
+            "memory_router_enabled": self.memory_router is not None,
             "hierarchical_memory_enabled": self.hierarchical_memory is not None,
             "graph_memory_enabled": self.graph_store is not None,
             "llm_available": llm_available,

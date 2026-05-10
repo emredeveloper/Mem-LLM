@@ -1,5 +1,21 @@
 ﻿# Changelog
 
+## [2.5.0] - 2026-05-10
+### Added
+- Added a generic OpenAI-compatible chat completions backend for local and remote `/v1/chat/completions` servers.
+- Added a llama.cpp backend alias (`llamacpp`, `llama-cpp`, `llama.cpp`) with streaming support.
+- Added `MemoryRouter` to unify core memory, archival memory, conversation recall, graph context, and KB retrieval.
+- Added temporal graph memory metadata (`valid_from`, `valid_to`, `last_seen`, `confidence`) with current and historical graph search.
+
+### Changed
+- MemAgent now injects routed long-term memory context when relevant.
+- Graph memory updates now include source and user metadata and can supersede stale same-relation facts.
+- Simplified duplicated backend alias handling, workflow listing, and repeated chat context-building logic.
+
+### Verified
+- Validated llama.cpp with `gemma-4-e4b` over `http://localhost:8080`.
+- Release gate covered llama.cpp chat, streaming, MemoryRouter context, and temporal graph behavior.
+
 ## [2.4.8] - 2026-03-05
 ### Changed
 - Updated all README files for the current release and normalized remaining encoding artifacts.

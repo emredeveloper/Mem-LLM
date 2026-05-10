@@ -15,13 +15,14 @@ Perfect for privacy-first, production-ready workflows!
 
 ---
 
-## 🚀 What's New in v2.4.8?
+## What's New in v2.5.0
 
-This release finalizes the recent hardening and packaging updates:
-- **Security Hardening:** Safer API auth defaults, upload handling, workspace validation, and tool execution behavior.
-- **Safer Built-in Tools:** Calculator execution now uses AST-based parsing instead of unsafe evaluation.
-- **LM Studio Defaults Updated:** LM Studio examples and defaults now use `qwen3.5-2b`.
-- **Documentation Cleanup:** README files and remaining encoding issues were normalized.
+This release expands local backend support and upgrades long-term memory:
+- **OpenAI-Compatible Backends:** Use any `/v1/chat/completions` compatible server.
+- **llama.cpp Support:** Connect directly to `llama-server` with `backend="llamacpp"`.
+- **MemoryRouter:** Unified core memory, archival memory, recall, graph context, and KB retrieval.
+- **Temporal Graph Memory:** Track current facts and historical facts with validity windows.
+- **Cleanup:** Reduced duplicated backend alias and chat context-building logic.
 
 ---
 
@@ -29,7 +30,9 @@ This release finalizes the recent hardening and packaging updates:
 
 - **Persistent Multi-User Memory:** Keep context across sessions. Supports lightweight JSON or robust SQLite databases.
 - **Advanced Tool Calling:** Endow your agent with superpowers! Use built-in tools or easily create your own with the `@tool` decorator.
-- **Multi-Backend Flexible Support:** Switch seamlessly between **Ollama** and **LM Studio**.
+- **Multi-Backend Flexible Support:** Switch between **Ollama**, **LM Studio**, **OpenAI-compatible APIs**, and **llama.cpp**.
+- **Long-Term Memory Routing:** Combine core memory, archival memory, recall, knowledge base, and graph context.
+- **Temporal Graph Memory:** Preserve changing facts without losing history.
 - **Knowledge Base (RAG) & Vector Stores:** Empower your agent with your own documents and databases organically.
 - **Conversation Analytics:** Track interactions, model performance, and agent behavior systematically.
 - **REST API + Web UI:** Deploy your local agent instantly with the built-in, ready-to-use API server and slick web interface.
@@ -85,6 +88,28 @@ agent = MemAgent(backend="lmstudio", model="qwen3.5-2b")
 agent.set_user("bob")
 
 print(agent.chat("Explain Python memory management in 2 sentences."))
+```
+
+### Using llama.cpp
+Start `llama-server` with an OpenAI-compatible endpoint:
+
+```powershell
+llama-server.exe -m C:\path\to\model.gguf --alias local-model --host 127.0.0.1 --port 8080
+```
+
+Connect Mem-LLM:
+
+```python
+from mem_llm import MemAgent
+
+agent = MemAgent(
+    backend="llamacpp",
+    model="local-model",
+    base_url="http://localhost:8080",
+)
+agent.set_user("carol")
+
+print(agent.chat("Remember that I prefer concise answers."))
 ```
 
 ---

@@ -6,14 +6,12 @@
 
 Mem-LLM is a privacy-first Python framework for building memory-enabled AI assistants that run locally.
 
-## What's New in v2.4.6
+## What's New in v2.5.0
 
-- Fixed critical memory, tool parsing, and backend compatibility issues.
-- Improved SQL ordering and thread-safety behavior.
-- Added missing runtime dependencies (`psutil`, `networkx`).
-- Updated backend defaults:
-  - Ollama: `granite4:3b`
-  - LM Studio: `google/gemma-3-12b`
+- Added OpenAI-compatible and llama.cpp backend support.
+- Added MemoryRouter for core memory, archival memory, recall, graph context, and KB retrieval.
+- Added temporal graph memory with current and historical graph search.
+- Simplified repeated backend and chat context-building code.
 
 ## Quick Start
 
@@ -39,15 +37,39 @@ print(agent.chat("What is my name?"))
 ```python
 from mem_llm import MemAgent
 
-agent = MemAgent(backend="lmstudio", model="google/gemma-3-12b")
+agent = MemAgent(backend="lmstudio", model="qwen3.5-2b")
 agent.set_user("alice")
 print(agent.chat("Summarize Python in one sentence."))
+```
+
+### llama.cpp
+
+Start llama.cpp server with an OpenAI-compatible endpoint:
+
+```powershell
+llama-server.exe -m C:\path\to\model.gguf --alias local-model --host 127.0.0.1 --port 8080
+```
+
+Then connect Mem-LLM:
+
+```python
+from mem_llm import MemAgent
+
+agent = MemAgent(
+    backend="llamacpp",
+    model="local-model",
+    base_url="http://localhost:8080",
+)
+agent.set_user("alice")
+print(agent.chat("Remember that I prefer concise answers."))
 ```
 
 ## Core Features
 
 - Persistent memory per user (JSON or SQLite)
-- Multi-backend support (Ollama, LM Studio)
+- Multi-backend support (Ollama, LM Studio, OpenAI-compatible APIs, llama.cpp)
+- MemoryRouter with core memory, archival memory, recall, and graph context
+- Temporal graph memory with current and historical lookup
 - Tool calling system (`@tool`, built-in tools, validation)
 - Streaming responses
 - Knowledge base integration
