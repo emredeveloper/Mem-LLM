@@ -4,10 +4,9 @@ import os
 
 from mem_llm import LLMClientFactory
 
-
 BACKENDS = (
     ("ollama", os.getenv("OLLAMA_MODEL", "granite4:3b")),
-    ("lmstudio", os.getenv("LMSTUDIO_MODEL", "google/gemma-3-12b")),
+    ("lmstudio", os.getenv("LMSTUDIO_MODEL", "qwen3.5-2b")),
 )
 
 
