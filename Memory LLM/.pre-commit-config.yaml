@@ -37,10 +37,6 @@ repos:
         args: ['--profile', 'black', '--line-length', '100']
 
 
-# Configuration
-default_language_version:
-  python: python3.12
-
 # CI configuration
 ci:
   autofix_commit_msg: |
