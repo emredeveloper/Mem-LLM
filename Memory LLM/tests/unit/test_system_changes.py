@@ -2,7 +2,6 @@ from datetime import datetime, timedelta
 
 import pytest
 
-from mem_llm.api_server import AgentStore
 from mem_llm.memory.hierarchy.layers import CategoryLayer, DomainLayer, TraceLayer
 from mem_llm.tool_system import ToolRegistry, tool
 
@@ -18,6 +17,9 @@ def blocked_tool(value: str) -> str:
 
 
 def test_agent_store_lru_eviction():
+    pytest.importorskip("fastapi")
+    from mem_llm.api_server import AgentStore
+
     store = AgentStore(ttl_seconds=3600, max_size=2)
     store.set("user1", object())
     store.set("user2", object())
@@ -37,6 +39,9 @@ def test_agent_store_lru_eviction():
 
 
 def test_agent_store_ttl(monkeypatch):
+    pytest.importorskip("fastapi")
+    from mem_llm.api_server import AgentStore
+
     store = AgentStore(ttl_seconds=10, max_size=10)
     store.set("user1", object())
 

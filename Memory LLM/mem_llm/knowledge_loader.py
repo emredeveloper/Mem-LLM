@@ -1,4 +1,4 @@
-﻿"""
+"""
 Knowledge Base Loader
 Loads pre-prepared problem/solution database into the system
 """

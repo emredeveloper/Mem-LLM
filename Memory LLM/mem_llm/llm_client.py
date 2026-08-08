@@ -1,4 +1,4 @@
-﻿"""
+"""
 LLM Client - Local model integration with Ollama
 Works with Granite4:tiny-h model
 """

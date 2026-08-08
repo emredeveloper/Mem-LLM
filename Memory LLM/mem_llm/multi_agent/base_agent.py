@@ -1,4 +1,4 @@
-﻿"""
+"""
 Base Agent Class for Multi-Agent System
 ========================================
 

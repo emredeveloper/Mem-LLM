@@ -1,4 +1,4 @@
-﻿"""
+"""
 Configuration Manager
 Reads and manages configuration from YAML file
 """

@@ -1,4 +1,4 @@
-﻿"""
+"""
 Command Line Interface for Mem-LLM
 Interactive chat, statistics, and data management
 """

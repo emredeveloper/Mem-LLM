@@ -15,6 +15,15 @@ Perfect for privacy-first, production-ready workflows!
 
 ---
 
+## What's New in v2.5.1
+
+Dependency fixes. Graph memory needs `pydantic` and the API server's upload endpoint needs
+`python-multipart`; neither was declared, so on a clean install graph memory silently degraded
+to a no-op and `pip install mem-llm[api]` could not import the API server. Both are now
+declared, so a plain `pip install mem-llm` gets working graph memory.
+
+---
+
 ## What's New in v2.5.0
 
 This release expands local backend support and upgrades long-term memory:

@@ -6,6 +6,11 @@
 
 Mem-LLM is a privacy-first Python framework for building memory-enabled AI assistants that run locally.
 
+## What's New in v2.5.1
+
+- Declared the missing `pydantic` dependency, so graph memory works on a clean install instead of silently disabling itself.
+- Declared the missing `python-multipart` dependency for the `api` extra, so `mem_llm.api_server` imports.
+
 ## What's New in v2.5.0
 
 - Added OpenAI-compatible and llama.cpp backend support.

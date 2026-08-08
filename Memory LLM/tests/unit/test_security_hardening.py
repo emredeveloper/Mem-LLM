@@ -50,11 +50,19 @@ def test_auth_is_enabled_by_default(monkeypatch):
 
     import mem_llm.api_auth as api_auth
 
-    api_auth = importlib.reload(api_auth)
+    original_key = api_auth.DEFAULT_API_KEY
 
-    assert api_auth.AUTH_DISABLED is False
-    assert api_auth.DEFAULT_API_KEY
-    assert api_auth.DEFAULT_API_KEY != "dev-api-key-change-in-production"
+    # With no env key set, reloading must auto-generate a secure per-process key.
+    api_auth = importlib.reload(api_auth)
+    try:
+        assert api_auth.AUTH_DISABLED is False
+        assert api_auth.DEFAULT_API_KEY
+        assert api_auth.DEFAULT_API_KEY != "dev-api-key-change-in-production"
+    finally:
+        # Reloading regenerates DEFAULT_API_KEY, which would break modules that
+        # already imported it (e.g. api_server). Restore the original value.
+        monkeypatch.setenv("MEM_LLM_API_KEY", original_key)
+        importlib.reload(api_auth)
 
 
 @pytest.mark.unit

@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 Web UI Launcher for Mem-LLM
 Starts the API server and opens the Web UI in the browser.

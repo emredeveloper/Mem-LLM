@@ -1,4 +1,4 @@
-﻿"""
+"""
 Mem-Agent: Unified Powerful System
 ==================================
 

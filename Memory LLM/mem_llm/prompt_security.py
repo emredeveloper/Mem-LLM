@@ -1,4 +1,4 @@
-﻿"""
+"""
 Prompt Injection Security Analysis & Protection
 ================================================
 Analyzes current vulnerabilities and provides protection mechanisms

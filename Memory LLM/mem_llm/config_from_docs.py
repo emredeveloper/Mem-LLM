@@ -1,4 +1,4 @@
-﻿"""
+"""
 Config Generator from Documents (PDF, DOCX, TXT)
 Automatically creates config.yaml from business documents
 """

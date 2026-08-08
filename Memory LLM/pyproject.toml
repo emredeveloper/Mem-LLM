@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mem-llm"
-version = "2.5.0"
+version = "2.5.1"
 description = "Privacy-first, memory-enabled AI assistant with workflow engine, knowledge graph, multi-agent systems, multi-backend LLM support (Ollama, LM Studio), vector search, and analytics - 100% local and production-ready"
 readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">=3.8"
@@ -31,6 +31,7 @@ dependencies = [
     "aiohttp>=3.9.0",  # Async tools support (v2.1.0+)
     "psutil>=5.9.0",  # Built-in system tools support
     "networkx>=3.0",  # Knowledge Graph support (v2.3.0+)
+    "pydantic>=2.0",  # Graph triplet validation (v2.3.0+)
 ]
 
 [project.optional-dependencies]
@@ -50,6 +51,7 @@ api = [
     "fastapi>=0.104.0",
     "uvicorn[standard]>=0.24.0",  # Includes WebSocket support
     "websockets>=12.0",  # WebSocket library
+    "python-multipart>=0.0.7",  # Required by upload endpoints (File/Form)
 ]
 postgresql = [
     "psycopg2-binary>=2.9.9",
@@ -73,6 +75,7 @@ all = [
     "fastapi>=0.104.0",
     "uvicorn[standard]>=0.24.0",
     "websockets>=12.0",
+    "python-multipart>=0.0.7",
     "psycopg2-binary>=2.9.9",
     "pymongo>=4.6.0",
 ]

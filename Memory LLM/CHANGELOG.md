@@ -1,5 +1,15 @@
 ﻿# Changelog
 
+## [2.5.1] - 2026-08-08
+### Fixed
+- Added the missing `pydantic` core dependency. Graph memory imports `pydantic` unconditionally, so on a clean `pip install mem-llm` the import failed silently and `GraphStore`/`GraphExtractor` were dropped from the public API while `enable_graph_memory=True` degraded to a no-op.
+- Added the missing `python-multipart` dependency to the `api` extra. The upload endpoint uses `File`/`Form`, so importing `mem_llm.api_server` raised `RuntimeError` on a clean `pip install mem-llm[api]`.
+- Fixed test isolation in `test_auth_is_enabled_by_default`: reloading `api_auth` regenerated `DEFAULT_API_KEY` and leaked it, causing every REST endpoint test to fail with 401 when the suite ran as a whole.
+- Made the FastAPI import in `tests/unit/test_system_changes.py` lazy so the unit suite no longer aborts during collection when the optional `api` extra is not installed.
+
+### Changed
+- Stripped the UTF-8 BOM from 19 package source files.
+
 ## [2.5.0] - 2026-05-10
 ### Added
 - Added a generic OpenAI-compatible chat completions backend for local and remote `/v1/chat/completions` servers.

@@ -1,4 +1,4 @@
-﻿"""
+"""
 SQL Database Memory Management
 Stores memory data using SQLite - Production-ready
 """

@@ -16,6 +16,7 @@ aiohttp>=3.9.0
 # System/graph features
 psutil>=5.9.0
 networkx>=3.0
+pydantic>=2.0
 
 # For development and testing, see requirements-dev.txt
 # For optional features (web UI, vector search), see requirements-optional.txt
