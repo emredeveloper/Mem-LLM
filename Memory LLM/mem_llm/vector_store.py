@@ -68,7 +68,7 @@ class ChromaVectorStore(VectorStore):
         self,
         collection_name: str = "knowledge_base",
         persist_directory: Optional[str] = None,
-        embedding_model: str = "nomic-embed-text-v2-moe:latest",
+        embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2",
     ):
         """
         Initialize ChromaDB vector store
@@ -148,14 +148,26 @@ class ChromaVectorStore(VectorStore):
                         def __init__(self, model, model_name):
                             self.model = model
                             self.model_name = model_name
-                            self.name = model_name  # ChromaDB may check for 'name' attribute
 
-                        def __call__(self, texts: List[str]) -> List[List[float]]:
-                            embeddings = self.model.encode(texts, show_progress_bar=False)
+                        # ChromaDB >=1.0 calls name() as a method, and passes the
+                        # texts as the keyword argument `input`.
+                        def name(self) -> str:
+                            return self.model_name
+
+                        def __call__(self, input: List[str]) -> List[List[float]]:
+                            embeddings = self.model.encode(input, show_progress_bar=False)
                             return embeddings.tolist()
 
                         def encode_queries(self, queries: List[str]) -> List[List[float]]:
                             return self.__call__(queries)
+
+                        def embed_query(self, input) -> List[List[float]]:
+                            texts = [input] if isinstance(input, str) else list(input)
+                            return self.__call__(texts)
+
+                        def embed_documents(self, input) -> List[List[float]]:
+                            texts = [input] if isinstance(input, str) else list(input)
+                            return self.__call__(texts)
 
                     self._embedding_fn = CustomEmbeddingFunction(model, self.embedding_model)
                     logger.info(

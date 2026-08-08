@@ -30,7 +30,7 @@ class SQLMemoryManager:
         db_path: str = "memories/memories.db",
         enable_vector_search: bool = False,
         vector_store_type: str = "chroma",
-        embedding_model: str = "nomic-embed-text-v2-moe:latest",
+        embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2",
     ):
         """
         Args:
@@ -700,4 +700,3 @@ class SQLMemoryManager:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
-

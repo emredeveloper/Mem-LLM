@@ -41,9 +41,9 @@ from .llm_client_factory import LLMClientFactory
 # Core dependencies
 from .memory_manager import MemoryManager
 from .memory_router import MemoryRouter
+from .memory_tools import ToolExecutor
 from .response_metrics import ChatResponse, ResponseMetricsAnalyzer, calculate_confidence
 from .tool_system import ToolCallParser, ToolRegistry, format_tools_for_prompt
-from .memory_tools import ToolExecutor
 
 # Advanced features (optional)
 ADVANCED_AVAILABLE = False
@@ -56,7 +56,7 @@ try:
     from .knowledge_loader import KnowledgeLoader
     from .memory.hierarchy import HierarchicalMemory
     from .memory_db import SQLMemoryManager
-    
+
     ADVANCED_AVAILABLE = True
 
     # New features v2.3.0 - Managed separately to allow partial failures
@@ -94,7 +94,7 @@ class MemAgent:
         check_connection: bool = False,
         enable_security: bool = False,
         enable_vector_search: bool = False,
-        embedding_model: str = "nomic-embed-text-v2-moe:latest",
+        embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2",
         enable_tools: bool = False,
         tools: Optional[List] = None,
         preset: Optional[str] = None,
@@ -121,7 +121,7 @@ class MemAgent:
             enable_vector_search: Enable semantic/vector search for KB
                 (v1.3.2+, requires chromadb) - NEW
             embedding_model: Embedding model for vector search
-                (default: "nomic-embed-text-v2-moe:latest") - NEW
+                (default: "sentence-transformers/all-MiniLM-L6-v2") - NEW
             preset: Configuration preset name (e.g., 'chatbot', 'code_assistant') - NEW in v2.1.4
             **llm_kwargs: Additional backend-specific parameters
 
@@ -404,7 +404,11 @@ class MemAgent:
                     "llama-cpp",
                     "llama_cpp",
                 ] and self.model in ["local-model", "llama.cpp"]
-                if available_models and self.model not in available_models and not skip_model_strict_check:
+                if (
+                    available_models
+                    and self.model not in available_models
+                    and not skip_model_strict_check
+                ):
                     error_msg = (
                         f" ERROR: Model '{self.model}' not found in {backend}!\n"
                         f"   \n"
@@ -708,7 +712,9 @@ class MemAgent:
 
                 # Check if tool exists before executing
                 if not self.tool_registry.get(tool_name):
-                    self.logger.warning(f"Tool '{tool_name}' not found in registry. Available tools: {list(self.tool_registry.tools.keys())}")
+                    self.logger.warning(
+                        f"Tool '{tool_name}' not found in registry. Available tools: {list(self.tool_registry.tools.keys())}"
+                    )
                     # Skip this tool call and continue with others
                     continue
 
@@ -776,7 +782,9 @@ class MemAgent:
                         try:
                             limit = int(result.result.split(":", 1)[1])
                             history = []
-                            if self.current_user and hasattr(self.memory, "get_recent_conversations"):
+                            if self.current_user and hasattr(
+                                self.memory, "get_recent_conversations"
+                            ):
                                 history = self.memory.get_recent_conversations(
                                     self.current_user, limit=limit
                                 )
@@ -786,8 +794,7 @@ class MemAgent:
                                     user_msg = conv.get("user_message", "")[:80]
                                     bot_msg = conv.get("bot_response", "")[:80]
                                     formatted += (
-                                        f"{idx}. User: {user_msg}...\n"
-                                        f"   Bot: {bot_msg}...\n"
+                                        f"{idx}. User: {user_msg}...\n" f"   Bot: {bot_msg}...\n"
                                     )
                                 result.result = formatted
                             else:
@@ -2039,6 +2046,3 @@ class MemAgent:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
-
-
-

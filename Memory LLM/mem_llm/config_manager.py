@@ -61,7 +61,7 @@ class ConfigManager:
                 "search_limit": 5,
                 "min_relevance_score": 0.3,
                 "enable_vector_search": False,  # v1.3.2+ - Optional semantic search
-                "embedding_model": "nomic-embed-text-v2-moe:latest",  # Sentence transformers model
+                "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",  # Sentence transformers model
             },
             "response": {
                 "use_knowledge_base": True,
@@ -217,5 +217,3 @@ def reload_config() -> None:
     """Reloads global configuration"""
     if _config_manager:
         _config_manager.reload()
-
-

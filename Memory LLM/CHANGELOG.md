@@ -1,5 +1,10 @@
 ﻿# Changelog
 
+## [Unreleased]
+### Fixed
+- Fixed the default embedding model name. It was `nomic-embed-text-v2-moe:latest`, an Ollama-style tag that `sentence-transformers` cannot resolve, so `enable_vector_search=True` always failed with `OSError`. Now `sentence-transformers/all-MiniLM-L6-v2`.
+- Fixed the ChromaDB embedding-function wrapper for chromadb >= 1.0: `name` is now a method rather than a string attribute, `__call__` takes `input`, and `embed_query`/`embed_documents` are provided. Vector search previously failed at collection creation and again at query time.
+
 ## [2.5.1] - 2026-08-08
 ### Fixed
 - Added the missing `pydantic` core dependency. Graph memory imports `pydantic` unconditionally, so on a clean `pip install mem-llm` the import failed silently and `GraphStore`/`GraphExtractor` were dropped from the public API while `enable_graph_memory=True` degraded to a no-op.
@@ -1064,6 +1069,3 @@ response = agent.chat("Hello!")  # Security checks applied automatically
 - [AGENT] Memory-enabled AI assistant
 - [STORAGE] JSON memory management
 - [BACKEND] Ollama integration
-
-
-
