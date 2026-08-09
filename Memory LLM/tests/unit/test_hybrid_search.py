@@ -99,10 +99,57 @@ def test_existing_database_is_backfilled_into_the_index(tmp_path):
 @pytest.mark.unit
 def test_rrf_prefers_entries_found_by_both_retrievers():
     """An item ranked by both lists beats one ranked highly by only one."""
-    dense = [{"id": 1, "answer": "a"}, {"id": 2, "answer": "b"}]
-    sparse = [{"id": 3, "answer": "c"}, {"id": 1, "answer": "a"}]
+    dense = [{"question": "q1", "answer": "a"}, {"question": "q2", "answer": "b"}]
+    sparse = [{"question": "q3", "answer": "c"}, {"question": "q1", "answer": "a"}]
 
     fused = SQLMemoryManager._reciprocal_rank_fusion([dense, sparse], limit=3)
 
-    assert [x["id"] for x in fused][0] == 1
+    assert fused[0]["question"] == "q1"
     assert len(fused) == 3, "fusion must dedupe, not concatenate"
+
+
+@pytest.mark.unit
+def test_rrf_promotes_consensus_from_a_wider_candidate_pool():
+    """A row both retrievers rank just outside the top-N should still win.
+
+    This is why each retriever is queried for more than `limit`: truncating to
+    `limit` first would drop the consensus row before fusion ever saw it.
+    """
+    dense = [{"question": f"d{i}", "answer": f"d{i}"} for i in (1, 2)]
+    sparse = [{"question": f"s{i}", "answer": f"s{i}"} for i in (1, 2)]
+    consensus = {"question": "X", "answer": "X"}
+
+    fused = SQLMemoryManager._reciprocal_rank_fusion(
+        [dense + [consensus], sparse + [consensus]], limit=2
+    )
+
+    assert fused[0]["question"] == "X"
+
+
+@pytest.mark.unit
+def test_rrf_dedupes_across_differing_result_shapes():
+    """The same row must fuse even when the retrievers format it differently.
+
+    BM25 returns the answer on its own; the vector store returns
+    "question\\nanswer" and, for entries indexed by an older version, carries
+    no kb_id. Without normalisation the user sees the same entry twice.
+    """
+    sparse = [
+        {
+            "id": 7,
+            "question": "Refund policy",
+            "answer": "Refunds are issued within 5 business days.",
+        }
+    ]
+    dense_legacy = [
+        {
+            "id": None,
+            "question": "Refund policy",
+            "answer": "Refund policy\nRefunds are issued within 5 business days.",
+            "vector_search": True,
+        }
+    ]
+
+    fused = SQLMemoryManager._reciprocal_rank_fusion([dense_legacy, sparse], limit=5)
+
+    assert len(fused) == 1, "the same row surfaced twice"

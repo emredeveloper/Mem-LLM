@@ -518,12 +518,16 @@ class SQLMemoryManager:
 
         if use_vector_search and self.vector_store:
             # Hybrid: fuse BM25 and semantic hits so each covers the other's
-            # blind spot - exact terms vs. paraphrases.
-            dense = self._vector_search(query, category, limit)
-            sparse = self._bm25_search(query, category, limit)
+            # blind spot - exact terms vs. paraphrases. Each retriever is asked
+            # for more than `limit`, because a row both rank just outside the
+            # top-N is exactly the consensus result fusion should promote, and
+            # truncating first would hide it.
+            pool = max(limit * 3, 10)
+            dense = self._vector_search(query, category, pool)
+            sparse = self._bm25_search(query, category, pool)
             if sparse:
                 return self._reciprocal_rank_fusion([dense, sparse], limit)
-            return dense
+            return dense[:limit]
 
         sparse = self._bm25_search(query, category, limit)
         if sparse:
@@ -532,10 +536,20 @@ class SQLMemoryManager:
 
     @staticmethod
     def _result_key(entry: Dict) -> str:
-        """Identity of a result across retrievers (ids are not always present)."""
-        if entry.get("id") is not None:
-            return f"id:{entry['id']}"
-        return f"qa:{entry.get('question', '')}|{entry.get('answer', '')}"
+        """Identity of a result across retrievers.
+
+        Always keyed on text, never on the row id. Vector entries indexed by an
+        older version carry no kb_id, so an id-first key would put them in a
+        different key space from the BM25 hit for the same row and the two would
+        never fuse. The retrievers also disagree on shape - BM25 returns the
+        answer alone, the vector store returns "question\\nanswer" - so the
+        question prefix is stripped before comparing.
+        """
+        question = (entry.get("question") or "").strip()
+        answer = (entry.get("answer") or "").strip()
+        if question and answer.startswith(question):
+            answer = answer[len(question) :].strip()
+        return f"qa:{question}|{answer}"
 
     @classmethod
     def _reciprocal_rank_fusion(cls, rankings: List[List[Dict]], limit: int, k: int = 60):
