@@ -1,7 +1,7 @@
 ﻿# Mem-LLM 🧠💻
 
 [![PyPI version](https://badge.fury.io/py/mem-llm.svg)](https://pypi.org/project/mem-llm/)
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/emredeveloper/Mem-LLM/blob/main/LICENSE)
 
 **Mem-LLM** is a privacy-first, local Python framework for building memory-enabled AI assistants. By running entirely on your local machine, it combines persistent multi-user conversation history with configurable knowledge bases, robust storage backends, and seamless multi-model support.

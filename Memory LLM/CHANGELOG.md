@@ -7,6 +7,9 @@
 - Added a `vector` extra (`pip install mem-llm[vector]`). Semantic search needs `chromadb` and `sentence-transformers`, which were named in the package description but declared in no extra, so there was no documented way to install them - not even via `all`.
 - Documented knowledge base search in the README and added `quickstart/16_knowledge_search_demo.py`.
 
+### Changed
+- `requires-python` is now `>=3.10`, matching what the project has actually supported since 2.2.8. It still claimed `>=3.8`, but `requests`, `click`, `aiohttp` and `sentence-transformers` all require 3.10+, so an install on 3.8 or 3.9 could only resolve by falling back to very old dependencies. Added 3.13 and 3.14 to the classifiers; the suite runs on 3.14.
+
 ### Fixed
 - Fixed the default embedding model name. It was `nomic-embed-text-v2-moe:latest`, an Ollama-style tag that `sentence-transformers` cannot resolve, so `enable_vector_search=True` always failed with `OSError`. Now `sentence-transformers/all-MiniLM-L6-v2`.
 - Fixed the ChromaDB embedding-function wrapper for chromadb >= 1.0: `name` is now a method rather than a string attribute, `__call__` takes `input`, and `embed_query`/`embed_documents` are provided. Vector search previously failed at collection creation and again at query time.
