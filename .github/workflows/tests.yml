@@ -1,0 +1,106 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: Memory LLM
+
+jobs:
+  test:
+    # Integration tests need a live Ollama or LM Studio server, so they are
+    # excluded here; these are the suites that run without one.
+    name: py${{ matrix.python-version }} / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+        include:
+          # The library is developed on Windows, so keep one job on it.
+          - os: windows-latest
+            python-version: "3.12"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install
+        run: python -m pip install --upgrade pip && pip install -e ".[dev,api,vector]"
+
+      - name: Run tests
+        run: pytest tests/unit tests/test_multi_agent tests/api -p no:cacheprovider
+
+  minimal-install:
+    # Most of the dependency bugs this project has hit only appear without the
+    # extras: an import that looks optional but is not, or an extra that is
+    # missing a package it needs. A full-extras job cannot see either.
+    name: import on a bare install
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install without extras
+        run: pip install .
+
+      # Run from the repo root, not the package directory, so the installed
+      # package is imported rather than the source tree next to it.
+      - name: Core features must work with no extras
+        working-directory: ${{ runner.temp }}
+        run: python "$GITHUB_WORKSPACE/.github/scripts/check_bare_install.py"
+
+  api-extra:
+    # `pip install mem-llm[api]` was broken for a release because the upload
+    # endpoint needs python-multipart, which the extra did not declare.
+    name: import on the api extra
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install
+        run: pip install ".[api]"
+
+      - name: API server must import
+        working-directory: ${{ runner.temp }}
+        run: python -c "import mem_llm.api_server as s; print(type(s.app).__name__)"
+
+  build:
+    name: build and check the distribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Build
+        run: pip install build twine && python -m build
+
+      - name: Validate metadata
+        run: twine check dist/*
