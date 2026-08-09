@@ -4,7 +4,7 @@
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/emredeveloper/Mem-LLM/blob/main/LICENSE)
 
-**Mem-LLM** is a privacy-first, local Python framework for building memory-enabled AI assistants. By running entirely on your local machine, it combines persistent multi-user conversation history with configurable knowledge bases, robust storage backends, and seamless multi-model support. 
+**Mem-LLM** is a privacy-first, local Python framework for building memory-enabled AI assistants. By running entirely on your local machine, it combines persistent multi-user conversation history with configurable knowledge bases, robust storage backends, and seamless multi-model support.
 
 Perfect for privacy-first, production-ready workflows!
 
@@ -51,7 +51,7 @@ This release expands local backend support and upgrades long-term memory:
 
 ## 📦 Installation
 
-Get up and running in seconds. 
+Get up and running in seconds.
 
 ```bash
 pip install mem-llm
@@ -59,6 +59,9 @@ pip install mem-llm
 
 **Optional Power-ups:**
 ```bash
+# Add semantic search (ChromaDB + local embeddings)
+pip install mem-llm[vector]
+
 # Add API server dependencies (FastAPI, Uvicorn)
 pip install mem-llm[api]
 
@@ -84,7 +87,7 @@ agent.set_user("alice")
 
 # Chat and watch it remember!
 print(agent.chat("Hi! My name is Alice and I am a Software Engineer."))
-print(agent.chat("What was my name and what do I do?")) 
+print(agent.chat("What was my name and what do I do?"))
 ```
 
 ### Using LM Studio 🛠️
@@ -120,6 +123,42 @@ agent.set_user("carol")
 
 print(agent.chat("Remember that I prefer concise answers."))
 ```
+
+---
+
+## 🔍 Knowledge Base Search
+
+Search is ranked by **BM25** out of the box — no extra install needed, since
+SQLite ships with the FTS5 full-text index. Entries are ordered by how well
+they actually match, and stemming means `refunds` finds `refund`.
+
+```python
+from mem_llm.memory_db import SQLMemoryManager
+
+db = SQLMemoryManager(db_path="memories/kb.db")
+db.add_knowledge("billing", "How do I get a refund?", "Refunds are issued within 5 business days.")
+
+db.search_knowledge("how long do refunds take")
+```
+
+Install the `vector` extra to add semantic search on top:
+
+```bash
+pip install mem-llm[vector]
+```
+
+```python
+db = SQLMemoryManager(db_path="memories/kb.db", enable_vector_search=True)
+
+# Finds the refund entry even though they share no words.
+db.search_knowledge("how do I get my money back")
+```
+
+With the extra installed, keyword and semantic results are merged using
+Reciprocal Rank Fusion, so exact terms and paraphrases both work. Embeddings
+run locally — nothing leaves your machine.
+
+See [`quickstart/16_knowledge_search_demo.py`](../quickstart/16_knowledge_search_demo.py) for a runnable example.
 
 ---
 

@@ -40,6 +40,7 @@ backend never crashes the script.
 | `13_hierarchical_memory_demo.py` | Hierarchical memory layers |
 | `14_llamacpp_demo.py` | llama.cpp and OpenAI-compatible servers |
 | `15_memory_router_demo.py` | `MemoryRouter` over core/archival/recall/graph |
+| `16_knowledge_search_demo.py` | BM25 ranking, and hybrid search with `[vector]` (no server needed) |
 
 ## Choosing a model
 

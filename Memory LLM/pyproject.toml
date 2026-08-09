@@ -53,6 +53,10 @@ api = [
     "websockets>=12.0",  # WebSocket library
     "python-multipart>=0.0.7",  # Required by upload endpoints (File/Form)
 ]
+vector = [
+    "chromadb>=0.4.0",
+    "sentence-transformers>=2.2.0",
+]
 postgresql = [
     "psycopg2-binary>=2.9.9",
 ]
@@ -76,6 +80,8 @@ all = [
     "uvicorn[standard]>=0.24.0",
     "websockets>=12.0",
     "python-multipart>=0.0.7",
+    "chromadb>=0.4.0",
+    "sentence-transformers>=2.2.0",
     "psycopg2-binary>=2.9.9",
     "pymongo>=4.6.0",
 ]
@@ -248,5 +254,3 @@ module = [
     "pymongo.*",
 ]
 ignore_missing_imports = true
-
-

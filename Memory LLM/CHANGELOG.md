@@ -4,6 +4,8 @@
 ### Added
 - Knowledge base search is now ranked by BM25 via a SQLite FTS5 index, replacing `LIKE '%term%'` matching ordered only by priority, which gave every match the same relevance. FTS5 is part of SQLite, so this adds no dependency; existing databases are backfilled on first open and kept current by triggers.
 - When vector search is enabled, semantic and BM25 results are combined with Reciprocal Rank Fusion. RRF fuses by rank rather than score, since BM25 scores and cosine distances are not on a comparable scale.
+- Added a `vector` extra (`pip install mem-llm[vector]`). Semantic search needs `chromadb` and `sentence-transformers`, which were named in the package description but declared in no extra, so there was no documented way to install them - not even via `all`.
+- Documented knowledge base search in the README and added `quickstart/16_knowledge_search_demo.py`.
 
 ### Fixed
 - Fixed the default embedding model name. It was `nomic-embed-text-v2-moe:latest`, an Ollama-style tag that `sentence-transformers` cannot resolve, so `enable_vector_search=True` always failed with `OSError`. Now `sentence-transformers/all-MiniLM-L6-v2`.
