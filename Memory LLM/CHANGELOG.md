@@ -1,6 +1,10 @@
 ﻿# Changelog
 
 ## [Unreleased]
+### Added
+- Knowledge base search is now ranked by BM25 via a SQLite FTS5 index, replacing `LIKE '%term%'` matching ordered only by priority, which gave every match the same relevance. FTS5 is part of SQLite, so this adds no dependency; existing databases are backfilled on first open and kept current by triggers.
+- When vector search is enabled, semantic and BM25 results are combined with Reciprocal Rank Fusion. RRF fuses by rank rather than score, since BM25 scores and cosine distances are not on a comparable scale.
+
 ### Fixed
 - Fixed the default embedding model name. It was `nomic-embed-text-v2-moe:latest`, an Ollama-style tag that `sentence-transformers` cannot resolve, so `enable_vector_search=True` always failed with `OSError`. Now `sentence-transformers/all-MiniLM-L6-v2`.
 - Fixed the ChromaDB embedding-function wrapper for chromadb >= 1.0: `name` is now a method rather than a string attribute, `__call__` takes `input`, and `embed_query`/`embed_documents` are provided. Vector search previously failed at collection creation and again at query time.

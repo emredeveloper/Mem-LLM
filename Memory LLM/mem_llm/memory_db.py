@@ -188,7 +188,72 @@ class SQLMemoryManager:
         """
         )
 
+        self._init_fts(cursor)
+
         self.conn.commit()
+
+    def _init_fts(self, cursor) -> None:
+        """Create the FTS5 index over knowledge_base and keep it in sync.
+
+        FTS5 ships with SQLite itself, so this needs no extra dependency. It
+        gives us BM25 relevance ranking, which plain LIKE matching cannot do.
+        Older databases are backfilled once, on creation.
+        """
+        try:
+            cursor.execute(
+                """
+                CREATE VIRTUAL TABLE IF NOT EXISTS knowledge_fts USING fts5(
+                    question,
+                    answer,
+                    keywords,
+                    content='knowledge_base',
+                    content_rowid='id',
+                    tokenize="porter unicode61"
+                )
+                """
+            )
+        except sqlite3.OperationalError as e:
+            # SQLite built without FTS5: keep working with keyword search only.
+            logger.warning(f"FTS5 unavailable, falling back to LIKE search: {e}")
+            self.fts_available = False
+            return
+
+        # Triggers keep the index current without touching the write paths.
+        for stmt in (
+            """
+            CREATE TRIGGER IF NOT EXISTS knowledge_fts_ai AFTER INSERT ON knowledge_base BEGIN
+                INSERT INTO knowledge_fts(rowid, question, answer, keywords)
+                VALUES (new.id, new.question, new.answer, new.keywords);
+            END
+            """,
+            """
+            CREATE TRIGGER IF NOT EXISTS knowledge_fts_ad AFTER DELETE ON knowledge_base BEGIN
+                INSERT INTO knowledge_fts(knowledge_fts, rowid, question, answer, keywords)
+                VALUES ('delete', old.id, old.question, old.answer, old.keywords);
+            END
+            """,
+            """
+            CREATE TRIGGER IF NOT EXISTS knowledge_fts_au AFTER UPDATE ON knowledge_base BEGIN
+                INSERT INTO knowledge_fts(knowledge_fts, rowid, question, answer, keywords)
+                VALUES ('delete', old.id, old.question, old.answer, old.keywords);
+                INSERT INTO knowledge_fts(rowid, question, answer, keywords)
+                VALUES (new.id, new.question, new.answer, new.keywords);
+            END
+            """,
+        ):
+            cursor.execute(stmt)
+
+        # Backfill rows written before the index existed.
+        row = cursor.execute("SELECT count(*) FROM knowledge_fts").fetchone()
+        if row and row[0] == 0:
+            cursor.execute(
+                """
+                INSERT INTO knowledge_fts(rowid, question, answer, keywords)
+                SELECT id, question, answer, keywords FROM knowledge_base
+                """
+            )
+
+        self.fts_available = True
 
     def add_user(
         self, user_id: str, name: Optional[str] = None, metadata: Optional[Dict] = None
@@ -452,9 +517,94 @@ class SQLMemoryManager:
             use_vector_search = self.enable_vector_search
 
         if use_vector_search and self.vector_store:
-            return self._vector_search(query, category, limit)
-        else:
-            return self._keyword_search(query, category, limit)
+            # Hybrid: fuse BM25 and semantic hits so each covers the other's
+            # blind spot - exact terms vs. paraphrases.
+            dense = self._vector_search(query, category, limit)
+            sparse = self._bm25_search(query, category, limit)
+            if sparse:
+                return self._reciprocal_rank_fusion([dense, sparse], limit)
+            return dense
+
+        sparse = self._bm25_search(query, category, limit)
+        if sparse:
+            return sparse
+        return self._keyword_search(query, category, limit)
+
+    @staticmethod
+    def _result_key(entry: Dict) -> str:
+        """Identity of a result across retrievers (ids are not always present)."""
+        if entry.get("id") is not None:
+            return f"id:{entry['id']}"
+        return f"qa:{entry.get('question', '')}|{entry.get('answer', '')}"
+
+    @classmethod
+    def _reciprocal_rank_fusion(cls, rankings: List[List[Dict]], limit: int, k: int = 60):
+        """Merge ranked lists by rank rather than score.
+
+        BM25 scores are unbounded negatives and cosine distances live in a
+        different scale entirely, so averaging them is meaningless. RRF only
+        looks at position, which sidesteps that: score = sum(1 / (k + rank)).
+        """
+        scores: Dict[str, float] = {}
+        seen: Dict[str, Dict] = {}
+
+        for ranking in rankings:
+            for rank, entry in enumerate(ranking):
+                key = cls._result_key(entry)
+                scores[key] = scores.get(key, 0.0) + 1.0 / (k + rank + 1)
+                seen.setdefault(key, entry)
+
+        ordered = sorted(scores, key=lambda key: scores[key], reverse=True)
+        return [seen[key] for key in ordered[:limit]]
+
+    def _bm25_search(
+        self, query: str, category: Optional[str] = None, limit: int = 5
+    ) -> List[Dict]:
+        """Full-text search ranked by BM25 via SQLite FTS5."""
+        if not getattr(self, "fts_available", False):
+            return []
+
+        match = self._to_fts_query(query)
+        if not match:
+            return []
+
+        sql = """
+            SELECT kb.id, kb.category, kb.question, kb.answer, kb.priority
+            FROM knowledge_fts
+            JOIN knowledge_base kb ON kb.id = knowledge_fts.rowid
+            WHERE knowledge_fts MATCH ? AND kb.active = 1
+        """
+        params: List = [match]
+        if category:
+            sql += " AND kb.category = ?"
+            params.append(category)
+        sql += " ORDER BY bm25(knowledge_fts) LIMIT ?"
+        params.append(limit)
+
+        try:
+            with self._lock:
+                cursor = self.conn.cursor()
+                rows = cursor.execute(sql, params).fetchall()
+            return [dict(row) for row in rows]
+        except sqlite3.OperationalError as e:
+            # A malformed MATCH expression should degrade, not raise.
+            logger.debug(f"FTS query failed, falling back: {e}")
+            return []
+
+    @staticmethod
+    def _to_fts_query(query: str) -> str:
+        """Turn free text into a safe FTS5 MATCH expression.
+
+        User text can contain FTS operators (AND, NEAR, quotes, *), which would
+        either error or silently change the query, so each term is quoted and
+        joined with OR. Ranking, not filtering, decides what surfaces.
+        """
+        import re
+
+        terms = [t for t in re.findall(r"\w+", query, flags=re.UNICODE) if len(t) > 1]
+        if not terms:
+            return ""
+        return " OR ".join(f'"{t}"' for t in terms[:12])
 
     def _keyword_search(
         self, query: str, category: Optional[str] = None, limit: int = 5
@@ -556,6 +706,9 @@ class SQLMemoryManager:
 
             results.append(
                 {
+                    # kb_id lets fusion match this against the BM25 hit for the
+                    # same row; without it the two rankings never dedupe.
+                    "id": metadata.get("kb_id"),
                     "category": metadata.get("category", ""),
                     "question": metadata.get("question", ""),
                     "answer": result.get("text", ""),
