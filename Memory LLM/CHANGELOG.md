@@ -7,9 +7,6 @@
 - Added a `vector` extra (`pip install mem-llm[vector]`). Semantic search needs `chromadb` and `sentence-transformers`, which were named in the package description but declared in no extra, so there was no documented way to install them - not even via `all`.
 - Documented knowledge base search in the README and added `quickstart/16_knowledge_search_demo.py`.
 
-### Added
-- Continuous integration on GitHub Actions: the suite runs on Python 3.10 through 3.13 on Linux plus 3.12 on Windows, and separate jobs assert that a bare `pip install` and `pip install .[api]` both import and work. Those last two exist because most of the dependency bugs this project has hit were only visible without the extras installed.
-
 ### Changed
 - `requires-python` is now `>=3.10`, matching what the project has actually supported since 2.2.8. It still claimed `>=3.8`, but `requests`, `click`, `aiohttp` and `sentence-transformers` all require 3.10+, so an install on 3.8 or 3.9 could only resolve by falling back to very old dependencies. Added 3.13 and 3.14 to the classifiers; the suite runs on 3.14.
 

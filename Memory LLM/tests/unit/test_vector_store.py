@@ -28,11 +28,7 @@ def test_semantic_search_finds_non_matching_words(tmp_path):
 
     db = SQLMemoryManager(db_path=str(tmp_path / "v.db"), enable_vector_search=True)
     try:
-        if db.vector_store is None:
-            # Building the store downloads the embedding model, so a sandbox
-            # with no network (or a throttled one) cannot run this. That is an
-            # environment limit, not a defect - skip rather than fail.
-            pytest.skip("embedding model unavailable (offline or rate limited)")
+        assert db.vector_store is not None, "vector store failed to initialize"
 
         db.add_knowledge(
             "job", "Where does Emre work?", "Emre works at Acme Corp as a data scientist."

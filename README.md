@@ -1,7 +1,6 @@
 # Mem-LLM
 
 [![PyPI version](https://badge.fury.io/py/mem-llm.svg)](https://pypi.org/project/mem-llm/)
-[![Tests](https://github.com/emredeveloper/Mem-LLM/actions/workflows/tests.yml/badge.svg)](https://github.com/emredeveloper/Mem-LLM/actions/workflows/tests.yml)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
