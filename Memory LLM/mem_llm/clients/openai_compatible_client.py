@@ -14,6 +14,7 @@ from typing import Dict, Iterator, List, Optional
 import requests
 
 from ..base_llm_client import BaseLLMClient
+from ..llm_response import LLMResponse, parse_openai_chat_response
 
 
 class OpenAICompatibleClient(BaseLLMClient):
@@ -99,6 +100,11 @@ class OpenAICompatibleClient(BaseLLMClient):
             "stop",
             "seed",
             "response_format",
+            "tools",
+            "tool_choice",
+            "parallel_tool_calls",
+            "reasoning_effort",
+            "reasoning_budget",
         ):
             if key in kwargs:
                 payload[key] = kwargs[key]
@@ -112,6 +118,17 @@ class OpenAICompatibleClient(BaseLLMClient):
         max_tokens: int = 2000,
         **kwargs,
     ) -> str:
+        """Return response text for backward compatibility."""
+        return self.chat_response(messages, temperature, max_tokens, **kwargs).content
+
+    def chat_response(
+        self,
+        messages: List[Dict[str, str]],
+        temperature: float = 0.7,
+        max_tokens: int = 2000,
+        **kwargs,
+    ) -> LLMResponse:
+        """Return content, reasoning, native tool calls, usage, and metadata."""
         self._validate_messages(messages)
         payload = self._build_payload(messages, temperature, max_tokens, stream=False, **kwargs)
 
@@ -130,10 +147,7 @@ class OpenAICompatibleClient(BaseLLMClient):
                     choices = response_data.get("choices", [])
                     if not choices:
                         self.logger.warning("No choices in OpenAI-compatible response")
-                        return ""
-
-                    message = choices[0].get("message", {})
-                    return message.get("content", "").strip()
+                    return parse_openai_chat_response(response_data, default_model=self.model)
 
                 error_msg = f"OpenAI-compatible API error: {response.status_code}"
                 try:

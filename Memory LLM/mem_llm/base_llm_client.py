@@ -13,6 +13,8 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Iterator, List, Optional
 
+from .llm_response import LLMResponse
+
 
 class BaseLLMClient(ABC):
     """
@@ -98,6 +100,23 @@ class BaseLLMClient(ABC):
         # Default implementation: fall back to non-streaming
         response = self.chat(messages, temperature, max_tokens, **kwargs)
         yield response
+
+    def chat_response(
+        self,
+        messages: List[Dict[str, str]],
+        temperature: float = 0.7,
+        max_tokens: int = 2000,
+        **kwargs,
+    ) -> LLMResponse:
+        """Return a structured response while preserving legacy clients.
+
+        Backends can override this method to retain provider metadata. The
+        default implementation wraps the existing text-only ``chat`` result.
+        """
+        return LLMResponse(
+            content=self.chat(messages, temperature, max_tokens, **kwargs),
+            model=self.model,
+        )
 
     def generate(
         self,

@@ -1,6 +1,10 @@
 ﻿# Changelog
 
 ## [Unreleased]
+
+- Added a provider-neutral `LLMResponse` envelope that preserves reasoning,
+  native tool calls, token usage, finish reasons, model identifiers, and raw
+  provider responses while keeping the text-only `chat()` API compatible.
 ### Added
 - Knowledge base search is now ranked by BM25 via a SQLite FTS5 index, replacing `LIKE '%term%'` matching ordered only by priority, which gave every match the same relevance. FTS5 is part of SQLite, so this adds no dependency; existing databases are backfilled on first open and kept current by triggers.
 - When vector search is enabled, semantic and BM25 results are combined with Reciprocal Rank Fusion. RRF fuses by rank rather than score, since BM25 scores and cosine distances are not on a comparable scale.

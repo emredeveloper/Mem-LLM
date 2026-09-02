@@ -14,6 +14,7 @@ Author: C. Emre Karataş
 Version: 1.3.6
 """
 
+from ..llm_response import LLMResponse, LLMToolCall, LLMUsage
 from .lmstudio_client import LMStudioClient
 from .ollama_client import OllamaClient
 from .openai_compatible_client import LlamaCppClient, OpenAICompatibleClient
@@ -23,4 +24,7 @@ __all__ = [
     "LMStudioClient",
     "OpenAICompatibleClient",
     "LlamaCppClient",
+    "LLMResponse",
+    "LLMToolCall",
+    "LLMUsage",
 ]

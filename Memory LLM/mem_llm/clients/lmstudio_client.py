@@ -27,6 +27,7 @@ from typing import Dict, Iterator, List
 import requests
 
 from ..base_llm_client import BaseLLMClient
+from ..llm_response import LLMResponse, parse_openai_chat_response
 
 
 class LMStudioClient(BaseLLMClient):
@@ -101,8 +102,18 @@ class LMStudioClient(BaseLLMClient):
         max_tokens: int = 2000,
         **kwargs,
     ) -> str:
+        """Return response text for backward compatibility."""
+        return self.chat_response(messages, temperature, max_tokens, **kwargs).content
+
+    def chat_response(
+        self,
+        messages: List[Dict[str, str]],
+        temperature: float = 0.7,
+        max_tokens: int = 2000,
+        **kwargs,
+    ) -> LLMResponse:
         """
-        Send chat request to LM Studio
+        Send a chat request and retain LM Studio response metadata.
 
         Uses OpenAI-compatible chat completions endpoint.
 
@@ -117,7 +128,7 @@ class LMStudioClient(BaseLLMClient):
                      - stream: Enable streaming (bool)
 
         Returns:
-            Model response text
+            Provider-neutral response envelope
 
         Raises:
             ConnectionError: If cannot connect to LM Studio
@@ -144,6 +155,17 @@ class LMStudioClient(BaseLLMClient):
             payload["presence_penalty"] = kwargs["presence_penalty"]
         if "stop" in kwargs:
             payload["stop"] = kwargs["stop"]
+        for key in (
+            "seed",
+            "response_format",
+            "tools",
+            "tool_choice",
+            "parallel_tool_calls",
+            "reasoning_effort",
+            "reasoning_budget",
+        ):
+            if key in kwargs:
+                payload[key] = kwargs[key]
 
         # Send request with retry logic
         max_retries = kwargs.get("max_retries", 3)
@@ -163,13 +185,11 @@ class LMStudioClient(BaseLLMClient):
                         if attempt < max_retries - 1:
                             time.sleep(1.0 * (2**attempt))
                             continue
-                        return ""
+                        return parse_openai_chat_response(response_data, default_model=self.model)
 
-                    # Get the message content
-                    message = choices[0].get("message", {})
-                    content = message.get("content", "").strip()
+                    result = parse_openai_chat_response(response_data, default_model=self.model)
 
-                    if not content:
+                    if not result.content and not result.has_tool_calls:
                         self.logger.warning("Empty content in LM Studio response")
                         if attempt < max_retries - 1:
                             time.sleep(1.0 * (2**attempt))
@@ -185,7 +205,7 @@ class LMStudioClient(BaseLLMClient):
                             f"total: {usage.get('total_tokens', 0)} tokens"
                         )
 
-                    return content
+                    return result
 
                 else:
                     error_msg = f"LM Studio API error: {response.status_code}"
@@ -391,5 +411,3 @@ class LMStudioClient(BaseLLMClient):
             base_info["available_models"] = self.list_models()
 
         return base_info
-
-
